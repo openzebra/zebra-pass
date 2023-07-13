@@ -1,0 +1,18 @@
+import { Button, VerticalBox } from "std-widgets.slint";
+
+import { LockPage } from "./pages/lock.slint";
+
+export enum Routers {
+    Lock
+}
+
+export component Route inherits Window {
+    in property<Routers> route: Routers.Lock;
+
+    if(root.route == Routers.Lock) : VerticalBox {
+        Button {
+            text: "tst";
+        }
+    }
+}
+
