@@ -1,4 +1,55 @@
 import { StyleMetrics , Button} from "std-widgets.slint";
 
-export component ZButton inherits Button  {
+export component ZButton {
+  property <bool> hovered: false;
+
+  in-out property <color> background;
+  in-out property <color> color;
+  in-out property <length> font-size : 14pt;
+  in-out property<bool> enabled;
+
+  callback clicked <=> touch.clicked;
+
+  touch := TouchArea {
+    clicked => {}
+    mouse-cursor: pointer;
+  }
+  rect := Rectangle {
+    background: root.background;
+
+    border-color: root.background;
+    border-width: 1pt;
+    border-radius: 8pt;
+
+    preferred-width: 360pt;
+    preferred-height: 56pt;
+  }
+  label := Text {
+    color: root.color;
+    text: "test";
+    font-size: root.font-size;
+    font-weight: 600;
+    opacity: 1;
+  }
+
+  states [
+    active when root.enabled && !hovered && touch.has-hover: {
+        label.color: root.background;
+        rect.background: Colors.transparent;
+        rect.border-color: root.background;
+        in {
+          animate rect.background { duration: 150ms; }
+        }
+    }
+    disabled when !root.enabled : {
+      label.opacity: 0.2;
+      rect.background: root.background.darker(70%);
+      rect.border-color: root.background.darker(70%);
+      touch.mouse-cursor: default;
+
+      out {
+          animate * { duration: 300ms; }
+      }
+  }
+  ]
 }

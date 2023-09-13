@@ -1,5 +1,5 @@
 
-import { VerticalBox } from "std-widgets.slint";
+import { VerticalBox , Button} from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
 import { ZLabel } from "../components/label.slint";
 
@@ -14,15 +14,25 @@ export component LockPage inherits Window {
     }
     VerticalLayout {
         HorizontalLayout {
-            padding: 100pt;
-            ZButton {
-                height: 30pt;
-                width: 100pt;
-                text: "test";
-            }
-            ZLabel {
-                text: "label";
-                background: #ABE4C2;
+            GridLayout {
+                padding: 50pt;
+                spacing: 50pt;
+            
+                Row {
+                    ZButton {
+                        height: 36pt;
+                        width: 240pt;
+                        background: #000000;
+                        color: #fff;
+                        enabled: true;
+                    }
+                }
+                Row {
+                    ZLabel {
+                        text: "label";
+                        background: #ABE4C2;
+                    }
+                }
             }
         }
     }
