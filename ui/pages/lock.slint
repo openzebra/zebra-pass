@@ -3,6 +3,7 @@ import { VerticalBox , Button} from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
 import { ZLabel } from "../components/label.slint";
 import { ZComboBox } from "../components/combo_box.slint";
+import { ZTag } from "../components/tag.slint";
 
 export component LockPage inherits Window {
   HorizontalLayout {
@@ -43,6 +44,19 @@ export component LockPage inherits Window {
                         hover-font-color: #fff;
                         value: "test0";
                         choices: ["test0", "test1", "test2", "test3", "test1", "test2", "test3", "test1", "test2", "test3", "test1", "test2", "test3"];
+                    }
+                    VerticalBox {
+                        ZTag {
+                            background: lightblue;
+                            background-selected: #000;
+                            color: #000;
+                            color-selected: #fff;
+                            text: "Exchage";
+                            selected: false;
+                            clicked => {
+                                self.selected = !self.selected;
+                            }
+                        }
                     }
                 }
             }
