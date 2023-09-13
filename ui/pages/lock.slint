@@ -1,21 +1,29 @@
 
 import { VerticalBox } from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
+import { ZLabel } from "../components/label.slint";
 
 export component LockPage inherits Window {
   HorizontalLayout {
     VerticalLayout {
+        height: 100%;
         Rectangle {
             width: 30%;
             background: green;
         }
     }
     VerticalLayout {
-        Rectangle {
-          ZButton {
-            text: "test";
-          }
-          // background: #fff;
+        HorizontalLayout {
+            padding: 100pt;
+            ZButton {
+                height: 30pt;
+                width: 100pt;
+                text: "test";
+            }
+            ZLabel {
+                text: "label";
+                background: red;
+            }
         }
     }
   }

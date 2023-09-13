@@ -1,0 +1,13 @@
+import { StyleMetrics } from "std-widgets.slint";
+
+export component ZLabel inherits Rectangle {
+    in property <string> text;
+
+    height: 20pt;
+    width: 50pt;
+    border-radius: 3pt;
+
+    Text {
+        text: text;
+    }
+}
