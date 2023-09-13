@@ -7,12 +7,12 @@ export enum Routers {
 }
 
 export component Route inherits Window {
+    preferred-width: 750pt;
+    preferred-height: 450pt;
+
     in property<Routers> route: Routers.Lock;
 
     if(root.route == Routers.Lock) : VerticalBox {
-        Button {
-            text: "tst";
-        }
+        LockPage {}
     }
 }
-
