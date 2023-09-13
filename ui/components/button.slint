@@ -3,6 +3,7 @@ import { StyleMetrics , Button} from "std-widgets.slint";
 export component ZButton {
   property <bool> hovered: false;
 
+  in property <string> text;
   in-out property <color> background;
   in-out property <color> color;
   in-out property <length> font-size : 14pt;
@@ -26,7 +27,7 @@ export component ZButton {
   }
   label := Text {
     color: root.color;
-    text: "test";
+    text: root.text;
     font-size: root.font-size;
     font-weight: 600;
     opacity: 1;

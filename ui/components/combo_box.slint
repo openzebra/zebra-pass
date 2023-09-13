@@ -1,0 +1,69 @@
+import { ComboBox } from "std-widgets.slint";
+
+export component ZComboBox inherits Rectangle {
+  in-out property<string> value;
+  in property<[string]> choices;
+
+  border-radius: 3px;
+  border-width: 2px;
+  border-color: #000;
+  height: 32px;
+  min-width: label.x + label.width + i.width;
+  horizontal-stretch: 1;
+
+  label := Text {
+      vertical-alignment: center;
+      horizontal-alignment: left;
+      text <=> root.value;
+      color: #fff;
+      height: 100%;
+      x: 12px;
+  }
+  i := Image {
+      source: @image-url("images/down.svg"); // TODO: Add down as component
+      colorize: red;
+      height: 40%;
+      width: self.height;
+      image-fit: contain;
+      x: parent.width - self.width - self.y;
+      y: (parent.height - self.height)/2;
+  }
+
+  TouchArea {
+      width: 100%;
+      height: 100%;
+      clicked => { popup.show(); }
+  }
+
+  popup := PopupWindow {
+      x:0;
+      y: root.height;
+      width: root.width;
+      Rectangle {
+          background: green;
+          border-radius: 3px;
+          border-width: 2px;
+          border-color: yellow;
+      }
+      VerticalLayout {
+          spacing: 6px;
+          padding: 3px;
+          for value[idx] in root.choices: Rectangle {
+              border-radius: 3px;
+              background: item-area.has-hover ? gray : #0000;
+              HorizontalLayout {
+                  Text {
+                      text: value;
+                      color: item-area.has-hover ? #fff : #000;
+                      font-size: 14pt;
+                  }
+              }
+              item-area := TouchArea {
+                  clicked => {
+                      root.value = value;
+                  }
+              }
+          }
+      }
+  }
+}

@@ -2,6 +2,7 @@
 import { VerticalBox , Button} from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
 import { ZLabel } from "../components/label.slint";
+import { ZComboBox } from "../components/combo_box.slint";
 
 export component LockPage inherits Window {
   HorizontalLayout {
@@ -25,12 +26,19 @@ export component LockPage inherits Window {
                         background: #000000;
                         color: #fff;
                         enabled: true;
+                        text: "test button";
                     }
                 }
                 Row {
                     ZLabel {
                         text: "label";
                         background: #ABE4C2;
+                    }
+                }
+                Row {
+                    ZComboBox {
+                        value: "test0";
+                        choices: ["test0", "test1", "test2", "test3"];
                     }
                 }
             }
