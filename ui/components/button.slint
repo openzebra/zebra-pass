@@ -1,4 +1,5 @@
 import { StyleMetrics , Button} from "std-widgets.slint";
+import { Theme } from "../theme.slint";
 
 export component ZButton {
   property <bool> hovered: false;
@@ -6,7 +7,7 @@ export component ZButton {
   in property <string> text;
   in-out property <color> background;
   in-out property <color> color;
-  in-out property <length> font-size : 14pt;
+  in-out property <length> font-size : Theme.font-size-medium;
   in-out property<bool> enabled : true;
 
   callback clicked <=> touch.clicked;
@@ -20,7 +21,7 @@ export component ZButton {
 
     border-color: root.background;
     border-width: 1pt;
-    border-radius: 8pt;
+    border-radius: Theme.radius-regular;
 
     preferred-width: 360pt;
     preferred-height: 56pt;
@@ -29,7 +30,8 @@ export component ZButton {
     color: root.color;
     text: root.text;
     font-size: root.font-size;
-    font-weight: 600;
+    font-weight: Theme.font-weight-bold;
+    horizontal-alignment: center;
     opacity: 1;
   }
 
@@ -51,6 +53,6 @@ export component ZButton {
       out {
           animate * { duration: 300ms; }
       }
-  }
+    }
   ]
 }

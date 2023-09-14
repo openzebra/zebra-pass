@@ -6,12 +6,12 @@ export component ZLabel inherits Rectangle {
     height: 20pt;
     width: 50pt;
     border-radius: 4pt;
-    border-color: root.background.darker(20%);
+    border-color: StyleMetrics.dark-color-scheme ? root.background.brighter(20%) : root.background.darker(20%);
     border-width: 1pt;
 
     Text {
         font-weight: 900;
-        color: root.background.darker(40%);
+        color: StyleMetrics.dark-color-scheme ? root.background.brighter(40%) : root.background.darker(40%);
         text: text;
     }
 }

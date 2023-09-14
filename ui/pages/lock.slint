@@ -1,4 +1,4 @@
-import { VerticalBox, Button, ComboBox, Slider, GridBox, GroupBox } from "std-widgets.slint";
+import { VerticalBox, Button, ComboBox, Slider, GridBox, GroupBox, HorizontalBox } from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
 import { ZLabel } from "../components/label.slint";
 import { ZComboBox } from "../components/combo_box.slint";
@@ -14,13 +14,45 @@ export component LockPage inherits Window {
                 source: @image-url("../images/zebra_print.png");
                 colorize: Theme.window-background-inverse;
                 height: 100%;
-                width: 15%;
+                width: 10%;
                 image-fit: fill;
             }
         }
         VerticalLayout {
             height: 100%;
-            Button {}
+            GridLayout {
+                VerticalBox {
+                    alignment: start;
+
+                    GroupBox {
+                        title: "dasdsadasd";
+
+                        HorizontalBox {
+                            alignment: start;
+
+                            ZButton {
+                                height: 36pt;
+                                width: 160pt;
+                                color: Theme.window-background;
+                                background: Theme.window-background-inverse;
+                                text: "dasdsadsadsadsadasd";
+                            }
+                            ZLabel {
+                                text: "work";
+                                background: Theme.success;
+                            }
+                            Button {
+                                text: "test";
+                            }
+                            ZLockIcon {
+                                fill: Theme.window-background-inverse;
+                                height: 20pt;
+                                width: 20pt;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
