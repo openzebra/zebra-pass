@@ -10,73 +10,14 @@ export component LockPage inherits Window {
   HorizontalLayout {
     VerticalLayout {
         height: 100%;
-        Rectangle {
-            width: 30%;
-            background: green;
+        Image {
+            source: @image-url("../images/zebra_print.png");
+            height: 100%;
+            width: 35%;
+            image-fit: fill;
         }
     }
     VerticalLayout {
-        HorizontalLayout {
-            GridLayout {
-                padding: 50pt;
-                spacing: 50pt;
-                Row {
-                    ZButton {
-                        height: 36pt;
-                        width: 240pt;
-                        background: #000000;
-                        color: #fff;
-                        enabled: true;
-                        text: "test button";
-                    }
-                }
-                Row {
-                    ZLabel {
-                        text: "label";
-                        background: #ABE4C2;
-                    }
-                }
-                Row {
-                    ZLockIcon {
-                        height: 20pt;
-                        width: 20pt;
-                    }
-                    ZHideEyeIcon {
-                        height: 20pt;
-                        width: 20pt;
-                    }
-                    ZGearIcon {}
-                    ComboBox {
-                        model: ["first", "second", "third", "second", "third", "second", "third", "second"];
-                        current-value: "first";
-                    }
-                    VerticalBox {}
-                }
-                Row {
-                    ZComboBox {
-                        background: #000;
-                        font-color: #fff;
-                        hover-color: #3E3E57;
-                        hover-font-color: #fff;
-                        value: "test0";
-                        choices: ["test0", "test1", "test2", "test3", "test1", "test2", "test3", "test1", "test2", "test3", "test1", "test2", "test3"];
-                    }
-                    VerticalBox {
-                        ZTag {
-                            background: lightblue;
-                            background-selected: #000;
-                            color: #000;
-                            color-selected: #fff;
-                            text: "Exchage";
-                            selected: false;
-                            clicked => {
-                                self.selected = !self.selected;
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
   }
 }
