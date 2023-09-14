@@ -1,23 +1,26 @@
-
-import { VerticalBox, Button, ComboBox, Slider, GridBox } from "std-widgets.slint";
+import { VerticalBox, Button, ComboBox, Slider, GridBox, GroupBox } from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
 import { ZLabel } from "../components/label.slint";
 import { ZComboBox } from "../components/combo_box.slint";
 import { ZTag } from "../components/tag.slint";
+import { Theme } from "../theme.slint";
 import { ZLockIcon, ZHideEyeIcon, ZGearIcon } from "../icons/icons.slint";
 
 export component LockPage inherits Window {
-  HorizontalLayout {
-    VerticalLayout {
-        height: 100%;
-        Image {
-            source: @image-url("../images/zebra_print.png");
+    GridLayout {
+        VerticalLayout {
+            height: 450pt;
+            Image {
+                source: @image-url("../images/zebra_print.png");
+                colorize: Theme.window-background-inverse;
+                height: 100%;
+                width: 15%;
+                image-fit: fill;
+            }
+        }
+        VerticalLayout {
             height: 100%;
-            width: 35%;
-            image-fit: fill;
+            Button {}
         }
     }
-    VerticalLayout {
-    }
-  }
 }

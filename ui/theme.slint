@@ -1,25 +1,23 @@
+import { StyleMetrics } from "std-widgets.slint";
+
 import "fonts/Roboto-Regular.ttf";
 import "fonts/Roboto-Bold.ttf";
 
 export global Theme  {
     // brushes
-    out property <brush> window-background: #2C2F36;
-    out property <brush> background-regular: #0025FF;
-    out property <brush> background-hover: root.background-regular.darker(0.2);
-    out property <brush> background-pressed: root.background-regular.darker(0.4);
-    out property <brush> background-selected: root.foreground;
-    out property <brush> background-selected-hover: root.background-selected.darker(0.2);
-    out property <brush> background-selected-pressed: root.background-selected.darker(0.4);
-    out property <brush> foreground: #FFFFFF;
-    out property <brush> foreground-hover: root.foreground.darker(0.2);
-    out property <brush> foreground-pressed: root.foreground.darker(0.4);
-    out property <brush> foreground-selected: root.background-regular;
-    out property <brush> foreground-selected-hover: root.foreground-selected.darker(0.2);
-    out property <brush> foreground-selected-pressed: root.foreground-selected.darker(0.4);
+    out property <brush> light: #FFFFFF;
+    out property <brush> dark: #000000;
 
-    // durations
-    out property <duration> duration-fast: 100ms;
-    out property <duration> duration-regular: 250ms;
+    out property <brush> primary: StyleMetrics.dark-color-scheme ? #354E73 : #007bff;
+    out property <brush> secondary: StyleMetrics.dark-color-scheme ? #9E9EBE : #F2F7FD;
+    out property <brush> success: StyleMetrics.dark-color-scheme ? #0A4C25 : #ABE4C2;
+    out property <brush> warning: StyleMetrics.dark-color-scheme ? #C69823 :  #FEF5DF;
+    out property <brush> warn: StyleMetrics.dark-color-scheme ? #C05112 :  #FFE9DD;
+    out property <brush> danger: StyleMetrics.dark-color-scheme ? #A71F58 :  #FFDBEA;
+    out property <brush> info: #c3fff9;
+
+    out property <brush> window-background: StyleMetrics.dark-color-scheme ? root.dark : root.light;
+    out property <brush> window-background-inverse: StyleMetrics.dark-color-scheme ? root.light : root.dark;
 
     // radius
     out property <length> radius-regular: 8pt;
@@ -31,13 +29,13 @@ export global Theme  {
     out property <length> size-big: 170px;
 
     // spacings
-    out property <length> spacing-regular: 4px;
-    out property <length> spacing-medium: 8px;
+    out property <length> spacing-regular: 4pt;
+    out property <length> spacing-medium: 8pt;
 
     // typo
     out property <string> font-family: "Roboto";
-    out property <length> font-size-regular: 12px;
-    out property <length> font-size-medium: 28px;
+    out property <length> font-size-regular: 9pt;
+    out property <length> font-size-medium: 14pt;
     out property <int> font-weight-regular: 400;
     out property <int> font-weight-bold: 900;
 }
