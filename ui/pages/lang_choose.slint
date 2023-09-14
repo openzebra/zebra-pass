@@ -1,0 +1,80 @@
+import {
+    VerticalBox,
+    Button,
+    ComboBox,
+    Slider,
+    GridBox,
+    GroupBox,
+    HorizontalBox,
+    StandardListView
+} from "std-widgets.slint";
+import { ZButton } from "../components/button.slint";
+import { ZLabel } from "../components/label.slint";
+import { ZComboBox } from "../components/combo_box.slint";
+import { ZTag } from "../components/tag.slint";
+import { Theme } from "../theme.slint";
+import { ZLockIcon, ZHideEyeIcon, ZGearIcon } from "../icons/icons.slint";
+
+export component LangChoosePage inherits Window {
+    GridLayout {
+        VerticalLayout {
+            height: 450pt;
+            Image {
+                source: @image-url("../images/zebra_print.png");
+                colorize: Theme.window-background-inverse;
+                height: 100%;
+                width: 10%;
+                image-fit: fill;
+            }
+        }
+        VerticalLayout {
+            height: 100%;
+            GridLayout {
+                VerticalBox {
+                    alignment: center;
+
+                    GroupBox {
+                        width: 20%;
+                        vertical-stretch: 0;
+
+                        HorizontalBox {
+                            alignment: end;
+
+                            VerticalBox {
+                                alignment: center;
+                                padding: 0px;
+    
+                                Text {
+                                    text: "Welcome";
+                                    font-size: Theme.font-size-medium;
+                                    horizontal-alignment: center;
+                                }
+                                StandardListView {
+                                    height: 300pt;
+                                    model: [
+                                        { text: @tr("Русский"), code: "ru" },
+                                        { text: @tr("Английский"), code: "en" },
+                                        { text: @tr("Китайский"), code: "zh" },
+                                        { text: @tr("Испанский"), code: "es" },
+                                        { text: @tr("Арабский"), code: "ar" },
+                                        { text: @tr("Португальский"), code: "pt" },
+                                        { text: @tr("Французский"), code: "fr" },
+                                        { text: @tr("Японский"), code: "ja" },
+                                        { text: @tr("Немецкий"), code: "de" },
+                                    ];
+                                }
+                                ZButton {
+                                    height: 36pt;
+                                    width: 160pt;
+                                    color: Theme.window-background;
+                                    background: Theme.window-background-inverse;
+                                    text: "Continue";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
