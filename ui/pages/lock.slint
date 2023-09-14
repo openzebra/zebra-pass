@@ -4,7 +4,7 @@ import { ZButton } from "../components/button.slint";
 import { ZLabel } from "../components/label.slint";
 import { ZComboBox } from "../components/combo_box.slint";
 import { ZTag } from "../components/tag.slint";
-import { ZLock } from "../icons/lock.slint";
+import { ZLock, ZHideEye } from "../icons/icons.slint";
 
 export component LockPage inherits Window {
   HorizontalLayout {
@@ -38,6 +38,10 @@ export component LockPage inherits Window {
                 }
                 Row {
                     ZLock {
+                        height: 20pt;
+                        width: 20pt;
+                    }
+                    ZHideEye {
                         height: 20pt;
                         width: 20pt;
                     }
