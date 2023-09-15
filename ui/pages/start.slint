@@ -5,18 +5,31 @@ import { ZComboBox } from "../components/combo_box.slint";
 import { ZTag } from "../components/tag.slint";
 import { ZLockIcon, ZHideEyeIcon, ZGearIcon } from "../icons/icons.slint";
 
+import { Routers } from "../routers.slint";
+import { Theme } from "../theme.slint";
+
 export component StartPage inherits Window {
-  HorizontalLayout {
-    VerticalLayout {
-        height: 100%;
-        Image {
-            source: @image-url("../images/zebra_print.png");
+    callback continue(Routers);
+
+    GridLayout {
+        VerticalLayout {
+            height: 450pt;
+            Image {
+                source: @image-url("../images/zebra_print.png");
+                colorize: Theme.window-background-inverse;
+                height: 100%;
+                width: 10%;
+                image-fit: fill;
+            }
+        }
+        VerticalLayout {
             height: 100%;
-            width: 35%;
-            image-fit: fill;
+            GridLayout {
+                VerticalBox {
+                    alignment: center;
+
+                }
+            }
         }
     }
-    VerticalLayout {
-    }
-  }
 }
