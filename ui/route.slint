@@ -1,17 +1,16 @@
 import { Button, VerticalBox } from "std-widgets.slint";
 
 import { LockPage, StartPage, LangChoosePage } from "./pages/pages.slint";
-
-export enum Routers {
-    Lock,
-    LangChoose,
-    Start
-}
+import { Routers } from "./routers.slint";
 
 export component Route inherits Window {
-    in property<Routers> route: Routers.Lock;
+    in-out property<Routers> route: Routers.Lock;
 
     if(root.route == Routers.Lock) : LockPage {}
     if(root.route == Routers.Start) : StartPage {}
-    if(root.route == Routers.LangChoose) : LangChoosePage {}
+    if(root.route == Routers.LangChoose) : LangChoosePage {
+        continue(new-route) => {
+            root.route = new-route;
+        }
+    }
 }

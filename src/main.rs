@@ -1,7 +1,7 @@
 slint::include_modules!();
 
 fn main() -> Result<(), slint::PlatformError> {
-    slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/lang/"));
+    slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/locale/"));
 
     let app = AppWindow::new()?;
 

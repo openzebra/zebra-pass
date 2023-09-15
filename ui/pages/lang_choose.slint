@@ -14,8 +14,11 @@ import { ZComboBox } from "../components/combo_box.slint";
 import { ZTag } from "../components/tag.slint";
 import { Theme } from "../theme.slint";
 import { ZLockIcon, ZHideEyeIcon, ZGearIcon } from "../icons/icons.slint";
+import { Routers } from "../routers.slint";
 
 export component LangChoosePage inherits Window {
+    callback continue(Routers);
+
     GridLayout {
         VerticalLayout {
             height: 450pt;
@@ -45,30 +48,44 @@ export component LangChoosePage inherits Window {
                                 padding: 0px;
     
                                 Text {
-                                    text: "Welcome";
+                                    text: @tr("Welcome");
                                     font-size: Theme.font-size-medium * 2;
                                     horizontal-alignment: center;
                                 }
                                 StandardListView {
                                     height: 300pt;
                                     model: [
-                                        { text: @tr("Русский"), code: "ru" },
-                                        { text: @tr("Английский"), code: "en" },
-                                        { text: @tr("Китайский"), code: "zh" },
-                                        { text: @tr("Испанский"), code: "es" },
-                                        { text: @tr("Арабский"), code: "ar" },
-                                        { text: @tr("Португальский"), code: "pt" },
-                                        { text: @tr("Французский"), code: "fr" },
-                                        { text: @tr("Японский"), code: "ja" },
-                                        { text: @tr("Немецкий"), code: "de" },
+                                        {
+                                            text: "Chinese (Simplified Han, China)",
+                                            code: "cn",
+                                            encode: "GB2312"
+                                        },
+                                        {
+                                            text: "English",
+                                            code: "en",
+                                            encode: "UTF-8"
+                                        },
+                                        {
+                                            text: "Russian",
+                                            code: "ru",
+                                            encode: "ISO-8859-5"
+                                        },
+                                        {
+                                            text: "Japanese",
+                                            code: "ja",
+                                            encode: "UTF-8"
+                                        },
                                     ];
                                 }
-                                ZButton {
+                                continue-button := ZButton {
                                     height: 36pt;
                                     width: 160pt;
                                     color: Theme.window-background;
                                     background: Theme.window-background-inverse;
-                                    text: "Continue";
+                                    text: @tr("Continue");
+                                    clicked => {
+                                        continue(Routers.Start)
+                                    }
                                 }
                             }
                         }
