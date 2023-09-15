@@ -13,8 +13,7 @@ export component ZButton {
   callback clicked <=> touch.clicked;
 
   touch := TouchArea {
-    clicked => {}
-    mouse-cursor: pointer;
+    mouse-cursor: default;
   }
   rect := Rectangle {
     background: root.background;

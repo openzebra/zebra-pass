@@ -33,58 +33,49 @@ export component LangChoosePage inherits Window {
         VerticalLayout {
             height: 100%;
             width: 100%;
-            GridLayout {
-                VerticalBox {
+            HorizontalLayout {
+                alignment: center;
+                VerticalLayout {
                     alignment: center;
-                    GroupBox {
-                        vertical-stretch: 0;
-                        HorizontalBox {
-                            alignment: end;
-                            VerticalBox {
-                                alignment: center;
-                                padding: 0px;
-                                Text {
-                                    text: @tr("Welcome");
-                                    font-size: Theme.font-size-medium * 2;
-                                    horizontal-alignment: center;
-                                }
-                                StandardListView {
-                                    height: 300pt;
-                                    current-item: 0;
-                                    model: [
-                                        {
-                                            text: "English",
-                                            code: "en",
-                                            encode: "UTF-8"
-                                        },
-                                        {
-                                            text: "Chinese (Simplified Han, China)",
-                                            code: "cn",
-                                            encode: "GB2312"
-                                        },
-                                        {
-                                            text: "Russian",
-                                            code: "ru",
-                                            encode: "ISO-8859-5"
-                                        },
-                                        {
-                                            text: "Japanese",
-                                            code: "ja",
-                                            encode: "UTF-8"
-                                        },
-                                    ];
-                                }
-                                continue-button := ZButton {
-                                    height: 36pt;
-                                    width: 160pt;
-                                    color: Theme.window-background;
-                                    background: Theme.window-background-inverse;
-                                    text: @tr("Continue");
-                                    clicked => {
-                                        continue(Routers.Start)
-                                    }
-                                }
-                            }
+                    Text {
+                        text: @tr("Welcome");
+                        font-size: Theme.font-size-medium * 2;
+                        horizontal-alignment: center;
+                    }
+                    StandardListView {
+                        height: 300pt;
+                        current-item: 0;
+                        model: [
+                            {
+                                text: "English",
+                                code: "en",
+                                encode: "UTF-8"
+                            },
+                            {
+                                text: "Chinese (Simplified Han, China)",
+                                code: "cn",
+                                encode: "GB2312"
+                            },
+                            {
+                                text: "Russian",
+                                code: "ru",
+                                encode: "ISO-8859-5"
+                            },
+                            {
+                                text: "Japanese",
+                                code: "ja",
+                                encode: "UTF-8"
+                            },
+                        ];
+                    }
+                    continue-button := ZButton {
+                        height: 36pt;
+                        width: 160pt;
+                        color: Theme.window-background;
+                        background: Theme.window-background-inverse;
+                        text: @tr("Continue");
+                        clicked => {
+                            continue(Routers.Start)
                         }
                     }
                 }

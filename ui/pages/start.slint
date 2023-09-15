@@ -8,12 +8,68 @@ import { ZLockIcon, ZHideEyeIcon, ZGearIcon } from "../icons/icons.slint";
 import { Routers } from "../routers.slint";
 import { Theme } from "../theme.slint";
 
+component Slide inherits VerticalBox {
+    in property <image> source;
+    in property <string> title;
+    in property <string> description;
+    in property <string> button;
+    in property <length> img-height;
+    in property <length> img-width;
+
+
+    callback next();
+
+    HorizontalLayout {
+        alignment: center;
+        Image {
+            source: root.source;
+            colorize: Theme.window-background-inverse;
+            height: img-height;
+            width: img-width;
+            image-fit: fill;
+        }
+    }
+    HorizontalLayout {
+        padding-top: 15pt;
+        Text {
+            horizontal-alignment: center;
+            text: root.title;
+            font-family: Theme.font-family;
+            font-size: Theme.font-size-medium * 2;
+        }
+    }
+    HorizontalLayout {
+        padding-top: 5pt;
+        Text {
+            horizontal-alignment: center;
+            text: root.description;
+            font-family: Theme.font-family;
+            font-size: Theme.font-size-medium;
+        }
+    }
+    HorizontalLayout {
+        alignment: center;
+        padding-top: 30pt;
+        ZButton {
+            height: 36pt;
+            width: 160pt;
+            color: Theme.window-background;
+            background: Theme.window-background-inverse;
+            text: root.button;
+            clicked => {
+                next();
+            }
+        }
+    }
+}
+
 export component StartPage inherits Window {
+    private property <int> slide : 0;
     callback continue(Routers);
 
     GridLayout {
         VerticalLayout {
-            height: 450pt;
+            height: Theme.app-height;
             Image {
                 source: @image-url("../images/zebra_print.png");
                 colorize: Theme.window-background-inverse;
@@ -23,11 +79,43 @@ export component StartPage inherits Window {
             }
         }
         VerticalLayout {
-            height: 100%;
-            GridLayout {
-                VerticalBox {
-                    alignment: center;
-
+            height: Theme.app-height;
+            alignment: start;
+            width: Theme.app-width - Theme.zerba-print-length;
+            HorizontalLayout {
+                padding-top: 30pt;
+                if (slide == 0) : Slide {
+                    source: @image-url("../images/zebra.svg");
+                    title: @tr("Welcome to ZebraPass");
+                    description: @tr("Introducing ZebraPass: The first\n Quantum-Resistant Password Management Solution!");
+                    button: @tr("Continue");
+                    img-height: 200pt;
+                    img-width: 180pt;
+                    next => {
+                        slide += 1;
+                    }
+                }
+                if (slide == 1) : Slide {
+                    source: @image-url("../images/atom.svg");
+                    title: @tr("Cryptograph");
+                    description: @tr("high-level post-quantum cryptographic methods,\nincluding NTRU and Cyber, ensuring advanced security for your data.");
+                    button: @tr("Continue");
+                    img-height: 200pt;
+                    img-width: 170pt;
+                    next => {
+                        slide += 1;
+                    }
+                }
+                if (slide == 2) : Slide {
+                    source: @image-url("../images/rust.svg");
+                    title: @tr("Powered by Rust");
+                    description: @tr("Rust Memory safety, making it ideal for\nrobust and secure in critical system.");
+                    button: @tr("Start");
+                    img-height: 200pt;
+                    img-width: 195pt;
+                    next => {
+                        continue(Routers.Create);
+                    }
                 }
             }
         }
