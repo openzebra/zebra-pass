@@ -10,10 +10,15 @@ export component ZButton {
   in-out property <length> font-size : Theme.font-size-medium;
   in-out property<bool> enabled : true;
 
-  callback clicked <=> touch.clicked;
+  callback clicked;
 
   touch := TouchArea {
     mouse-cursor: default;
+    clicked => {
+      if (root.enabled) {
+        clicked();
+      }
+    }
   }
   rect := Rectangle {
     background: root.background;
