@@ -1,0 +1,35 @@
+import { StandardListView } from "std-widgets.slint";
+import { ZButton } from "../components/button.slint";
+import { Theme } from "../theme.slint";
+import { Routers } from "../routers.slint";
+
+export component LoginPage inherits Window {
+    callback continue(Routers);
+
+    HorizontalLayout {
+        VerticalLayout {
+            height: Theme.app-height;
+            Image {
+                source: @image-url("../images/zebra_print.png");
+                colorize: Theme.window-background-inverse;
+                height: 100%;
+                width: Theme.zerba-print-length;
+                image-fit: fill;
+            }
+        }
+        VerticalLayout {
+            width: Theme.app-width - Theme.zerba-print-length;
+            alignment: center;
+            HorizontalLayout {
+                width: 100%;
+                alignment: center;
+                Text {
+                    text: @tr("Sign in");
+                    font-size: Theme.font-size-medium * 2;
+                    font-weight: Theme.font-weight-bold;
+                    horizontal-alignment: center;
+                }
+            }
+        }
+    }
+}

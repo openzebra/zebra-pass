@@ -1,12 +1,26 @@
-import { VerticalBox, Button, ComboBox, Slider, GridBox, GroupBox, HorizontalBox } from "std-widgets.slint";
-import { ZButton } from "../components/button.slint";
-import { ZLabel } from "../components/label.slint";
-import { ZComboBox } from "../components/combo_box.slint";
-import { ZTag } from "../components/tag.slint";
+import { TabWidget } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
-import { ZLockIcon, ZHideEyeIcon, ZGearIcon } from "../icons/icons.slint";
 import { Routers } from "../routers.slint";
 
 export component CreatePage inherits Window {
   callback continue(Routers);
+
+    HorizontalLayout {
+        alignment: center;
+        height: Theme.app-height;
+        width: Theme.app-width;
+
+        VerticalLayout {
+            alignment: center;
+            TabWidget {
+                Tab {
+                    title: @tr("Login");
+                    
+                }
+                Tab {
+                    title: @tr("Login");
+                }
+            }
+        }
+    }
 }
