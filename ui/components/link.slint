@@ -1,0 +1,13 @@
+import { StyleMetrics , Button} from "std-widgets.slint";
+
+export component Zlink inherits TouchArea {
+    in property <string> text;
+    in property <color> color;
+
+    mouse-cursor: pointer;
+
+    Text {
+        text: text;
+        color: root.color;
+    }
+}

@@ -1,6 +1,7 @@
-import { StandardListView, LineEdit , VerticalBox} from "std-widgets.slint";
+import { StandardListView, LineEdit , VerticalBox } from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
 import { ZInput } from "../components/input.slint";
+import { Zlink } from "../components/link.slint";
 import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
 
@@ -33,6 +34,7 @@ export component LoginPage inherits Window {
             }
             HorizontalLayout {
                 width: 100%;
+                padding-top: 15pt;
                 alignment: center;
                 VerticalLayout {
                     alignment: center;
@@ -42,16 +44,74 @@ export component LoginPage inherits Window {
                         height: 46pt;
                         width: 220pt;
                         label: @tr("Username");
+                        placeholder: @tr("Enter your Username");
                         label-color: Theme.window-background.darker(50%);
                     }
                     ZInput {
                         height: 46pt;
                         width: 220pt;
                         alignment: center;
+                        type: password;
                         label: @tr("Password");
+                        placeholder: @tr("Enter your Password");
                         label-color: Theme.window-background.darker(50%);
                     }
-                    // ZButton {}
+                    HorizontalLayout {
+                        alignment: start;
+                        Zlink {
+                            color: Theme.primary;
+                            text: @tr("Forgot Password");
+                        }
+                    }
+                    ZButton {
+                        height: 36pt;
+                        width: 220pt;
+                        color: Theme.window-background;
+                        background: Theme.window-background-inverse;
+                        text: @tr("Sign in");
+                        enabled: true;
+                        clicked => {
+                            // continue(Routers.Login)
+                        }
+                    }
+                    HorizontalLayout {
+                        alignment: center;
+                        VerticalLayout {
+                            padding-right: 2pt;
+                            alignment: center;
+                            Rectangle {
+                                width: 100pt;
+                                height: 1pt;
+                                background: Theme.window-background.darker(50%);
+                            }
+                        }
+                        Text {
+                            text: @tr("Or");
+                            color: Theme.window-background.darker(50%);
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            padding-left: 2pt;
+                            Rectangle {
+                                width: 100pt;
+                                height: 1pt;
+                                background: Theme.window-background.darker(50%);
+                            }
+                        }
+                    }
+                    ZButton {
+                        height: 36pt;
+                        width: 220pt;
+                        color: Theme.window-background-inverse;
+                        background: Theme.window-background;
+                        border-color: Theme.window-background-inverse;
+                        text: @tr("Sign up");
+                        enabled: true;
+                        hovered: false;
+                        clicked => {
+                            // continue(Routers.Login)
+                        }
+                    }
                 }
             }
         }

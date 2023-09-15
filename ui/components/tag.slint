@@ -1,42 +1,41 @@
 import { StyleMetrics , Button} from "std-widgets.slint";
 
 export component ZTag {
-  in property <string> text;
-  in property <color> background;
-  in property <color> background-selected;
-  in property <color> color-selected;
-  in property <color> color;
-  in property <length> font-size : 9pt;
-  in property<bool> selected : false;
+    in property <string> text;
+    in property <color> background;
+    in property <color> background-selected;
+    in property <color> color-selected;
+    in property <color> color;
+    in property <length> font-size : 9pt;
+    in property<bool> selected : false;
 
-  callback clicked <=> touch.clicked;
+    callback clicked <=> touch.clicked;
 
-  touch := TouchArea {
-    clicked => {}
-    mouse-cursor: pointer;
-  }
-  rect := Rectangle {
-    background: root.background;
+    touch := TouchArea {
+        mouse-cursor: pointer;
+    }
+    rect := Rectangle {
+        background: root.background;
 
-    width: 55pt;
-    height: 20pt;
-    border-radius: 8pt;
-  }
-  label := Text {
-    color: root.color;
-    text: root.text;
-    font-size: root.font-size;
-    font-weight: 200;
-  }
+        width: 55pt;
+        height: 20pt;
+        border-radius: 8pt;
+    }
+    label := Text {
+        color: root.color;
+        text: root.text;
+        font-size: root.font-size;
+        font-weight: 200;
+    }
 
-  states [
-    disabled when root.selected : {
-      rect.background: root.background-selected;
-      label.color: root.color-selected;
+    states [
+        disabled when root.selected : {
+            rect.background: root.background-selected;
+            label.color: root.color-selected;
 
-      out {
-          animate * { duration: 300ms; }
-      }
-  }
-  ]
+            out {
+                animate * { duration: 300ms; }
+            }
+        }
+    ]
 }

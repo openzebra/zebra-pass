@@ -1,16 +1,23 @@
 import { StyleMetrics, LineEdit, TextEdit } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
 
 export component ZInput inherits VerticalLayout {
     in property <string> label;
     in property <color> label-color;
-    in property <int> name;
+    in property <InputType> type;
+    in property <string> placeholder;
 
     Text {
         text: root.label;
         color: root.label-color;
+        font-family: Theme.font-family;
+        font-size: Theme.font-size-regular;
     }
     LineEdit {
         height: root.height - 10pt;
         width: root.width;
+        input-type: root.type;
+        font-size: Theme.font-size-medium;
+        placeholder-text: root.placeholder;
     }
 }
