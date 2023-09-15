@@ -4,7 +4,8 @@ import {
     LockPage,
     StartPage,
     LangChoosePage,
-    CreatePage
+    CreatePage,
+    PrivacyPage
 } from "./pages/pages.slint";
 import { Routers } from "./routers.slint";
 
@@ -23,4 +24,9 @@ export component Route inherits Window {
         }
     }
     if(root.route == Routers.Create) : CreatePage {}
+    if(root.route == Routers.Privacy) : PrivacyPage {
+        continue(new-route) => {
+            root.route = new-route;
+        }
+    }
 }
