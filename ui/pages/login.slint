@@ -1,5 +1,6 @@
-import { StandardListView } from "std-widgets.slint";
+import { StandardListView, LineEdit , VerticalBox} from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
+import { ZInput } from "../components/input.slint";
 import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
 
@@ -28,6 +29,29 @@ export component LoginPage inherits Window {
                     font-size: Theme.font-size-medium * 2;
                     font-weight: Theme.font-weight-bold;
                     horizontal-alignment: center;
+                }
+            }
+            HorizontalLayout {
+                width: 100%;
+                alignment: center;
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 10pt;
+                    ZInput {
+                        alignment: center;
+                        height: 46pt;
+                        width: 220pt;
+                        label: @tr("Username");
+                        label-color: Theme.window-background.darker(50%);
+                    }
+                    ZInput {
+                        height: 46pt;
+                        width: 220pt;
+                        alignment: center;
+                        label: @tr("Password");
+                        label-color: Theme.window-background.darker(50%);
+                    }
+                    // ZButton {}
                 }
             }
         }
