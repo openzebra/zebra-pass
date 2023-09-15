@@ -1,4 +1,4 @@
-import { Button, VerticalBox } from "std-widgets.slint";
+import { VerticalBox } from "std-widgets.slint";
 import { Route } from "./route.slint";
 import { Routers } from "./routers.slint";
 import { Theme } from "theme.slint";
@@ -11,7 +11,7 @@ export component AppWindow inherits Window {
 
     VerticalBox {
         Route {
-            route: Routers.LangChoose;
+            route: Routers.Create;
         }
     }
 }
