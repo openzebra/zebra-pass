@@ -7,6 +7,7 @@ build = "build.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+ntrulp = { version = "0.1.7", features = ["ntrup1277"] }
 slint = {version = "1.1.1", features = ["gettext"]}
 
 

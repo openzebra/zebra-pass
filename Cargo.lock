@@ -2203,6 +2203,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ntrulp"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "610aea8c5ae218aeba0002f9e3b3922a794802804b68e5dcbb8dfba4aaea2ff4"
+dependencies = [
+ "rand",
+]
+
+[[package]]
 name = "num-integer"
 version = "0.1.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4266,6 +4275,7 @@ dependencies = [
 name = "zebra-pass"
 version = "0.1.0"
 dependencies = [
+ "ntrulp",
  "slint",
  "slint-build",
 ]
