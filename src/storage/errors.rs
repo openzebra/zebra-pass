@@ -6,6 +6,4 @@
 pub enum StorageErrors {
     PathError,
     StorageAccess(String),
-    StorageRead(String),
-    StorageReadParseJson(String),
 }

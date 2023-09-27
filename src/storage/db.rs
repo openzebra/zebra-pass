@@ -4,7 +4,7 @@
 
 use crate::storage::errors::StorageErrors;
 use directories::ProjectDirs;
-use sled::Db;
+use sled::{Db, Error, IVec};
 
 pub struct LocalStorage {
     tree: Db,
@@ -24,23 +24,17 @@ impl LocalStorage {
         Ok(LocalStorage { tree })
     }
 
-    pub fn set(&self, key: &str) {
-        // self.tree.set(&"key");
+    pub fn set(&self, key: &str, data: &[u8]) -> Result<(), Error> {
+        let vec = IVec::from(data);
+        self.tree.insert(key, vec)?;
+
+        Ok(())
     }
 
-    pub fn get(&self, key: &str) -> Result<Option<Vec<u8>>, StorageErrors> {
-        let value = match self.tree.get(key) {
-            Ok(some_value) => {
-                if let Some(value) = some_value {
-                    value.to_vec()
-                } else {
-                    return Ok(None);
-                }
-            }
-            Err(e) => return Err(StorageErrors::StorageRead(e.to_string())),
-        };
+    pub fn get(&self, key: &str) -> Result<Option<IVec>, Error> {
+        let some_value = self.tree.get(key)?;
 
-        Ok(Some(value.to_vec()))
+        Ok(some_value)
     }
 }
 
