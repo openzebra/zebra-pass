@@ -8,6 +8,7 @@ build = "build.rs"
 
 [dependencies]
 ntrulp = { version = "0.1.7", features = ["ntrup1277"] }
+sled = "0.34.7"
 slint = {version = "1.1.1", features = ["gettext"]}
 
 
