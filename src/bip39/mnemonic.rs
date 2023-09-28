@@ -8,7 +8,7 @@ use pbkdf2::pbkdf2_hmac_array;
 use sha2::{Digest, Sha256, Sha512};
 use unicode_normalization::UnicodeNormalization;
 
-use super::{errors::Bip39Error, language};
+use super::{config::NUMBER_WORDS, errors::Bip39Error, language};
 
 const SALT_PREFIX: &str = "zebra-bip39-mnemonic";
 const MIN_NB_WORDS: usize = 12;
@@ -123,25 +123,90 @@ impl<const SIZE: usize> Mnemonic<SIZE> {
         Ok(Self::English(words))
     }
 
-    pub fn get(&self) -> String {
+    pub fn generate_mnemonic<R>(rng: &mut R) -> Result<Self, Bip39Error>
+    where
+        R: rand::RngCore + rand::CryptoRng,
+    {
+        let strength = SIZE / 3 * 4;
+        let mut entropy = vec![0u8; strength];
+        rand::RngCore::fill_bytes(rng, &mut entropy);
+
+        Self::entropy_to_mnemonic(&entropy)
+    }
+
+    pub fn validate_mnemonic(&self) -> bool {
+        let words = self.get();
+
+        match Self::mnemonic_to_entropy(&words) {
+            Ok(_) => return true,
+            Err(_) => return false,
+        }
+    }
+
+    pub fn get_seed(&self, password: &str) -> [u8; 64] {
+        let binding = self.get();
+        let mnemonic_bytes = binding.as_bytes();
+        let salt = self.to_salt(password);
+
+        pbkdf2_hmac_array::<Sha512, 64>(&mnemonic_bytes, salt.as_bytes(), NUMBER_WORDS as u32)
+    }
+
+    pub fn get_list(&self) -> Vec<&str> {
         match self {
             Mnemonic::English(points) => points
                 .iter()
                 .map(|i| language::english::WORDS[*i as usize])
-                .collect::<Vec<&str>>()
-                .join(" "),
+                .collect::<Vec<&str>>(),
         }
+    }
+
+    pub fn get(&self) -> String {
+        let mut words = Cow::from(self.get_list().join(" "));
+        normalize_utf8_cow(&mut words);
+
+        words.to_string()
+    }
+
+    fn to_salt(&self, password: &str) -> String {
+        let mut password = password.to_string();
+
+        password.push_str(SALT_PREFIX);
+
+        let mut password = Cow::from(password);
+
+        normalize_utf8_cow(&mut password);
+
+        password.to_string()
     }
 }
 
-fn generate_mnemonic() {}
-
-fn validate_mnemonic() {}
-
 #[test]
 fn test_mnemonic() {
+    use rand;
+
+    let mut rng = rand::thread_rng();
     let words = "abstract silly element program name ten champion thing odor nerve wasp smooth";
     let m = Mnemonic::<12>::mnemonic_to_entropy(words).unwrap();
 
     assert_eq!(m.get(), words);
+
+    let m0 = Mnemonic::<12>::generate_mnemonic(&mut rng).unwrap();
+
+    let is_valid = m.validate_mnemonic();
+    let is_valid0 = m0.validate_mnemonic();
+
+    assert!(is_valid);
+    assert!(is_valid0);
+
+    let seed = m.get_seed("");
+
+    assert_eq!(
+        seed,
+        [
+            221, 227, 240, 75, 54, 153, 109, 223, 1, 254, 105, 70, 237, 10, 26, 7, 62, 154, 173,
+            170, 84, 214, 178, 206, 17, 132, 177, 185, 58, 80, 90, 81, 225, 151, 85, 46, 237, 138,
+            75, 39, 253, 11, 160, 8, 121, 198, 53, 187, 119, 174, 45, 36, 38, 158, 1, 243, 135, 54,
+            21, 164, 53, 247, 111, 66
+        ]
+    );
 }
