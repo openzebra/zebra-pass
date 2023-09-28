@@ -1,8 +1,9 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use super::super::config;
 
-pub const WORDS: [&'static str; 2048] = [
+pub const WORDS: [&'static str; config::NUMBER_WORDS] = [
     "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd",
     "abuse", "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire",
     "across", "act", "action", "actor", "actress", "actual", "adapt", "add", "addict", "address",
