@@ -7,11 +7,15 @@ build = "build.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+argon2 = "0.5.2"
 directories = "5.0.1"
 ntrulp = { version = "0.1.7", features = ["ntrup1277"] }
+pbkdf2 = "0.12.2"
 serde = "1.0.188"
+sha2 = "0.10.8"
 sled = "0.34.7"
 slint = {version = "1.1.1", features = ["gettext"]}
+unicode-normalization = "0.1.22"
 
 
 [build-dependencies]
