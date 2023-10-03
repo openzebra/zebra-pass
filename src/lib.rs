@@ -4,4 +4,5 @@
 
 pub mod bip39;
 pub mod cipher;
+pub mod keychain;
 pub mod storage;
