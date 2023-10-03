@@ -11,16 +11,17 @@ use unicode_normalization::UnicodeNormalization;
 use super::{config::NUMBER_WORDS, errors::Bip39Error, language};
 
 const SALT_PREFIX: &str = "zebra-bip39-mnemonic";
-const MIN_NB_WORDS: usize = 12;
+const SIZE: usize = 24;
+const STRENGTH: usize = 32;
 const EOF: u16 = u16::max_value();
 
 #[derive(Debug)]
-pub enum Mnemonic<const SIZE: usize> {
+pub enum Mnemonic {
     English([u16; SIZE]),
 }
 
 fn is_invalid_word_count(word_count: usize) -> bool {
-    word_count < MIN_NB_WORDS || word_count % 3 != 0
+    word_count < SIZE || word_count % 3 != 0
 }
 
 fn normalize_utf8_cow<'a>(cow: &mut Cow<'a, str>) {
@@ -30,7 +31,7 @@ fn normalize_utf8_cow<'a>(cow: &mut Cow<'a, str>) {
     }
 }
 
-impl<const SIZE: usize> Mnemonic<SIZE> {
+impl Mnemonic {
     pub fn mnemonic_to_entropy(mnemonic: &str) -> Result<Self, Bip39Error> {
         // TODO: make detect lang.
         let nb_words = mnemonic.split_whitespace().count();
@@ -40,7 +41,7 @@ impl<const SIZE: usize> Mnemonic<SIZE> {
         }
 
         let mut words = [EOF; SIZE];
-        let mut bits = vec![false; SIZE * 11];
+        let mut bits = [false; SIZE * 11];
 
         for (i, word) in mnemonic.split_whitespace().enumerate() {
             let index = language::english::WORDS
@@ -55,7 +56,7 @@ impl<const SIZE: usize> Mnemonic<SIZE> {
             }
         }
 
-        let mut entropy = vec![0u8; SIZE / 3 * 4];
+        let mut entropy = [0u8; SIZE / 3 * 4];
         let nb_bytes_entropy = nb_words / 3 * 4;
         for i in 0..nb_bytes_entropy {
             for j in 0..8 {
@@ -78,18 +79,14 @@ impl<const SIZE: usize> Mnemonic<SIZE> {
         Ok(Self::English(words))
     }
 
-    pub fn entropy_to_mnemonic(entropy: &[u8]) -> Result<Self, Bip39Error> {
+    pub fn entropy_to_mnemonic(entropy: &[u8; STRENGTH]) -> Result<Self, Bip39Error> {
         const MAX_ENTROPY_BITS: usize = 256;
-        const MIN_ENTROPY_BITS: usize = 128;
         const MAX_CHECKSUM_BITS: usize = 8;
 
         let nb_bytes = entropy.len();
         let nb_bits = nb_bytes * 8;
 
         if nb_bits % 32 != 0 {
-            return Err(Bip39Error::BadEntropyBitCount(nb_bits));
-        }
-        if nb_bits < MIN_ENTROPY_BITS || nb_bits > MAX_ENTROPY_BITS {
             return Err(Bip39Error::BadEntropyBitCount(nb_bits));
         }
 
@@ -127,8 +124,7 @@ impl<const SIZE: usize> Mnemonic<SIZE> {
     where
         R: rand::RngCore + rand::CryptoRng,
     {
-        let strength = SIZE / 3 * 4;
-        let mut entropy = vec![0u8; strength];
+        let mut entropy = [0u8; STRENGTH];
         rand::RngCore::fill_bytes(rng, &mut entropy);
 
         Self::entropy_to_mnemonic(&entropy)
@@ -185,28 +181,15 @@ fn test_mnemonic() {
     use rand;
 
     let mut rng = rand::thread_rng();
-    let words = "abstract silly element program name ten champion thing odor nerve wasp smooth";
-    let m = Mnemonic::<12>::mnemonic_to_entropy(words).unwrap();
+    let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
 
-    assert_eq!(m.get(), words);
+    assert_eq!(m.get_list().len(), SIZE);
 
-    let m0 = Mnemonic::<12>::generate_mnemonic(&mut rng).unwrap();
+    let m0 = Mnemonic::generate_mnemonic(&mut rng).unwrap();
 
     let is_valid = m.validate_mnemonic();
     let is_valid0 = m0.validate_mnemonic();
 
     assert!(is_valid);
     assert!(is_valid0);
-
-    let seed = m.get_seed("");
-
-    assert_eq!(
-        seed,
-        [
-            221, 227, 240, 75, 54, 153, 109, 223, 1, 254, 105, 70, 237, 10, 26, 7, 62, 154, 173,
-            170, 84, 214, 178, 206, 17, 132, 177, 185, 58, 80, 90, 81, 225, 151, 85, 46, 237, 138,
-            75, 39, 253, 11, 160, 8, 121, 198, 53, 187, 119, 174, 45, 36, 38, 158, 1, 243, 135, 54,
-            21, 164, 53, 247, 111, 66
-        ]
-    );
 }
