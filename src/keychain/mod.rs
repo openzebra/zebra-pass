@@ -1,7 +1,7 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-mod pq;
 
-#[derive(Debug)]
-pub struct KeyChain {}
+pub mod errors;
+pub mod keys;
+pub mod session;
