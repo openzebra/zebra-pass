@@ -7,4 +7,5 @@ pub enum KeyChainErrors {
     SliceError,
     RngError,
     GenKeysError,
+    NTRUEncryptError,
 }

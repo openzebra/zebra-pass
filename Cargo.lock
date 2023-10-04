@@ -4443,6 +4443,7 @@ dependencies = [
  "aes",
  "directories",
  "ntrulp",
+ "num_cpus",
  "pbkdf2",
  "rand",
  "serde",
