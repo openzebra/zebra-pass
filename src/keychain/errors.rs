@@ -8,4 +8,5 @@ pub enum KeyChainErrors {
     RngError,
     GenKeysError,
     NTRUEncryptError,
+    NTRUDecryptError,
 }
