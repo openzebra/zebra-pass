@@ -14,7 +14,7 @@ use super::errors::KeyChainErrors;
 const PASSWORD_SALT: [u8; 16] = [
     131, 53, 247, 96, 233, 128, 223, 191, 171, 58, 191, 97, 236, 210, 100, 70,
 ];
-const DIFFICULTY: u32 = 16000;
+const DIFFICULTY: u32 = 2048;
 const SHA512_SIZE: usize = 64;
 const SHA256_SIZE: usize = SHA512_SIZE / 2;
 
@@ -25,7 +25,7 @@ pub struct KeyChain {
 }
 
 impl KeyChain {
-    pub fn from(password: &[u8]) -> Result<Self, KeyChainErrors> {
+    pub fn from_pass(password: &[u8]) -> Result<Self, KeyChainErrors> {
         let seed_bytes =
             pbkdf2_hmac_array::<Sha512, SHA512_SIZE>(password, &PASSWORD_SALT, DIFFICULTY);
         let seed_pq: [u8; 8] = seed_bytes[..8]
@@ -69,11 +69,11 @@ fn test_key_chain() {
 
     rng.fill_bytes(&mut password);
 
-    let keys0 = KeyChain::from(&password);
+    let keys0 = KeyChain::from_pass(&password);
 
     assert!(keys0.is_ok());
 
-    let keys1 = KeyChain::from(&password);
+    let keys1 = KeyChain::from_pass(&password);
 
     assert!(keys1.is_ok());
 
