@@ -11,8 +11,8 @@ use unicode_normalization::UnicodeNormalization;
 use super::{config::NUMBER_WORDS, errors::Bip39Error, language};
 
 const SALT_PREFIX: &str = "zebra-bip39-mnemonic";
-const SIZE: usize = 24;
-const STRENGTH: usize = 32;
+const SIZE: usize = 12;
+const STRENGTH: usize = 16;
 const EOF: u16 = u16::max_value();
 
 #[derive(Debug)]
@@ -80,7 +80,7 @@ impl Mnemonic {
     }
 
     pub fn entropy_to_mnemonic(entropy: &[u8; STRENGTH]) -> Result<Self, Bip39Error> {
-        const MAX_ENTROPY_BITS: usize = 256;
+        const MAX_ENTROPY_BITS: usize = 128;
         const MAX_CHECKSUM_BITS: usize = 8;
 
         let nb_bytes = entropy.len();
@@ -90,7 +90,6 @@ impl Mnemonic {
             return Err(Bip39Error::BadEntropyBitCount(nb_bits));
         }
 
-        // TODO: replace to keccak
         let mut hasher = Sha256::new();
         hasher.update(&entropy);
         let check = hasher.finalize();
