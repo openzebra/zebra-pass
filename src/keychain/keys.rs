@@ -9,6 +9,7 @@ use aes::Aes256;
 use ntrulp::key::{priv_key::PrivKey, pub_key::PubKey};
 use ntrulp::ntru;
 use ntrulp::ntru::errors::NTRUErrors;
+use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
 use ntrulp::poly::r3::R3;
 use ntrulp::poly::rq::Rq;
 use ntrulp::random::{CommonRandom, NTRURandom};
@@ -71,6 +72,22 @@ impl KeyChain {
             ntrup_keys: (Arc::new(sk), Arc::new(pk)),
             aes_key,
             num_threads,
+        })
+    }
+
+    pub fn from_keys(
+        key: [u8; SHA256_SIZE],
+        pqsk: [u8; SECRETKEYS_BYTES],
+        pqpk: [u8; PUBLICKEYS_BYTES],
+    ) -> Result<Self, KeyChainErrors> {
+        let num_threads = num_cpus::get();
+        let secret_key = PrivKey::import(&pqsk).or(Err(KeyChainErrors::SKError))?;
+        let pub_key = PubKey::import(&pqpk).or(Err(KeyChainErrors::PKError))?;
+
+        Ok(Self {
+            num_threads,
+            ntrup_keys: (Arc::new(secret_key), Arc::new(pub_key)),
+            aes_key: key,
         })
     }
 
@@ -163,7 +180,7 @@ impl KeyChain {
             } else {
                 let mut block = [0u8; AES_BLOCK_SIZE];
 
-                for i in 0..16 {
+                for i in 0..AES_BLOCK_SIZE {
                     match chunk.get(i) {
                         Some(v) => block[i] = *v,
                         None => {

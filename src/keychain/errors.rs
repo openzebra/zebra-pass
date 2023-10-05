@@ -9,4 +9,6 @@ pub enum KeyChainErrors {
     GenKeysError,
     NTRUEncryptError,
     NTRUDecryptError,
+    SKError,
+    PKError,
 }
