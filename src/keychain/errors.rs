@@ -11,4 +11,5 @@ pub enum KeyChainErrors {
     NTRUDecryptError,
     SKError,
     PKError,
+    InvalidMnemonic,
 }

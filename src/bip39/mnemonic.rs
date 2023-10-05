@@ -129,9 +129,7 @@ impl Mnemonic {
         Self::entropy_to_mnemonic(&entropy)
     }
 
-    pub fn validate_mnemonic(&self) -> bool {
-        let words = self.get();
-
+    pub fn validate_mnemonic(words: &str) -> bool {
         match Self::mnemonic_to_entropy(&words) {
             Ok(_) => return true,
             Err(_) => return false,
@@ -186,8 +184,8 @@ fn test_mnemonic() {
 
     let m0 = Mnemonic::generate_mnemonic(&mut rng).unwrap();
 
-    let is_valid = m.validate_mnemonic();
-    let is_valid0 = m0.validate_mnemonic();
+    let is_valid = Mnemonic::validate_mnemonic(&m.get());
+    let is_valid0 = Mnemonic::validate_mnemonic(&m0.get());
 
     assert!(is_valid);
     assert!(is_valid0);
