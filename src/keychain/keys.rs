@@ -15,6 +15,7 @@ use ntrulp::poly::rq::Rq;
 use ntrulp::random::{CommonRandom, NTRURandom};
 use num_cpus;
 use pbkdf2::pbkdf2_hmac_array;
+use serde::{Deserialize, Serialize};
 use sha2::Sha512;
 
 use super::errors::KeyChainErrors;
@@ -22,14 +23,16 @@ use super::errors::KeyChainErrors;
 const PASSWORD_SALT: [u8; 16] = [
     131, 53, 247, 96, 233, 128, 223, 191, 171, 58, 191, 97, 236, 210, 100, 70,
 ];
+// TODO: possible to add settings.
 const DIFFICULTY: u32 = 2048;
 const SHA512_SIZE: usize = 64;
 const SHA256_SIZE: usize = SHA512_SIZE / 2;
 const AES_BLOCK_SIZE: usize = 16;
 
-pub enum CipherOptions {
-    AES,
-    NTRU,
+#[derive(Debug, Deserialize, Serialize)]
+pub enum CipherOrders {
+    AES256,
+    NTRUP1277,
 }
 
 pub struct KeyChain {
@@ -91,14 +94,14 @@ impl KeyChain {
         })
     }
 
-    pub fn encrypt(&self, bytes: Vec<u8>) -> Result<(Vec<u8>, [CipherOptions; 2]), KeyChainErrors> {
-        let options = [CipherOptions::NTRU, CipherOptions::AES];
+    pub fn encrypt(&self, bytes: Vec<u8>) -> Result<(Vec<u8>, [CipherOrders; 2]), KeyChainErrors> {
+        let options = [CipherOrders::NTRUP1277, CipherOrders::AES256];
         let mut tmp = bytes;
 
         for o in &options {
             match o {
-                CipherOptions::AES => tmp = self.aes_encrypt(&tmp),
-                CipherOptions::NTRU => {
+                CipherOrders::AES256 => tmp = self.aes_encrypt(&tmp),
+                CipherOrders::NTRUP1277 => {
                     tmp = self
                         .ntru_encrypt(&Arc::new(tmp))
                         .or(Err(KeyChainErrors::NTRUEncryptError))?
@@ -112,14 +115,14 @@ impl KeyChain {
     pub fn decrypt(
         &self,
         bytes: Vec<u8>,
-        options: [CipherOptions; 2],
+        options: [CipherOrders; 2],
     ) -> Result<Vec<u8>, KeyChainErrors> {
         let mut tmp = bytes;
 
         for o in options.iter().rev() {
             match o {
-                CipherOptions::AES => tmp = self.aes_decrypt(&tmp)?,
-                CipherOptions::NTRU => {
+                CipherOrders::AES256 => tmp = self.aes_decrypt(&tmp)?,
+                CipherOrders::NTRUP1277 => {
                     tmp = self
                         .ntru_decrypt(&Arc::new(tmp))
                         .or(Err(KeyChainErrors::NTRUDecryptError))?;

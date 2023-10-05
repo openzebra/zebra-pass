@@ -5,5 +5,10 @@
 #[derive(Debug)]
 pub enum StorageErrors {
     PathError,
-    StorageAccess(String),
+    StorageAccess,
+    StorageWriteError,
+    NotFound,
+    BrokenData,
+    TimeWentBackwards,
+    HashSumError,
 }

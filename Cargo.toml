@@ -18,6 +18,8 @@ rand = { version = "0.8.5", features = ["small_rng"] }
 ntrulp = { version = "0.1.7", features = ["ntrup1277"] }
 aes = "0.8.3"
 num_cpus = "1.16.0"
+serde_json = "1.0.107"
+hex = "0.4.3"
 
 
 [build-dependencies]

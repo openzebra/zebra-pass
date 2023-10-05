@@ -1,13 +1,32 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+extern crate hex;
+extern crate serde;
+extern crate serde_json;
 
 use crate::storage::errors::StorageErrors;
 use directories::ProjectDirs;
-use sled::{Db, Error, IVec};
+use sha2::{Digest, Sha256};
+use sled::{Db, IVec};
+use std::time::{SystemTime, UNIX_EPOCH};
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Data<ST> {
+    pub payload: ST,
+    // Storage verions
+    pub version: u16,
+    // last update for sync with server
+    pub last_update: u64,
+    // hash sum for compare with server
+    pub hashsum: String,
+}
 
 pub struct LocalStorage {
     tree: Db,
+    version: u16,
 }
 
 impl LocalStorage {
@@ -18,23 +37,73 @@ impl LocalStorage {
         };
         let tree = match sled::open(path.data_dir()) {
             Ok(t) => t,
-            Err(e) => return Err(StorageErrors::StorageAccess(e.to_string())),
+            Err(_) => return Err(StorageErrors::StorageAccess),
         };
+        let version = 0;
 
-        Ok(LocalStorage { tree })
+        Ok(LocalStorage { tree, version })
     }
 
-    pub fn set(&self, key: &str, data: &[u8]) -> Result<(), Error> {
-        let vec = IVec::from(data);
-        self.tree.insert(key, vec)?;
+    pub fn get<ST>(&self, key: &str) -> Result<Data<ST>, StorageErrors>
+    where
+        ST: for<'a> Deserialize<'a> + Serialize,
+    {
+        let some_value = self.tree.get(key).or(Err(StorageErrors::StorageAccess))?;
+        let value = some_value.ok_or(StorageErrors::NotFound)?;
+        let json = String::from_utf8_lossy(&value);
+
+        let data: Data<ST> = serde_json::from_str(&json).or(Err(StorageErrors::BrokenData))?;
+        let json_payload =
+            serde_json::to_string(&data.payload).or(Err(StorageErrors::BrokenData))?;
+        let hashsum = self.hash(&json_payload.as_bytes());
+
+        if hashsum != data.hashsum {
+            return Err(StorageErrors::HashSumError);
+        }
+
+        Ok(data)
+    }
+
+    pub fn set<ST>(&self, key: &str, payload: ST) -> Result<(), StorageErrors>
+    where
+        ST: Serialize,
+    {
+        let last_update = self.get_unix_time()?;
+        let json_payload = serde_json::to_string(&payload).or(Err(StorageErrors::BrokenData))?;
+        let hashsum = self.hash(&json_payload.as_bytes());
+        // TODO: move to diff file and impl
+        let data = Data {
+            payload,
+            hashsum,
+            last_update,
+            version: self.version,
+        };
+        let json = serde_json::to_string(&data).or(Err(StorageErrors::BrokenData))?;
+        let vec = IVec::from(json.as_bytes());
+
+        self.tree
+            .insert(key, vec)
+            .or(Err(StorageErrors::StorageWriteError))?;
 
         Ok(())
     }
 
-    pub fn get(&self, key: &str) -> Result<Option<IVec>, Error> {
-        let some_value = self.tree.get(key)?;
+    fn hash(&self, bytes: &[u8]) -> String {
+        let mut hasher = Sha256::new();
+        hasher.update(bytes);
+        let hashsum = hasher.finalize();
 
-        Ok(some_value)
+        hex::encode(hashsum)
+    }
+
+    fn get_unix_time(&self) -> Result<u64, StorageErrors> {
+        let now = SystemTime::now();
+        let since_epoch = now
+            .duration_since(UNIX_EPOCH)
+            .or(Err(StorageErrors::TimeWentBackwards))?;
+        let u64_time = since_epoch.as_secs();
+
+        Ok(u64_time)
     }
 }
 
@@ -43,10 +112,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_local_storage_init() {
-        LocalStorage::new().unwrap();
-    }
+    fn test_read_write() {
+        const KEY: &str = "TEST_KEY_FOR_STORAGE";
 
-    #[test]
-    fn test_set_read() {}
+        let db = LocalStorage::new().unwrap();
+        let payload = vec!["test1", "test2", "test3"];
+
+        db.set(KEY, &payload).unwrap();
+
+        let out = db.get::<Vec<String>>(KEY).unwrap();
+
+        assert_eq!(out.payload, payload);
+    }
 }
