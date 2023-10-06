@@ -108,8 +108,9 @@ impl LocalStorage {
 }
 
 #[cfg(test)]
-mod tests {
+mod storage_tests {
     use super::*;
+    use rand;
 
     #[test]
     fn test_read_write() {

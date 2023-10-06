@@ -122,6 +122,17 @@ impl KeyChain {
         })
     }
 
+    pub fn as_bytes(&self) -> [u8; AES_KEY_SIZE + SECRETKEYS_BYTES + PUBLICKEYS_BYTES] {
+        let mut out = [0u8; AES_KEY_SIZE + SECRETKEYS_BYTES + PUBLICKEYS_BYTES];
+        let (sk, pk) = &self.ntrup_keys;
+
+        out[..AES_KEY_SIZE].copy_from_slice(&self.aes_key);
+        out[AES_KEY_SIZE..PUBLICKEYS_BYTES + AES_KEY_SIZE].copy_from_slice(&pk.as_bytes());
+        out[AES_KEY_SIZE + PUBLICKEYS_BYTES..].copy_from_slice(&sk.as_bytes());
+
+        out
+    }
+
     pub fn encrypt(&self, bytes: Vec<u8>) -> Result<(Vec<u8>, [CipherOrders; 2]), KeyChainErrors> {
         let options = [CipherOrders::NTRUP1277, CipherOrders::AES256];
         let mut tmp = bytes;
@@ -284,6 +295,29 @@ mod test_key_chain {
         let decrypted = keys.ntru_decrypt(&Arc::new(encrypted)).unwrap();
 
         assert_eq!(decrypted, ciphertext.to_vec());
+    }
+
+    #[test]
+    fn test_export_keys() {
+        let mut rng = rand::thread_rng();
+        let mut password = [0u8; 2000];
+        let mut ciphertext = vec![42u8; 1233];
+
+        rng.fill_bytes(&mut password);
+        rng.fill_bytes(&mut ciphertext);
+
+        let keys = KeyChain::from_pass(&password).unwrap();
+        let keys_bytes = keys.as_bytes();
+
+        assert_eq!(keys_bytes[..AES_KEY_SIZE], keys.aes_key);
+        assert_eq!(
+            keys_bytes[AES_KEY_SIZE + PUBLICKEYS_BYTES..],
+            keys.ntrup_keys.0.as_bytes()
+        );
+        assert_eq!(
+            keys_bytes[AES_KEY_SIZE..AES_KEY_SIZE + PUBLICKEYS_BYTES],
+            keys.ntrup_keys.1.as_bytes()
+        );
     }
 
     #[test]

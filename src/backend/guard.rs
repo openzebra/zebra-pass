@@ -33,6 +33,7 @@ struct SecureData {
 }
 
 // TODO: posible to remake RC or ARC if need
+// TODO: add time before lock session.
 pub struct ZebraGuard<'a> {
     // unlock state
     pub enable: bool,
@@ -128,7 +129,16 @@ impl<'a> ZebraGuard<'a> {
         Ok(data)
     }
 
-    pub fn init_bip39(&mut self) -> Result<(), ZebraGuardErrors> {
+    pub fn init_bip39(
+        &mut self,
+        password: &[u8],
+        words: &str,
+        words_password: &str,
+    ) -> Result<(), ZebraGuardErrors> {
+        let pwd_keys = KeyChain::from_pass(password).or(Err(ZebraGuardErrors::InvalidPassword))?;
+        let bip39_keys = KeyChain::from_bip39(words, words_password)
+            .or(Err(ZebraGuardErrors::IncorrectBip39Keys))?;
+
         Ok(())
     }
 
@@ -142,4 +152,19 @@ impl<'a> ZebraGuard<'a> {
 
         Ok(())
     }
+}
+
+#[cfg(test)]
+mod guard_tests {
+    use super::*;
+    use crate::bip39::mnemonic::Mnemonic;
+
+    // #[test]
+    // fn test_init_unlock() {
+    //     let mut rng = rand::thread_rng();
+    //
+    //     let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+    //     let db = LocalStorage::new().unwrap();
+    //     let guard = ZebraGuard::from(&db);
+    // }
 }
