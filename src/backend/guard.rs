@@ -13,6 +13,13 @@ use crate::{
     },
 };
 
+pub enum ZebraGuardErrors {
+    IncorrectPassword,
+    InvalidPassword,
+    IncorrectBip39Keys,
+    GuardIsNotReady,
+}
+
 // TODO: posible to remake RC or ARC if need
 pub struct ZebraGuard<'a> {
     // unlock state
@@ -40,6 +47,20 @@ impl<'a> ZebraGuard<'a> {
             db,
             keys,
         }
+    }
+
+    // gen_keys from password
+    // -> decrypt keys_session(bip39)
+    // -> decrypt secure_data via (bip39) keys
+    pub fn try_unlock(&self, password: &[u8]) -> Result<(), ZebraGuardErrors> {
+        if !self.ready {
+            return Err(ZebraGuardErrors::GuardIsNotReady);
+        }
+
+        let pass_keys =
+            KeyChain::from_pass(&password).or(Err(ZebraGuardErrors::InvalidPassword))?;
+
+        Ok(())
     }
 
     pub fn sync(&mut self) -> Result<(), StorageErrors> {
