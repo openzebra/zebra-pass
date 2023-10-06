@@ -3,6 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 extern crate hex;
+extern crate serde_json;
 
 use crate::{
     keychain::keys::{CipherOrders, KeyChain, AES_KEY_SIZE},
@@ -20,7 +21,9 @@ pub enum ZebraGuardErrors {
     InvalidPassword,
     IncorrectBip39Keys,
     GuardIsNotReady,
+    GuardIsNotEnable,
     KeysDamaged,
+    DataDamaged,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -68,7 +71,7 @@ impl<'a> ZebraGuard<'a> {
     // gen_keys from password
     // -> decrypt keys_session(bip39)
     // -> decrypt secure_data via (bip39) keys
-    pub fn try_unlock(&self, password: &[u8]) -> Result<(), ZebraGuardErrors> {
+    pub fn try_unlock(&mut self, password: &[u8]) -> Result<(), ZebraGuardErrors> {
         if !self.ready {
             return Err(ZebraGuardErrors::GuardIsNotReady);
         }
@@ -90,9 +93,42 @@ impl<'a> ZebraGuard<'a> {
         let pq_sk: [u8; SECRETKEYS_BYTES] = session[AES_KEY_SIZE + PUBLICKEYS_BYTES..]
             .try_into()
             .or(Err(ZebraGuardErrors::KeysDamaged))?;
+        let bip39_keys =
+            KeyChain::from_keys(aes_key, pq_sk, pq_pk).or(Err(ZebraGuardErrors::KeysDamaged))?;
 
-        let bip39_keys = KeyChain::from_keys(aes_key, pq_sk, pq_pk);
+        self.keys = Some(bip39_keys);
+        self.enable = true;
 
+        Ok(())
+    }
+
+    pub fn get_data<ST>(&self) -> Result<ST, ZebraGuardErrors>
+    where
+        ST: for<'b> Deserialize<'b> + Serialize,
+    {
+        if !self.ready {
+            return Err(ZebraGuardErrors::GuardIsNotReady);
+        }
+        if !self.enable {
+            return Err(ZebraGuardErrors::GuardIsNotReady);
+        }
+
+        let keys = self
+            .keys
+            .as_ref()
+            .ok_or(ZebraGuardErrors::GuardIsNotEnable)?;
+        let content =
+            hex::decode(&self.secure_data_store.content).or(Err(ZebraGuardErrors::KeysDamaged))?;
+        let json_bytes = keys
+            .decrypt(content, &self.secure_data_store.orders)
+            .or(Err(ZebraGuardErrors::DataDamaged))?;
+        let data: ST =
+            serde_json::from_slice(&json_bytes).or(Err(ZebraGuardErrors::DataDamaged))?;
+
+        Ok(data)
+    }
+
+    pub fn init_bip39(&mut self) -> Result<(), ZebraGuardErrors> {
         Ok(())
     }
 
