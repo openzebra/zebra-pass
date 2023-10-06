@@ -44,7 +44,7 @@ impl LocalStorage {
         Ok(LocalStorage { tree, version })
     }
 
-    pub fn get<ST>(&self, key: &str) -> Result<Data<ST>, StorageErrors>
+    pub fn get<ST>(&self, key: &str) -> Result<ST, StorageErrors>
     where
         ST: for<'a> Deserialize<'a> + Serialize,
     {
@@ -61,7 +61,7 @@ impl LocalStorage {
             return Err(StorageErrors::HashSumError);
         }
 
-        Ok(data)
+        Ok(data.payload)
     }
 
     pub fn set<ST>(&self, key: &str, payload: ST) -> Result<(), StorageErrors>
@@ -122,6 +122,6 @@ mod tests {
 
         let out = db.get::<Vec<String>>(KEY).unwrap();
 
-        assert_eq!(out.payload, payload);
+        assert_eq!(out, payload);
     }
 }
