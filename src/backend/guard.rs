@@ -84,14 +84,14 @@ impl<'a> ZebraGuard<'a> {
         let aes_key: [u8; AES_KEY_SIZE] = session[..AES_KEY_SIZE]
             .try_into()
             .or(Err(ZebraGuardErrors::KeysDamaged))?;
-        let pq_sk: [u8; PUBLICKEYS_BYTES] = session[AES_KEY_SIZE..PUBLICKEYS_BYTES]
+        let pq_pk: [u8; PUBLICKEYS_BYTES] = session[AES_KEY_SIZE..PUBLICKEYS_BYTES]
             .try_into()
             .or(Err(ZebraGuardErrors::KeysDamaged))?;
-        let pq_pk: [u8; SECRETKEYS_BYTES] = session[PUBLICKEYS_BYTES + AES_KEY_SIZE..]
+        let pq_sk: [u8; SECRETKEYS_BYTES] = session[AES_KEY_SIZE + PUBLICKEYS_BYTES..]
             .try_into()
             .or(Err(ZebraGuardErrors::KeysDamaged))?;
 
-        self.keys = Some(KeyChain::from_keys(aes_key, pq_sk, pq_pk));
+        let bip39_keys = KeyChain::from_keys(aes_key, pq_sk, pq_pk);
 
         Ok(())
     }
