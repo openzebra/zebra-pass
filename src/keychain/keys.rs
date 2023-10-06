@@ -1,6 +1,7 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+extern crate hex;
 
 use std::sync::Arc;
 
@@ -36,6 +37,12 @@ pub const AES_KEY_SIZE: usize = 32;
 pub enum CipherOrders {
     AES256,
     NTRUP1277,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct SecureData {
+    pub content: String,
+    pub orders: [CipherOrders; 2],
 }
 
 pub struct KeyChain {
@@ -133,7 +140,7 @@ impl KeyChain {
         out
     }
 
-    pub fn encrypt(&self, bytes: Vec<u8>) -> Result<(Vec<u8>, [CipherOrders; 2]), KeyChainErrors> {
+    pub fn encrypt(&self, bytes: Vec<u8>) -> Result<SecureData, KeyChainErrors> {
         let options = [CipherOrders::NTRUP1277, CipherOrders::AES256];
         let mut tmp = bytes;
 
@@ -148,15 +155,20 @@ impl KeyChain {
             };
         }
 
-        Ok((tmp, options))
+        let content = hex::encode(tmp);
+
+        Ok(SecureData {
+            content,
+            orders: options,
+        })
     }
 
     pub fn decrypt(
         &self,
-        bytes: Vec<u8>,
+        data: &str,
         options: &[CipherOrders; 2],
     ) -> Result<Vec<u8>, KeyChainErrors> {
-        let mut tmp = bytes;
+        let mut tmp = hex::decode(data).or(Err(KeyChainErrors::InvalidData))?;
 
         for o in options.iter().rev() {
             match o {
@@ -331,8 +343,10 @@ mod test_key_chain {
 
         let keys = KeyChain::from_pass(&password).unwrap();
 
-        let (encrypted, options) = keys.encrypt(ciphertext.clone()).unwrap();
-        let decrypted = keys.decrypt(encrypted, &options).unwrap();
+        let secure_data = keys.encrypt(ciphertext.clone()).unwrap();
+        let decrypted = keys
+            .decrypt(&secure_data.content, &secure_data.orders)
+            .unwrap();
 
         assert_eq!(decrypted, ciphertext);
     }

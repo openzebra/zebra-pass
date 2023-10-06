@@ -6,7 +6,7 @@ extern crate hex;
 extern crate serde_json;
 
 use crate::{
-    keychain::keys::{CipherOrders, KeyChain, AES_KEY_SIZE},
+    keychain::keys::{CipherOrders, KeyChain, SecureData, AES_KEY_SIZE},
     storage::{
         db::LocalStorage,
         errors::StorageErrors,
@@ -24,12 +24,6 @@ pub enum ZebraGuardErrors {
     GuardIsNotEnable,
     KeysDamaged,
     DataDamaged,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct SecureData {
-    pub content: String,
-    pub orders: [CipherOrders; 2],
 }
 
 // TODO: posible to remake RC or ARC if need
@@ -79,11 +73,12 @@ impl<'a> ZebraGuard<'a> {
 
         let pass_keys =
             KeyChain::from_pass(&password).or(Err(ZebraGuardErrors::InvalidPassword))?;
-        let content =
-            hex::decode(&self.secure_key_store.content).or(Err(ZebraGuardErrors::KeysDamaged))?;
 
         let session = pass_keys
-            .decrypt(content, &self.secure_key_store.orders)
+            .decrypt(
+                &self.secure_key_store.content,
+                &self.secure_key_store.orders,
+            )
             .or(Err(ZebraGuardErrors::KeysDamaged))?;
         let aes_key: [u8; AES_KEY_SIZE] = session[..AES_KEY_SIZE]
             .try_into()
@@ -118,10 +113,11 @@ impl<'a> ZebraGuard<'a> {
             .keys
             .as_ref()
             .ok_or(ZebraGuardErrors::GuardIsNotEnable)?;
-        let content =
-            hex::decode(&self.secure_data_store.content).or(Err(ZebraGuardErrors::KeysDamaged))?;
         let json_bytes = keys
-            .decrypt(content, &self.secure_data_store.orders)
+            .decrypt(
+                &self.secure_data_store.content,
+                &self.secure_data_store.orders,
+            )
             .or(Err(ZebraGuardErrors::DataDamaged))?;
         let data: ST =
             serde_json::from_slice(&json_bytes).or(Err(ZebraGuardErrors::DataDamaged))?;
@@ -138,6 +134,10 @@ impl<'a> ZebraGuard<'a> {
         let pwd_keys = KeyChain::from_pass(password).or(Err(ZebraGuardErrors::InvalidPassword))?;
         let bip39_keys = KeyChain::from_bip39(words, words_password)
             .or(Err(ZebraGuardErrors::IncorrectBip39Keys))?;
+        let bip39_keys_bytes = bip39_keys.as_bytes().to_vec();
+        let cipher = pwd_keys
+            .encrypt(bip39_keys_bytes)
+            .or(Err(ZebraGuardErrors::InvalidPassword))?;
 
         Ok(())
     }

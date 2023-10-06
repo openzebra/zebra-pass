@@ -12,4 +12,5 @@ pub enum KeyChainErrors {
     SKError,
     PKError,
     InvalidMnemonic,
+    InvalidData,
 }
