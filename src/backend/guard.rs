@@ -16,6 +16,7 @@ use crate::{
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug)]
 pub enum ZebraGuardErrors {
     IncorrectPassword,
     InvalidPassword,
@@ -24,6 +25,7 @@ pub enum ZebraGuardErrors {
     GuardIsNotEnable,
     KeysDamaged,
     DataDamaged,
+    StorageWriteError,
 }
 
 // TODO: posible to remake RC or ARC if need
@@ -83,7 +85,7 @@ impl<'a> ZebraGuard<'a> {
         let aes_key: [u8; AES_KEY_SIZE] = session[..AES_KEY_SIZE]
             .try_into()
             .or(Err(ZebraGuardErrors::KeysDamaged))?;
-        let pq_pk: [u8; PUBLICKEYS_BYTES] = session[AES_KEY_SIZE..PUBLICKEYS_BYTES]
+        let pq_pk: [u8; PUBLICKEYS_BYTES] = session[AES_KEY_SIZE..PUBLICKEYS_BYTES + AES_KEY_SIZE]
             .try_into()
             .or(Err(ZebraGuardErrors::KeysDamaged))?;
         let pq_sk: [u8; SECRETKEYS_BYTES] = session[AES_KEY_SIZE + PUBLICKEYS_BYTES..]
@@ -139,6 +141,18 @@ impl<'a> ZebraGuard<'a> {
             .encrypt(bip39_keys_bytes)
             .or(Err(ZebraGuardErrors::InvalidPassword))?;
 
+        self.secure_key_store = cipher;
+        self.keys = Some(bip39_keys);
+        self.ready = true;
+        self.enable = true;
+
+        self.db
+            .set::<SecureData>(SLED_KEYS_KEY, self.secure_key_store.clone())
+            .or(Err(ZebraGuardErrors::StorageWriteError))?;
+        self.db
+            .set::<SecureData>(SLED_DATA_KEY, self.secure_data_store.clone())
+            .or(Err(ZebraGuardErrors::StorageWriteError))?;
+
         Ok(())
     }
 
@@ -156,15 +170,50 @@ impl<'a> ZebraGuard<'a> {
 
 #[cfg(test)]
 mod guard_tests {
+    use rand::RngCore;
+
     use super::*;
     use crate::bip39::mnemonic::Mnemonic;
 
-    // #[test]
-    // fn test_init_unlock() {
-    //     let mut rng = rand::thread_rng();
-    //
-    //     let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
-    //     let db = LocalStorage::new().unwrap();
-    //     let guard = ZebraGuard::from(&db);
-    // }
+    #[test]
+    fn test_init_unlock() {
+        let mut rng = rand::thread_rng();
+
+        let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+        let db = LocalStorage::new("com.test_guard", "testGuard Corp", "TestGuard App").unwrap();
+        let mut guard = ZebraGuard::from(&db);
+
+        let mut password = [0u8; 1245];
+        let words = m.get();
+        let words_password = "test";
+
+        rng.fill_bytes(&mut password);
+
+        assert!(!guard.enable);
+        assert!(!guard.ready);
+
+        guard.init_bip39(&password, &words, words_password).unwrap();
+
+        assert!(guard.enable);
+        assert!(guard.ready);
+
+        let mut new_guard = ZebraGuard::from(&db);
+
+        assert!(!new_guard.enable);
+        assert!(!new_guard.ready);
+
+        new_guard.sync().unwrap();
+
+        assert!(new_guard.ready);
+
+        new_guard.try_unlock(&password).unwrap();
+
+        assert!(new_guard.enable);
+        assert!(new_guard.ready);
+
+        assert_eq!(
+            new_guard.keys.unwrap().as_bytes(),
+            guard.keys.unwrap().as_bytes()
+        );
+    }
 }

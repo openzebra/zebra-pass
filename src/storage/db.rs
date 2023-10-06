@@ -30,8 +30,14 @@ pub struct LocalStorage {
 }
 
 impl LocalStorage {
-    pub fn new() -> Result<Self, StorageErrors> {
-        let path = match ProjectDirs::from("com.zebra", "Zebra Corp", "Zebra App") {
+    ///
+    /// let db = LocalStorage::new("com.zebra", "Zebra Corp", "Zebra App").unwrap();
+    pub fn new(
+        qualifier: &str,
+        organization: &str,
+        application: &str,
+    ) -> Result<Self, StorageErrors> {
+        let path = match ProjectDirs::from(qualifier, organization, application) {
             Some(p) => p,
             None => return Err(StorageErrors::PathError),
         };
@@ -110,13 +116,12 @@ impl LocalStorage {
 #[cfg(test)]
 mod storage_tests {
     use super::*;
-    use rand;
 
     #[test]
     fn test_read_write() {
         const KEY: &str = "TEST_KEY_FOR_STORAGE";
 
-        let db = LocalStorage::new().unwrap();
+        let db = LocalStorage::new("com.test_write", "WriteTest Corp", "WriteTest App").unwrap();
         let payload = vec!["test1", "test2", "test3"];
 
         db.set(KEY, &payload).unwrap();

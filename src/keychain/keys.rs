@@ -33,13 +33,13 @@ const SHA256_SIZE: usize = SHA512_SIZE / 2;
 const AES_BLOCK_SIZE: usize = 16;
 pub const AES_KEY_SIZE: usize = 32;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum CipherOrders {
     AES256,
     NTRUP1277,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct SecureData {
     pub content: String,
     pub orders: [CipherOrders; 2],
