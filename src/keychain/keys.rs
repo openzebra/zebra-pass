@@ -30,6 +30,7 @@ const DIFFICULTY: u32 = 2048;
 const SHA512_SIZE: usize = 64;
 const SHA256_SIZE: usize = SHA512_SIZE / 2;
 const AES_BLOCK_SIZE: usize = 16;
+pub const AES_KEY_SIZE: usize = 32;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum CipherOrders {
@@ -142,7 +143,7 @@ impl KeyChain {
     pub fn decrypt(
         &self,
         bytes: Vec<u8>,
-        options: [CipherOrders; 2],
+        options: &[CipherOrders; 2],
     ) -> Result<Vec<u8>, KeyChainErrors> {
         let mut tmp = bytes;
 
@@ -297,7 +298,7 @@ mod test_key_chain {
         let keys = KeyChain::from_pass(&password).unwrap();
 
         let (encrypted, options) = keys.encrypt(ciphertext.clone()).unwrap();
-        let decrypted = keys.decrypt(encrypted, options).unwrap();
+        let decrypted = keys.decrypt(encrypted, &options).unwrap();
 
         assert_eq!(decrypted, ciphertext);
     }
