@@ -44,11 +44,47 @@ impl<'a> Settings<'a> {
     }
 
     pub fn load(&mut self) -> Result<(), StorageErrors> {
-        let payload_store = self.db.get::<SettingsPayload>(SLED_SETTINGS_KEY)?;
+        match self.db.get::<SettingsPayload>(SLED_SETTINGS_KEY) {
+            Ok(payload_store) => {
+                self.payload = payload_store;
+            }
+            Err(_) => {
+                self.db
+                    .set::<&SettingsPayload>(SLED_SETTINGS_KEY, &self.payload)?;
+            }
+        };
 
-        self.payload = payload_store;
         self.ready = true;
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod settings_tests {
+    use super::*;
+
+    #[test]
+    fn test_init_settings() {
+        let db = LocalStorage::new(
+            "com.test_settings",
+            "test-settings Corp",
+            "TestSettings App",
+        )
+        .unwrap();
+        let mut settings = Settings::from(&db);
+
+        settings.load().unwrap();
+        settings.payload.cipher.difficulty = 123;
+        settings.update().unwrap();
+
+        let mut new_settings = Settings::from(&db);
+
+        new_settings.load().unwrap();
+
+        assert_eq!(
+            new_settings.payload.cipher.difficulty,
+            settings.payload.cipher.difficulty
+        );
     }
 }
