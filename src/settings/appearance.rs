@@ -7,9 +7,18 @@ use serde::{Deserialize, Serialize};
 pub enum Themes {
     Dark,
     Light,
+    Auto,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AppearanceSettings {
-    theme: Themes,
+    pub theme: Themes,
+}
+
+impl AppearanceSettings {
+    pub fn new() -> Self {
+        Self {
+            theme: Themes::Auto,
+        }
+    }
 }

@@ -4,3 +4,4 @@
 
 pub mod appearance;
 pub mod cipher;
+pub mod settings;
