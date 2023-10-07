@@ -165,7 +165,35 @@ impl<'a> ZebraGuard<'a> {
         Ok(())
     }
 
-    pub fn sync(&mut self) -> Result<(), StorageErrors> {
+    pub fn update<T>(&mut self, data: T) -> Result<(), ZebraGuardErrors>
+    where
+        T: Serialize,
+    {
+        if !self.ready {
+            return Err(ZebraGuardErrors::GuardIsNotReady);
+        }
+        if !self.enable {
+            return Err(ZebraGuardErrors::GuardIsNotReady);
+        }
+
+        let bip39_keys = self
+            .keys
+            .as_ref()
+            .ok_or(ZebraGuardErrors::GuardIsNotEnable)?;
+        let json = serde_json::to_string(&data).or(Err(ZebraGuardErrors::DataDamaged))?;
+        let data_cipher = bip39_keys
+            .encrypt(json.as_bytes().to_vec())
+            .or(Err(ZebraGuardErrors::DataDamaged))?;
+
+        self.secure_data_store = data_cipher;
+        self.db
+            .set::<SecureData>(SLED_DATA_KEY, self.secure_data_store.clone())
+            .or(Err(ZebraGuardErrors::StorageWriteError))?;
+
+        Ok(())
+    }
+
+    pub fn load(&mut self) -> Result<(), StorageErrors> {
         let secure_key_store = self.db.get::<SecureData>(SLED_KEYS_KEY)?;
         let secure_data_store = self.db.get::<SecureData>(SLED_DATA_KEY)?;
 
@@ -218,7 +246,7 @@ mod guard_tests {
         assert!(!new_guard.enable);
         assert!(!new_guard.ready);
 
-        new_guard.sync().unwrap();
+        new_guard.load().unwrap();
 
         assert!(new_guard.ready);
 
@@ -230,9 +258,20 @@ mod guard_tests {
         let decrypted_data = new_guard.get_data::<Vec<String>>().unwrap();
 
         assert_eq!(
-            new_guard.keys.unwrap().as_bytes(),
-            guard.keys.unwrap().as_bytes()
+            new_guard.keys.as_ref().unwrap().as_bytes(),
+            guard.keys.as_ref().unwrap().as_bytes()
         );
+        assert_eq!(
+            new_guard.secure_data_store.content,
+            guard.secure_data_store.content
+        );
+        assert_eq!(&data, &decrypted_data);
+
+        let new_data: Vec<u8> = vec![0, 1, 2, 3, 4, 5];
+
+        guard.update::<&[u8]>(&new_data).unwrap();
+        new_guard.load().unwrap();
+
         assert_eq!(
             new_guard.secure_data_store.content,
             guard.secure_data_store.content
