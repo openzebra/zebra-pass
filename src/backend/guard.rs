@@ -100,9 +100,9 @@ impl<'a> ZebraGuard<'a> {
         Ok(())
     }
 
-    pub fn get_data<ST>(&self) -> Result<ST, ZebraGuardErrors>
+    pub fn get_data<T>(&self) -> Result<T, ZebraGuardErrors>
     where
-        ST: for<'b> Deserialize<'b> + Serialize,
+        T: for<'b> Deserialize<'b> + Serialize,
     {
         if !self.ready {
             return Err(ZebraGuardErrors::GuardIsNotReady);
@@ -121,27 +121,36 @@ impl<'a> ZebraGuard<'a> {
                 &self.secure_data_store.orders,
             )
             .or(Err(ZebraGuardErrors::DataDamaged))?;
-        let data: ST =
-            serde_json::from_slice(&json_bytes).or(Err(ZebraGuardErrors::DataDamaged))?;
+        let data: T = serde_json::from_slice(&json_bytes).or(Err(ZebraGuardErrors::DataDamaged))?;
 
         Ok(data)
     }
 
-    pub fn init_bip39(
+    pub fn init_bip39<T>(
         &mut self,
         password: &[u8],
         words: &str,
         words_password: &str,
-    ) -> Result<(), ZebraGuardErrors> {
+        data: T,
+    ) -> Result<(), ZebraGuardErrors>
+    where
+        T: Serialize,
+    {
         let pwd_keys = KeyChain::from_pass(password).or(Err(ZebraGuardErrors::InvalidPassword))?;
         let bip39_keys = KeyChain::from_bip39(words, words_password)
             .or(Err(ZebraGuardErrors::IncorrectBip39Keys))?;
         let bip39_keys_bytes = bip39_keys.as_bytes().to_vec();
-        let cipher = pwd_keys
+        let keys_cipher = pwd_keys
             .encrypt(bip39_keys_bytes)
             .or(Err(ZebraGuardErrors::InvalidPassword))?;
 
-        self.secure_key_store = cipher;
+        let json = serde_json::to_string(&data).or(Err(ZebraGuardErrors::DataDamaged))?;
+        let data_cipher = bip39_keys
+            .encrypt(json.as_bytes().to_vec())
+            .or(Err(ZebraGuardErrors::DataDamaged))?;
+
+        self.secure_data_store = data_cipher;
+        self.secure_key_store = keys_cipher;
         self.keys = Some(bip39_keys);
         self.ready = true;
         self.enable = true;
@@ -186,13 +195,20 @@ mod guard_tests {
         let mut password = [0u8; 1245];
         let words = m.get();
         let words_password = "test";
+        let data = vec![
+            "test0".to_string(),
+            "test1".to_string(),
+            "test2".to_string(),
+        ];
 
         rng.fill_bytes(&mut password);
 
         assert!(!guard.enable);
         assert!(!guard.ready);
 
-        guard.init_bip39(&password, &words, words_password).unwrap();
+        guard
+            .init_bip39::<Vec<String>>(&password, &words, words_password, data.clone())
+            .unwrap();
 
         assert!(guard.enable);
         assert!(guard.ready);
@@ -211,9 +227,16 @@ mod guard_tests {
         assert!(new_guard.enable);
         assert!(new_guard.ready);
 
+        let decrypted_data = new_guard.get_data::<Vec<String>>().unwrap();
+
         assert_eq!(
             new_guard.keys.unwrap().as_bytes(),
             guard.keys.unwrap().as_bytes()
         );
+        assert_eq!(
+            new_guard.secure_data_store.content,
+            guard.secure_data_store.content
+        );
+        assert_eq!(&data, &decrypted_data);
     }
 }
