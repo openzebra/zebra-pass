@@ -2,7 +2,7 @@ import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
 
 export component CreatePage inherits Window {
-  callback continue(Routers);
+    callback continue(Routers);
 
     HorizontalLayout {
         VerticalLayout {
@@ -16,7 +16,32 @@ export component CreatePage inherits Window {
             }
         }
         VerticalLayout {
+            width: Theme.app-width - Theme.zerba-print-length;
             alignment: center;
+            HorizontalLayout {
+                width: 100%;
+                alignment: center;
+                VerticalLayout {
+                    Text {
+                        text: @tr("Secret Phrase");
+                        font-size: Theme.font-size-medium * 2;
+                        font-weight: Theme.font-weight-bold;
+                        horizontal-alignment: center;
+                    }
+                    Text {
+                        text: @tr("Remember or backup words in order!!!");
+                        font-size: Theme.font-size-medium;
+                        font-weight: Theme.font-weight-bold;
+                        horizontal-alignment: center;
+                    }
+                }
+            }
+            HorizontalLayout {
+                width: 100%;
+                padding-top: 15pt;
+                alignment: center;
+                VerticalLayout {}
+            }
         }
     }
 }
