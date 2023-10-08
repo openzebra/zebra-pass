@@ -1,4 +1,3 @@
-import { TabWidget } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
 
@@ -6,21 +5,18 @@ export component CreatePage inherits Window {
   callback continue(Routers);
 
     HorizontalLayout {
-        alignment: center;
-        height: Theme.app-height;
-        width: Theme.app-width;
-
+        VerticalLayout {
+            height: Theme.app-height;
+            Image {
+                source: @image-url("../images/zebra_print.png");
+                colorize: Theme.window-background-inverse;
+                height: 100%;
+                width: Theme.zerba-print-length;
+                image-fit: fill;
+            }
+        }
         VerticalLayout {
             alignment: center;
-            TabWidget {
-                Tab {
-                    title: @tr("Login");
-                    
-                }
-                Tab {
-                    title: @tr("Login");
-                }
-            }
         }
     }
 }

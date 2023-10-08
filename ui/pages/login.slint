@@ -82,12 +82,12 @@ export component LoginPage inherits Window {
                             Rectangle {
                                 width: 100pt;
                                 height: 1pt;
-                                background: Theme.window-background.darker(50%);
+                                background: Theme.window-background-inverse.transparentize(50%);
                             }
                         }
                         Text {
                             text: @tr("Or");
-                            color: Theme.window-background.darker(50%);
+                            color: Theme.window-background-inverse.transparentize(50%);
                         }
                         VerticalLayout {
                             alignment: center;
@@ -95,7 +95,7 @@ export component LoginPage inherits Window {
                             Rectangle {
                                 width: 100pt;
                                 height: 1pt;
-                                background: Theme.window-background.darker(50%);
+                                background: Theme.window-background-inverse.transparentize(50%);
                             }
                         }
                     }
@@ -109,7 +109,7 @@ export component LoginPage inherits Window {
                         enabled: true;
                         hovered: false;
                         clicked => {
-                            // continue(Routers.Login)
+                            continue(Routers.Create)
                         }
                     }
                 }

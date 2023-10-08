@@ -81,12 +81,12 @@ export component StartPage inherits Window {
             HorizontalLayout {
                 padding-top: 30pt;
                 if (slide == 0) : Slide {
-                    source: @image-url("../images/zebra.svg");
+                    source: @image-url("../images/zebra.png");
                     title: @tr("Welcome to ZebraPass");
                     description: @tr("Introducing ZebraPass: The first\n Quantum-Resistant Password Management Solution!");
                     button: @tr("Continue");
                     img-height: 200pt;
-                    img-width: 180pt;
+                    img-width: 200pt;
                     next => {
                         slide += 1;
                     }
@@ -110,7 +110,7 @@ export component StartPage inherits Window {
                     img-height: 200pt;
                     img-width: 195pt;
                     next => {
-                        continue(Routers.Create);
+                        continue(Routers.Login);
                     }
                 }
             }

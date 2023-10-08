@@ -25,7 +25,11 @@ export component Route inherits Window {
         }
     }
     if(root.route == Routers.Create) : CreatePage {}
-    if(root.route == Routers.Login) : LoginPage {}
+    if(root.route == Routers.Login) : LoginPage {
+        continue(new-route) => {
+            root.route = new-route;
+        }
+    }
     if(root.route == Routers.Privacy) : PrivacyPage {
         continue(new-route) => {
             root.route = new-route;
