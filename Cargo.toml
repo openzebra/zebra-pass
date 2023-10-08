@@ -9,10 +9,10 @@ build = "build.rs"
 [dependencies]
 directories = "5.0.1"
 pbkdf2 = "0.12.2"
-serde = "1.0.188"
+serde = { version = "1.0.188", features = ["derive"] }
 sled = "0.34.7"
 unicode-normalization = "0.1.22"
-slint = { version = "1.1.1", features = ["gettext", "renderer-winit-skia", "backend-winit-wayland", "backend-winit-x11" ] }
+slint = { version = "1.1.1", features = ["gettext"] }
 sha2 = { version = "0.10", default-features = false }
 rand = { version = "0.8.5", features = ["small_rng"] }
 ntrulp = { version = "0.1.7", features = ["ntrup1277"] }

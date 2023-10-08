@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::errors::ZebraErrors;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Data<ST> {
     pub payload: ST,
     // Storage verions
@@ -81,7 +81,6 @@ impl LocalStorage {
         let json_payload =
             serde_json::to_string(&payload).or(Err(ZebraErrors::StorageDataBroken))?;
         let hashsum = self.hash(&json_payload.as_bytes());
-        // TODO: move to diff file and impl
         let data = Data {
             payload,
             hashsum,
