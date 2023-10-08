@@ -5,13 +5,14 @@ extern crate hex;
 extern crate serde;
 extern crate serde_json;
 
-use crate::storage::errors::StorageErrors;
 use directories::ProjectDirs;
 use sha2::{Digest, Sha256};
 use sled::{Db, IVec};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
+
+use crate::errors::ZebraErrors;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Data<ST> {
@@ -30,52 +31,55 @@ pub struct LocalStorage {
 }
 
 impl LocalStorage {
-    ///
     /// let db = LocalStorage::new("com.zebra", "Zebra Corp", "Zebra App").unwrap();
     pub fn new(
         qualifier: &str,
         organization: &str,
         application: &str,
-    ) -> Result<Self, StorageErrors> {
+    ) -> Result<Self, ZebraErrors> {
         let path = match ProjectDirs::from(qualifier, organization, application) {
             Some(p) => p,
-            None => return Err(StorageErrors::PathError),
+            None => return Err(ZebraErrors::StoragePathError),
         };
         let tree = match sled::open(path.data_dir()) {
             Ok(t) => t,
-            Err(_) => return Err(StorageErrors::StorageAccess),
+            Err(_) => return Err(ZebraErrors::StorageAccessError),
         };
         let version = 0;
 
         Ok(LocalStorage { tree, version })
     }
 
-    pub fn get<ST>(&self, key: &str) -> Result<ST, StorageErrors>
+    pub fn get<ST>(&self, key: &str) -> Result<ST, ZebraErrors>
     where
         ST: for<'a> Deserialize<'a> + Serialize,
     {
-        let some_value = self.tree.get(key).or(Err(StorageErrors::StorageAccess))?;
-        let value = some_value.ok_or(StorageErrors::NotFound)?;
+        let some_value = self
+            .tree
+            .get(key)
+            .or(Err(ZebraErrors::StorageAccessError))?;
+        let value = some_value.ok_or(ZebraErrors::StorageDataNotFound)?;
         let json = String::from_utf8_lossy(&value);
 
-        let data: Data<ST> = serde_json::from_str(&json).or(Err(StorageErrors::BrokenData))?;
+        let data: Data<ST> = serde_json::from_str(&json).or(Err(ZebraErrors::StorageDataBroken))?;
         let json_payload =
-            serde_json::to_string(&data.payload).or(Err(StorageErrors::BrokenData))?;
+            serde_json::to_string(&data.payload).or(Err(ZebraErrors::StorageDataBroken))?;
         let hashsum = self.hash(&json_payload.as_bytes());
 
         if hashsum != data.hashsum {
-            return Err(StorageErrors::HashSumError);
+            return Err(ZebraErrors::StorageHashsumError);
         }
 
         Ok(data.payload)
     }
 
-    pub fn set<ST>(&self, key: &str, payload: ST) -> Result<(), StorageErrors>
+    pub fn set<ST>(&self, key: &str, payload: ST) -> Result<(), ZebraErrors>
     where
         ST: Serialize,
     {
         let last_update = self.get_unix_time()?;
-        let json_payload = serde_json::to_string(&payload).or(Err(StorageErrors::BrokenData))?;
+        let json_payload =
+            serde_json::to_string(&payload).or(Err(ZebraErrors::StorageDataBroken))?;
         let hashsum = self.hash(&json_payload.as_bytes());
         // TODO: move to diff file and impl
         let data = Data {
@@ -84,12 +88,12 @@ impl LocalStorage {
             last_update,
             version: self.version,
         };
-        let json = serde_json::to_string(&data).or(Err(StorageErrors::BrokenData))?;
+        let json = serde_json::to_string(&data).or(Err(ZebraErrors::StorageDataBroken))?;
         let vec = IVec::from(json.as_bytes());
 
         self.tree
             .insert(key, vec)
-            .or(Err(StorageErrors::StorageWriteError))?;
+            .or(Err(ZebraErrors::StorageWriteError))?;
 
         Ok(())
     }
@@ -102,11 +106,11 @@ impl LocalStorage {
         hex::encode(hashsum)
     }
 
-    fn get_unix_time(&self) -> Result<u64, StorageErrors> {
+    fn get_unix_time(&self) -> Result<u64, ZebraErrors> {
         let now = SystemTime::now();
         let since_epoch = now
             .duration_since(UNIX_EPOCH)
-            .or(Err(StorageErrors::TimeWentBackwards))?;
+            .or(Err(ZebraErrors::StorageTimeWentBackwards))?;
         let u64_time = since_epoch.as_secs();
 
         Ok(u64_time)

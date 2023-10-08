@@ -4,6 +4,7 @@
 
 pub mod backend;
 pub mod bip39;
+pub mod errors;
 pub mod keychain;
 pub mod settings;
 pub mod storage;

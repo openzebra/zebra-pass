@@ -9,7 +9,6 @@ use aes::cipher::{generic_array::GenericArray, BlockDecrypt, BlockEncrypt, KeyIn
 use aes::Aes256;
 use ntrulp::key::{priv_key::PrivKey, pub_key::PubKey};
 use ntrulp::ntru;
-use ntrulp::ntru::errors::NTRUErrors;
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
 use ntrulp::poly::r3::R3;
 use ntrulp::poly::rq::Rq;
@@ -20,8 +19,7 @@ use serde::{Deserialize, Serialize};
 use sha2::Sha512;
 
 use crate::bip39::mnemonic::Mnemonic;
-
-use super::errors::KeyChainErrors;
+use crate::errors::ZebraErrors;
 
 const PASSWORD_SALT: [u8; 16] = [
     131, 53, 247, 96, 233, 128, 223, 191, 171, 58, 191, 97, 236, 210, 100, 70,
@@ -54,22 +52,28 @@ pub struct KeyChain {
 
 fn gen_from_seed(
     seed_bytes: [u8; SHA512_SIZE],
-) -> Result<([u8; SHA256_SIZE], PubKey, PrivKey), KeyChainErrors> {
+) -> Result<([u8; SHA256_SIZE], PubKey, PrivKey), ZebraErrors> {
     let seed_pq: [u8; 8] = seed_bytes[..8]
         .try_into()
-        .or(Err(KeyChainErrors::SliceError))?;
+        .or(Err(ZebraErrors::KeyChainSliceError))?;
     let aes_key: [u8; SHA256_SIZE] = seed_bytes[SHA256_SIZE..]
         .try_into()
-        .or(Err(KeyChainErrors::SliceError))?;
+        .or(Err(ZebraErrors::KeyChainSliceError))?;
 
     // TODO: make it as seed from 32 byts.
     let pq_seed_u64 = u64::from_be_bytes(seed_pq);
     let mut pq_rng = NTRURandom::from_u64(pq_seed_u64);
-    let f: Rq = Rq::from(pq_rng.short_random().or(Err(KeyChainErrors::RngError))?);
+    let f: Rq = Rq::from(
+        pq_rng
+            .short_random()
+            .or(Err(ZebraErrors::KeyChainNTRURngError))?,
+    );
     let mut g: R3;
     let sk = loop {
         // TODO: this can be endless.
-        let r = pq_rng.random_small().or(Err(KeyChainErrors::RngError))?;
+        let r = pq_rng
+            .random_small()
+            .or(Err(ZebraErrors::KeyChainNTRURngError))?;
         g = R3::from(r);
 
         match PrivKey::compute(&f, &g) {
@@ -77,13 +81,13 @@ fn gen_from_seed(
             Err(_) => continue,
         };
     };
-    let pk = PubKey::compute(&f, &g).or(Err(KeyChainErrors::GenKeysError))?;
+    let pk = PubKey::compute(&f, &g).or(Err(ZebraErrors::KeyChainGenNTRUKeysError))?;
 
     Ok((aes_key, pk, sk))
 }
 
 impl KeyChain {
-    pub fn from_pass(password: &[u8]) -> Result<Self, KeyChainErrors> {
+    pub fn from_pass(password: &[u8]) -> Result<Self, ZebraErrors> {
         let seed_bytes =
             pbkdf2_hmac_array::<Sha512, SHA512_SIZE>(password, &PASSWORD_SALT, DIFFICULTY);
         let (aes_key, pk, sk) = gen_from_seed(seed_bytes)?;
@@ -96,12 +100,12 @@ impl KeyChain {
         })
     }
 
-    pub fn from_bip39(words: &str, password: &str) -> Result<Self, KeyChainErrors> {
+    pub fn from_bip39(words: &str, password: &str) -> Result<Self, ZebraErrors> {
         if !Mnemonic::validate_mnemonic(words) {
-            return Err(KeyChainErrors::InvalidMnemonic);
+            return Err(ZebraErrors::Bip39InvalidMnemonic);
         }
 
-        let m = Mnemonic::mnemonic_to_entropy(&words).or(Err(KeyChainErrors::InvalidMnemonic))?;
+        let m = Mnemonic::mnemonic_to_entropy(&words)?;
         let num_threads = num_cpus::get();
         let seed_bytes = m.get_seed(password);
         let (aes_key, pk, sk) = gen_from_seed(seed_bytes)?;
@@ -117,10 +121,10 @@ impl KeyChain {
         key: [u8; SHA256_SIZE],
         pqsk: [u8; SECRETKEYS_BYTES],
         pqpk: [u8; PUBLICKEYS_BYTES],
-    ) -> Result<Self, KeyChainErrors> {
+    ) -> Result<Self, ZebraErrors> {
         let num_threads = num_cpus::get();
-        let secret_key = PrivKey::import(&pqsk).or(Err(KeyChainErrors::SKError))?;
-        let pub_key = PubKey::import(&pqpk).or(Err(KeyChainErrors::PKError))?;
+        let secret_key = PrivKey::import(&pqsk).or(Err(ZebraErrors::KeyChainNTRUImportSKError))?;
+        let pub_key = PubKey::import(&pqpk).or(Err(ZebraErrors::KeyChainNTRUImportPKError))?;
 
         Ok(Self {
             num_threads,
@@ -140,18 +144,14 @@ impl KeyChain {
         out
     }
 
-    pub fn encrypt(&self, bytes: Vec<u8>) -> Result<SecureData, KeyChainErrors> {
+    pub fn encrypt(&self, bytes: Vec<u8>) -> Result<SecureData, ZebraErrors> {
         let options = [CipherOrders::NTRUP1277, CipherOrders::AES256];
         let mut tmp = bytes;
 
         for o in &options {
             match o {
                 CipherOrders::AES256 => tmp = self.aes_encrypt(&tmp),
-                CipherOrders::NTRUP1277 => {
-                    tmp = self
-                        .ntru_encrypt(&Arc::new(tmp))
-                        .or(Err(KeyChainErrors::NTRUEncryptError))?
-                }
+                CipherOrders::NTRUP1277 => tmp = self.ntru_encrypt(&Arc::new(tmp))?,
             };
         }
 
@@ -163,39 +163,31 @@ impl KeyChain {
         })
     }
 
-    pub fn decrypt(
-        &self,
-        data: &str,
-        options: &[CipherOrders; 2],
-    ) -> Result<Vec<u8>, KeyChainErrors> {
-        let mut tmp = hex::decode(data).or(Err(KeyChainErrors::InvalidData))?;
+    pub fn decrypt(&self, data: &str, options: &[CipherOrders; 2]) -> Result<Vec<u8>, ZebraErrors> {
+        let mut tmp = hex::decode(data).or(Err(ZebraErrors::KeychainDataIsNotHex))?;
 
         for o in options.iter().rev() {
             match o {
                 CipherOrders::AES256 => tmp = self.aes_decrypt(&tmp)?,
-                CipherOrders::NTRUP1277 => {
-                    tmp = self
-                        .ntru_decrypt(&Arc::new(tmp))
-                        .or(Err(KeyChainErrors::NTRUDecryptError))?;
-                }
+                CipherOrders::NTRUP1277 => tmp = self.ntru_decrypt(&Arc::new(tmp))?,
             };
         }
 
         Ok(tmp)
     }
 
-    fn aes_decrypt(&self, bytes: &[u8]) -> Result<Vec<u8>, KeyChainErrors> {
+    fn aes_decrypt(&self, bytes: &[u8]) -> Result<Vec<u8>, ZebraErrors> {
         let key = GenericArray::from(self.aes_key);
         let cipher = Aes256::new(&key);
         let point_bytes: [u8; 8] = bytes[bytes.len() - 8..]
             .try_into()
-            .or(Err(KeyChainErrors::SliceError))?;
+            .or(Err(ZebraErrors::KeyChainSliceError))?;
         let point = usize::from_be_bytes(point_bytes);
         let mut blocks = Vec::new();
 
         for chunk in bytes[..bytes.len() - 8].chunks(AES_BLOCK_SIZE) {
             let block: [u8; AES_BLOCK_SIZE] =
-                chunk.try_into().or(Err(KeyChainErrors::SliceError))?;
+                chunk.try_into().or(Err(ZebraErrors::KeyChainSliceError))?;
             blocks.push(GenericArray::from(block));
         }
 
@@ -214,10 +206,11 @@ impl KeyChain {
         Ok(decrypted)
     }
 
-    fn ntru_decrypt(&self, bytes: &Arc<Vec<u8>>) -> Result<Vec<u8>, NTRUErrors> {
+    fn ntru_decrypt(&self, bytes: &Arc<Vec<u8>>) -> Result<Vec<u8>, ZebraErrors> {
         let sk = &self.ntrup_keys.0;
 
         ntru::cipher::parallel_bytes_decrypt(&bytes, &sk, self.num_threads)
+            .or(Err(ZebraErrors::KeychainDataDecryptError))
     }
 
     fn aes_encrypt(&self, bytes: &[u8]) -> Vec<u8> {
@@ -261,12 +254,13 @@ impl KeyChain {
         encrypted
     }
 
-    fn ntru_encrypt(&self, bytes: &Arc<Vec<u8>>) -> Result<Vec<u8>, NTRUErrors> {
+    fn ntru_encrypt(&self, bytes: &Arc<Vec<u8>>) -> Result<Vec<u8>, ZebraErrors> {
         let mut rng = NTRURandom::new();
         let bytes = Arc::new(bytes);
         let pk = &self.ntrup_keys.1;
 
         ntru::cipher::parallel_bytes_encrypt(&mut rng, &bytes, &pk, self.num_threads)
+            .or(Err(ZebraErrors::KeychainDataEncryptError))
     }
 }
 

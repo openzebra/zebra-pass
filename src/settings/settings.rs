@@ -3,8 +3,8 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use serde::{Deserialize, Serialize};
 
+use crate::errors::ZebraErrors;
 use crate::storage::db::LocalStorage;
-use crate::storage::errors::StorageErrors;
 use crate::storage::keys::SLED_SETTINGS_KEY;
 
 use super::appearance::AppearanceSettings;
@@ -32,9 +32,9 @@ impl<'a> Settings<'a> {
         Self { payload, db, ready }
     }
 
-    pub fn update(&self) -> Result<(), StorageErrors> {
+    pub fn update(&self) -> Result<(), ZebraErrors> {
         if !self.ready {
-            return Err(StorageErrors::HashSumError);
+            return Err(ZebraErrors::StorageHashsumError);
         }
 
         self.db
@@ -43,7 +43,7 @@ impl<'a> Settings<'a> {
         Ok(())
     }
 
-    pub fn load(&mut self) -> Result<(), StorageErrors> {
+    pub fn load(&mut self) -> Result<(), ZebraErrors> {
         match self.db.get::<SettingsPayload>(SLED_SETTINGS_KEY) {
             Ok(payload_store) => {
                 self.payload = payload_store;

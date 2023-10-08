@@ -8,7 +8,9 @@ use pbkdf2::pbkdf2_hmac_array;
 use sha2::{Digest, Sha256, Sha512};
 use unicode_normalization::UnicodeNormalization;
 
-use super::{config::NUMBER_WORDS, errors::Bip39Error, language};
+use crate::errors::ZebraErrors;
+
+use super::{config::NUMBER_WORDS, language};
 
 const SALT_PREFIX: &str = "zebra-bip39-mnemonic";
 const SIZE: usize = 12;
@@ -32,12 +34,12 @@ fn normalize_utf8_cow<'a>(cow: &mut Cow<'a, str>) {
 }
 
 impl Mnemonic {
-    pub fn mnemonic_to_entropy(mnemonic: &str) -> Result<Self, Bip39Error> {
+    pub fn mnemonic_to_entropy(mnemonic: &str) -> Result<Self, ZebraErrors> {
         // TODO: make detect lang.
         let nb_words = mnemonic.split_whitespace().count();
 
         if is_invalid_word_count(nb_words) {
-            return Err(Bip39Error::BadWordCount(nb_words));
+            return Err(ZebraErrors::Bip39BadWordCount(nb_words));
         }
 
         let mut words = [EOF; SIZE];
@@ -47,7 +49,7 @@ impl Mnemonic {
             let index = language::english::WORDS
                 .iter()
                 .position(|w| *w == word)
-                .ok_or(Bip39Error::UnknownWord(i))?;
+                .ok_or(ZebraErrors::Bip39UnknownWord(i))?;
 
             words[i] = index as u16;
 
@@ -72,14 +74,14 @@ impl Mnemonic {
 
         for i in 0..nb_bytes_entropy / 4 {
             if bits[8 * nb_bytes_entropy + i] != ((check[i / 8] & (1 << (7 - (i % 8)))) > 0) {
-                return Err(Bip39Error::InvalidChecksum);
+                return Err(ZebraErrors::Bip39InvalidChecksum);
             }
         }
 
         Ok(Self::English(words))
     }
 
-    pub fn entropy_to_mnemonic(entropy: &[u8; STRENGTH]) -> Result<Self, Bip39Error> {
+    pub fn entropy_to_mnemonic(entropy: &[u8; STRENGTH]) -> Result<Self, ZebraErrors> {
         const MAX_ENTROPY_BITS: usize = 128;
         const MAX_CHECKSUM_BITS: usize = 8;
 
@@ -87,7 +89,7 @@ impl Mnemonic {
         let nb_bits = nb_bytes * 8;
 
         if nb_bits % 32 != 0 {
-            return Err(Bip39Error::BadEntropyBitCount(nb_bits));
+            return Err(ZebraErrors::Bip39BadEntropyBitCount(nb_bits));
         }
 
         let mut hasher = Sha256::new();
@@ -119,7 +121,7 @@ impl Mnemonic {
         Ok(Self::English(words))
     }
 
-    pub fn generate_mnemonic<R>(rng: &mut R) -> Result<Self, Bip39Error>
+    pub fn generate_mnemonic<R>(rng: &mut R) -> Result<Self, ZebraErrors>
     where
         R: rand::RngCore + rand::CryptoRng,
     {

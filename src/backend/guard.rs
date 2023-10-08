@@ -6,27 +6,15 @@ extern crate hex;
 extern crate serde_json;
 
 use crate::{
+    errors::ZebraErrors,
     keychain::keys::{CipherOrders, KeyChain, SecureData, AES_KEY_SIZE},
     storage::{
         db::LocalStorage,
-        errors::StorageErrors,
         keys::{SLED_DATA_KEY, SLED_KEYS_KEY},
     },
 };
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
 use serde::{Deserialize, Serialize};
-
-#[derive(Debug)]
-pub enum ZebraGuardErrors {
-    IncorrectPassword,
-    InvalidPassword,
-    IncorrectBip39Keys,
-    GuardIsNotReady,
-    GuardIsNotEnable,
-    KeysDamaged,
-    DataDamaged,
-    StorageWriteError,
-}
 
 // TODO: posible to remake RC or ARC if need
 // TODO: add time before lock session.
@@ -68,31 +56,28 @@ impl<'a> ZebraGuard<'a> {
     // gen_keys from password
     // -> decrypt keys_session(bip39)
     // -> decrypt secure_data via (bip39) keys
-    pub fn try_unlock(&mut self, password: &[u8]) -> Result<(), ZebraGuardErrors> {
+    pub fn try_unlock(&mut self, password: &[u8]) -> Result<(), ZebraErrors> {
         if !self.ready {
-            return Err(ZebraGuardErrors::GuardIsNotReady);
+            return Err(ZebraErrors::GuardIsNotReady);
         }
 
         let pass_keys =
-            KeyChain::from_pass(&password).or(Err(ZebraGuardErrors::InvalidPassword))?;
+            KeyChain::from_pass(&password).or(Err(ZebraErrors::GuardInvalidPassword))?;
 
-        let session = pass_keys
-            .decrypt(
-                &self.secure_key_store.content,
-                &self.secure_key_store.orders,
-            )
-            .or(Err(ZebraGuardErrors::KeysDamaged))?;
+        let session = pass_keys.decrypt(
+            &self.secure_key_store.content,
+            &self.secure_key_store.orders,
+        )?;
         let aes_key: [u8; AES_KEY_SIZE] = session[..AES_KEY_SIZE]
             .try_into()
-            .or(Err(ZebraGuardErrors::KeysDamaged))?;
+            .or(Err(ZebraErrors::KeyChainKeysDamaged))?;
         let pq_pk: [u8; PUBLICKEYS_BYTES] = session[AES_KEY_SIZE..PUBLICKEYS_BYTES + AES_KEY_SIZE]
             .try_into()
-            .or(Err(ZebraGuardErrors::KeysDamaged))?;
+            .or(Err(ZebraErrors::KeyChainKeysDamaged))?;
         let pq_sk: [u8; SECRETKEYS_BYTES] = session[AES_KEY_SIZE + PUBLICKEYS_BYTES..]
             .try_into()
-            .or(Err(ZebraGuardErrors::KeysDamaged))?;
-        let bip39_keys =
-            KeyChain::from_keys(aes_key, pq_sk, pq_pk).or(Err(ZebraGuardErrors::KeysDamaged))?;
+            .or(Err(ZebraErrors::KeyChainKeysDamaged))?;
+        let bip39_keys = KeyChain::from_keys(aes_key, pq_sk, pq_pk)?;
 
         self.keys = Some(bip39_keys);
         self.enable = true;
@@ -100,28 +85,24 @@ impl<'a> ZebraGuard<'a> {
         Ok(())
     }
 
-    pub fn get_data<T>(&self) -> Result<T, ZebraGuardErrors>
+    pub fn get_data<T>(&self) -> Result<T, ZebraErrors>
     where
         T: for<'b> Deserialize<'b> + Serialize,
     {
         if !self.ready {
-            return Err(ZebraGuardErrors::GuardIsNotReady);
+            return Err(ZebraErrors::GuardIsNotReady);
         }
         if !self.enable {
-            return Err(ZebraGuardErrors::GuardIsNotReady);
+            return Err(ZebraErrors::GuardIsNotEnable);
         }
 
-        let keys = self
-            .keys
-            .as_ref()
-            .ok_or(ZebraGuardErrors::GuardIsNotEnable)?;
-        let json_bytes = keys
-            .decrypt(
-                &self.secure_data_store.content,
-                &self.secure_data_store.orders,
-            )
-            .or(Err(ZebraGuardErrors::DataDamaged))?;
-        let data: T = serde_json::from_slice(&json_bytes).or(Err(ZebraGuardErrors::DataDamaged))?;
+        let keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
+        let json_bytes = keys.decrypt(
+            &self.secure_data_store.content,
+            &self.secure_data_store.orders,
+        )?;
+        let data: T =
+            serde_json::from_slice(&json_bytes).or(Err(ZebraErrors::KeyChainKeysDamaged))?;
 
         Ok(data)
     }
@@ -132,22 +113,17 @@ impl<'a> ZebraGuard<'a> {
         words: &str,
         words_password: &str,
         data: T,
-    ) -> Result<(), ZebraGuardErrors>
+    ) -> Result<(), ZebraErrors>
     where
         T: Serialize,
     {
-        let pwd_keys = KeyChain::from_pass(password).or(Err(ZebraGuardErrors::InvalidPassword))?;
-        let bip39_keys = KeyChain::from_bip39(words, words_password)
-            .or(Err(ZebraGuardErrors::IncorrectBip39Keys))?;
+        let pwd_keys = KeyChain::from_pass(password)?;
+        let bip39_keys = KeyChain::from_bip39(words, words_password)?;
         let bip39_keys_bytes = bip39_keys.as_bytes().to_vec();
-        let keys_cipher = pwd_keys
-            .encrypt(bip39_keys_bytes)
-            .or(Err(ZebraGuardErrors::InvalidPassword))?;
+        let keys_cipher = pwd_keys.encrypt(bip39_keys_bytes)?;
 
-        let json = serde_json::to_string(&data).or(Err(ZebraGuardErrors::DataDamaged))?;
-        let data_cipher = bip39_keys
-            .encrypt(json.as_bytes().to_vec())
-            .or(Err(ZebraGuardErrors::DataDamaged))?;
+        let json = serde_json::to_string(&data).or(Err(ZebraErrors::GuardBrokenData))?;
+        let data_cipher = bip39_keys.encrypt(json.as_bytes().to_vec())?;
 
         self.secure_data_store = data_cipher;
         self.secure_key_store = keys_cipher;
@@ -156,44 +132,36 @@ impl<'a> ZebraGuard<'a> {
         self.enable = true;
 
         self.db
-            .set::<SecureData>(SLED_KEYS_KEY, self.secure_key_store.clone())
-            .or(Err(ZebraGuardErrors::StorageWriteError))?;
+            .set::<SecureData>(SLED_KEYS_KEY, self.secure_key_store.clone())?;
         self.db
-            .set::<SecureData>(SLED_DATA_KEY, self.secure_data_store.clone())
-            .or(Err(ZebraGuardErrors::StorageWriteError))?;
+            .set::<SecureData>(SLED_DATA_KEY, self.secure_data_store.clone())?;
 
         Ok(())
     }
 
-    pub fn update<T>(&mut self, data: T) -> Result<(), ZebraGuardErrors>
+    pub fn update<T>(&mut self, data: T) -> Result<(), ZebraErrors>
     where
         T: Serialize,
     {
         if !self.ready {
-            return Err(ZebraGuardErrors::GuardIsNotReady);
+            return Err(ZebraErrors::GuardIsNotReady);
         }
         if !self.enable {
-            return Err(ZebraGuardErrors::GuardIsNotReady);
+            return Err(ZebraErrors::GuardIsNotEnable);
         }
 
-        let bip39_keys = self
-            .keys
-            .as_ref()
-            .ok_or(ZebraGuardErrors::GuardIsNotEnable)?;
-        let json = serde_json::to_string(&data).or(Err(ZebraGuardErrors::DataDamaged))?;
-        let data_cipher = bip39_keys
-            .encrypt(json.as_bytes().to_vec())
-            .or(Err(ZebraGuardErrors::DataDamaged))?;
+        let bip39_keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
+        let json = serde_json::to_string(&data).or(Err(ZebraErrors::GuardBrokenData))?;
+        let data_cipher = bip39_keys.encrypt(json.as_bytes().to_vec())?;
 
         self.secure_data_store = data_cipher;
         self.db
-            .set::<SecureData>(SLED_DATA_KEY, self.secure_data_store.clone())
-            .or(Err(ZebraGuardErrors::StorageWriteError))?;
+            .set::<SecureData>(SLED_DATA_KEY, self.secure_data_store.clone())?;
 
         Ok(())
     }
 
-    pub fn load(&mut self) -> Result<(), StorageErrors> {
+    pub fn load(&mut self) -> Result<(), ZebraErrors> {
         let secure_key_store = self.db.get::<SecureData>(SLED_KEYS_KEY)?;
         let secure_data_store = self.db.get::<SecureData>(SLED_DATA_KEY)?;
 
