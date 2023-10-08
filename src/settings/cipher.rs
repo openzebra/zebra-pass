@@ -5,12 +5,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::keychain::keys::CipherOrders;
 
-pub const DIFFICULTY: usize = 2048;
+pub const DIFFICULTY: u32 = 2048;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CipherSettings {
     // difficulty for password PBKDF2
-    pub difficulty: usize,
+    pub difficulty: u32,
     pub cipher_orders: Vec<CipherOrders>,
 }
 

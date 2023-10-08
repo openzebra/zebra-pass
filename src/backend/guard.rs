@@ -7,7 +7,8 @@ extern crate serde_json;
 
 use crate::{
     errors::ZebraErrors,
-    keychain::keys::{CipherOrders, KeyChain, SecureData, AES_KEY_SIZE},
+    keychain::keys::{KeyChain, SecureData, AES_KEY_SIZE},
+    settings::settings::Settings,
     storage::{
         db::LocalStorage,
         keys::{SLED_DATA_KEY, SLED_KEYS_KEY},
@@ -18,29 +19,30 @@ use serde::{Deserialize, Serialize};
 
 // TODO: posible to remake RC or ARC if need
 // TODO: add time before lock session.
-pub struct ZebraGuard<'a> {
+pub struct ZebraGuard<'a, 'b> {
     // unlock state
     pub enable: bool,
     // has data from storage.
     pub ready: bool,
     db: &'a LocalStorage,
+    settings: &'b Settings<'b>,
     keys: Option<KeyChain>,
     secure_key_store: SecureData,
     secure_data_store: SecureData,
 }
 
-impl<'a> ZebraGuard<'a> {
-    pub fn from(db: &'a LocalStorage) -> Self {
+impl<'a, 'b> ZebraGuard<'a, 'b> {
+    pub fn from(db: &'a LocalStorage, settings: &'b Settings) -> Self {
         let enable = false;
         let ready = false;
 
         let secure_key_store = SecureData {
             content: String::default(),
-            orders: [CipherOrders::AES256, CipherOrders::NTRUP1277],
+            orders: vec![],
         };
         let secure_data_store = SecureData {
             content: String::default(),
-            orders: [CipherOrders::AES256, CipherOrders::NTRUP1277],
+            orders: vec![],
         };
 
         Self {
@@ -50,6 +52,7 @@ impl<'a> ZebraGuard<'a> {
             secure_key_store,
             secure_data_store,
             db,
+            settings,
         }
     }
 
@@ -61,8 +64,9 @@ impl<'a> ZebraGuard<'a> {
             return Err(ZebraErrors::GuardIsNotReady);
         }
 
-        let pass_keys =
-            KeyChain::from_pass(&password).or(Err(ZebraErrors::GuardInvalidPassword))?;
+        let difficulty = self.settings.payload.cipher.difficulty;
+        let pass_keys = KeyChain::from_pass(&password, difficulty)
+            .or(Err(ZebraErrors::GuardInvalidPassword))?;
 
         let session = pass_keys.decrypt(
             &self.secure_key_store.content,
@@ -87,7 +91,7 @@ impl<'a> ZebraGuard<'a> {
 
     pub fn get_data<T>(&self) -> Result<T, ZebraErrors>
     where
-        T: for<'b> Deserialize<'b> + Serialize,
+        T: for<'c> Deserialize<'c> + Serialize,
     {
         if !self.ready {
             return Err(ZebraErrors::GuardIsNotReady);
@@ -117,7 +121,8 @@ impl<'a> ZebraGuard<'a> {
     where
         T: Serialize,
     {
-        let pwd_keys = KeyChain::from_pass(password)?;
+        let difficulty = self.settings.payload.cipher.difficulty;
+        let pwd_keys = KeyChain::from_pass(password, difficulty)?;
         let bip39_keys = KeyChain::from_bip39(words, words_password)?;
         let bip39_keys_bytes = bip39_keys.as_bytes().to_vec();
         let keys_cipher = pwd_keys.encrypt(bip39_keys_bytes)?;
@@ -186,7 +191,8 @@ mod guard_tests {
 
         let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
         let db = LocalStorage::new("com.test_guard", "testGuard Corp", "TestGuard App").unwrap();
-        let mut guard = ZebraGuard::from(&db);
+        let settings = Settings::from(&db);
+        let mut guard = ZebraGuard::from(&db, &settings);
 
         let mut password = [0u8; 1245];
         let words = m.get();
@@ -209,7 +215,7 @@ mod guard_tests {
         assert!(guard.enable);
         assert!(guard.ready);
 
-        let mut new_guard = ZebraGuard::from(&db);
+        let mut new_guard = ZebraGuard::from(&db, &settings);
 
         assert!(!new_guard.enable);
         assert!(!new_guard.ready);

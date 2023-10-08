@@ -24,8 +24,6 @@ use crate::errors::ZebraErrors;
 const PASSWORD_SALT: [u8; 16] = [
     131, 53, 247, 96, 233, 128, 223, 191, 171, 58, 191, 97, 236, 210, 100, 70,
 ];
-// TODO: possible to add settings.
-const DIFFICULTY: u32 = 2048;
 const SHA512_SIZE: usize = 64;
 const SHA256_SIZE: usize = SHA512_SIZE / 2;
 const AES_BLOCK_SIZE: usize = 16;
@@ -40,7 +38,7 @@ pub enum CipherOrders {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct SecureData {
     pub content: String,
-    pub orders: [CipherOrders; 2],
+    pub orders: Vec<CipherOrders>,
 }
 
 pub struct KeyChain {
@@ -87,9 +85,9 @@ fn gen_from_seed(
 }
 
 impl KeyChain {
-    pub fn from_pass(password: &[u8]) -> Result<Self, ZebraErrors> {
+    pub fn from_pass(password: &[u8], difficulty: u32) -> Result<Self, ZebraErrors> {
         let seed_bytes =
-            pbkdf2_hmac_array::<Sha512, SHA512_SIZE>(password, &PASSWORD_SALT, DIFFICULTY);
+            pbkdf2_hmac_array::<Sha512, SHA512_SIZE>(password, &PASSWORD_SALT, difficulty);
         let (aes_key, pk, sk) = gen_from_seed(seed_bytes)?;
         let num_threads = num_cpus::get();
 
@@ -145,7 +143,7 @@ impl KeyChain {
     }
 
     pub fn encrypt(&self, bytes: Vec<u8>) -> Result<SecureData, ZebraErrors> {
-        let options = [CipherOrders::NTRUP1277, CipherOrders::AES256];
+        let options = vec![CipherOrders::NTRUP1277, CipherOrders::AES256];
         let mut tmp = bytes;
 
         for o in &options {
@@ -163,7 +161,7 @@ impl KeyChain {
         })
     }
 
-    pub fn decrypt(&self, data: &str, options: &[CipherOrders; 2]) -> Result<Vec<u8>, ZebraErrors> {
+    pub fn decrypt(&self, data: &str, options: &[CipherOrders]) -> Result<Vec<u8>, ZebraErrors> {
         let mut tmp = hex::decode(data).or(Err(ZebraErrors::KeychainDataIsNotHex))?;
 
         for o in options.iter().rev() {
@@ -270,6 +268,8 @@ mod test_key_chain {
     use rand;
     use rand::RngCore;
 
+    const DIFFICULTY: u32 = 1024;
+
     #[test]
     fn test_aes_encrypt_decrypt() {
         let mut rng = rand::thread_rng();
@@ -279,7 +279,7 @@ mod test_key_chain {
         rng.fill_bytes(&mut password);
         rng.fill_bytes(&mut ciphertext);
 
-        let keys = KeyChain::from_pass(&password).unwrap();
+        let keys = KeyChain::from_pass(&password, DIFFICULTY).unwrap();
 
         let encrypted = keys.aes_encrypt(&ciphertext);
         let decrypted = keys.aes_decrypt(&encrypted).unwrap();
@@ -295,7 +295,7 @@ mod test_key_chain {
 
         rng.fill_bytes(&mut password);
 
-        let keys = KeyChain::from_pass(&password).unwrap();
+        let keys = KeyChain::from_pass(&password, DIFFICULTY).unwrap();
 
         let encrypted = keys.ntru_encrypt(&ciphertext).unwrap();
         let decrypted = keys.ntru_decrypt(&Arc::new(encrypted)).unwrap();
@@ -312,7 +312,7 @@ mod test_key_chain {
         rng.fill_bytes(&mut password);
         rng.fill_bytes(&mut ciphertext);
 
-        let keys = KeyChain::from_pass(&password).unwrap();
+        let keys = KeyChain::from_pass(&password, DIFFICULTY).unwrap();
         let keys_bytes = keys.as_bytes();
 
         assert_eq!(keys_bytes[..AES_KEY_SIZE], keys.aes_key);
@@ -335,7 +335,7 @@ mod test_key_chain {
         rng.fill_bytes(&mut password);
         rng.fill_bytes(&mut ciphertext);
 
-        let keys = KeyChain::from_pass(&password).unwrap();
+        let keys = KeyChain::from_pass(&password, DIFFICULTY).unwrap();
 
         let secure_data = keys.encrypt(ciphertext.clone()).unwrap();
         let decrypted = keys
@@ -352,11 +352,11 @@ mod test_key_chain {
 
         rng.fill_bytes(&mut password);
 
-        let keys0 = KeyChain::from_pass(&password);
+        let keys0 = KeyChain::from_pass(&password, DIFFICULTY);
 
         assert!(keys0.is_ok());
 
-        let keys1 = KeyChain::from_pass(&password);
+        let keys1 = KeyChain::from_pass(&password, DIFFICULTY);
 
         assert!(keys1.is_ok());
 
