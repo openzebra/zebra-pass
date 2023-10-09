@@ -1,0 +1,114 @@
+import { CheckBox } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { Routers } from "../routers.slint";
+import { ZTag } from "../components/tag.slint";
+import { ZButton } from "../components/button.slint";
+
+export component MnemonicPage inherits Window {
+    private property <bool> accepted : false;
+    property<[[string]]> words : [
+        ["devote", "noise", "poverty"],
+        ["kidney", "ordinarysss", "leaf"],
+        ["urban", "course", "finish"],
+        ["aspect", "truly", "soda"]
+    ];
+
+    callback continue(Routers);
+
+    HorizontalLayout {
+        VerticalLayout {
+            height: Theme.app-height;
+            Image {
+                source: @image-url("../images/zebra_print.png");
+                colorize: Theme.window-background-inverse;
+                height: 100%;
+                width: Theme.zerba-print-length;
+                image-fit: fill;
+            }
+        }
+        VerticalLayout {
+            width: Theme.app-width - Theme.zerba-print-length;
+            alignment: center;
+            HorizontalLayout {
+                width: 100%;
+                alignment: center;
+                padding-bottom: 15pt;
+                VerticalLayout {
+                    Text {
+                        text: @tr("Secret Phrase");
+                        font-size: Theme.font-size-medium * 2;
+                        font-weight: Theme.font-weight-bold;
+                        horizontal-alignment: center;
+                    }
+                    Text {
+                        text: @tr("Remember or backup words in order!!!");
+                        font-size: Theme.font-size-medium;
+                        font-weight: Theme.font-weight-bold;
+                        horizontal-alignment: center;
+                    }
+                }
+            }
+            HorizontalLayout {
+                width: 100%;
+                padding-top: 15pt;
+                padding-bottom: 15pt;
+                alignment: center;
+                VerticalLayout {
+                    width: 300pt;
+                    for list in words : HorizontalLayout {
+                        padding: 5pt;
+                        alignment: space-between;
+                        for word in list : ZTag {
+                            text: word;
+                            width: 90pt;
+                            height: 30pt;
+                            color: Theme.window-background-inverse;
+                            background: Theme.primary;
+                            font-size: Theme.font-size-medium;
+                        }
+                    }
+                }
+            }
+            HorizontalLayout {
+                width: 100%;
+                padding-top: 15pt;
+                alignment: center;
+                VerticalLayout {
+                    alignment: center;
+                    ZButton {
+                        height: 36pt;
+                        width: 200pt;
+                        color: Theme.window-background-inverse;
+                        background: Theme.window-background;
+                        border-color: Theme.window-background-inverse;
+                        text: @tr("Rerandom");
+                        enabled: true;
+                        hovered: false;
+                        clicked => {
+                            continue(Routers.Mnemonic)
+                        }
+                    }
+                    Rectangle {
+                        height: 10pt;
+                    }
+                    ZButton {
+                        height: 36pt;
+                        width: 200pt;
+                        color: Theme.window-background;
+                        background: Theme.window-background-inverse;
+                        text: @tr("Continue");
+                        enabled: accepted;
+                        clicked => {
+                            continue(Routers.Login)
+                        }
+                    }
+                    CheckBox {
+                        text: @tr("I remember and saved backup!");
+                        checked <=> accepted;
+                        enabled: true;
+                    }
+                }
+            }
+        }
+    }
+}

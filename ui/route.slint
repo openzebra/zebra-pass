@@ -4,7 +4,7 @@ import {
     LockPage,
     StartPage,
     LangChoosePage,
-    CreatePage,
+    MnemonicPage,
     PrivacyPage,
     LoginPage
 } from "./pages/pages.slint";
@@ -24,7 +24,7 @@ export component Route inherits Window {
             root.route = new-route;
         }
     }
-    if(root.route == Routers.Create) : CreatePage {}
+    if(root.route == Routers.Mnemonic) : MnemonicPage {}
     if(root.route == Routers.Login) : LoginPage {
         continue(new-route) => {
             root.route = new-route;
