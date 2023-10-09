@@ -2,9 +2,10 @@ import { VerticalBox } from "std-widgets.slint";
 import { Route } from "./route.slint";
 import { Routers } from "./routers.slint";
 import { Theme } from "theme.slint";
+import { Logic } from "logic.slint";
 
 
-export component AppWindow inherits Window {
+component AppWindow inherits Window {
     width: Theme.app-width;
     height: Theme.app-height;
     background: Theme.window-background;
@@ -14,4 +15,9 @@ export component AppWindow inherits Window {
             route: Routers.Mnemonic;
         }
     }
+}
+
+export {
+    Logic,
+    AppWindow
 }

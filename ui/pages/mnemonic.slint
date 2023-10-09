@@ -3,15 +3,11 @@ import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
 import { ZTag } from "../components/tag.slint";
 import { ZButton } from "../components/button.slint";
+import { Logic } from "../logic.slint";
 
 export component MnemonicPage inherits Window {
     private property <bool> accepted : false;
-    property<[[string]]> words : [
-        ["devote", "noise", "poverty"],
-        ["kidney", "ordinarysss", "leaf"],
-        ["urban", "course", "finish"],
-        ["aspect", "truly", "soda"]
-    ];
+    property<[[string]]> words : [];
 
     callback continue(Routers);
 
@@ -85,7 +81,7 @@ export component MnemonicPage inherits Window {
                         enabled: true;
                         hovered: false;
                         clicked => {
-                            continue(Routers.Mnemonic)
+                            // words = Logic.request-random-words();
                         }
                     }
                     Rectangle {

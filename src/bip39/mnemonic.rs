@@ -146,6 +146,7 @@ impl Mnemonic {
         pbkdf2_hmac_array::<Sha512, 64>(&mnemonic_bytes, salt.as_bytes(), NUMBER_WORDS as u32)
     }
 
+    // TODO: remake to stack
     pub fn get_list(&self) -> Vec<&str> {
         match self {
             Mnemonic::English(points) => points
