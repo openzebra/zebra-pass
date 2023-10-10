@@ -13,9 +13,9 @@ use crate::errors::ZebraErrors;
 use super::{config::NUMBER_WORDS, language};
 
 const SALT_PREFIX: &str = "zebra-bip39-mnemonic";
-const SIZE: usize = 12;
 const STRENGTH: usize = 16;
 const EOF: u16 = u16::max_value();
+pub const SIZE: usize = 12;
 
 #[derive(Debug)]
 pub enum Mnemonic {
@@ -146,14 +146,18 @@ impl Mnemonic {
         pbkdf2_hmac_array::<Sha512, 64>(&mnemonic_bytes, salt.as_bytes(), NUMBER_WORDS as u32)
     }
 
-    // TODO: remake to stack
-    pub fn get_list(&self) -> Vec<&str> {
+    pub fn get_list<'a>(&self) -> [&'a str; SIZE] {
+        let mut out = [""; SIZE];
+
         match self {
-            Mnemonic::English(points) => points
-                .iter()
-                .map(|i| language::english::WORDS[*i as usize])
-                .collect::<Vec<&str>>(),
-        }
+            Mnemonic::English(points) => {
+                for i in 0..SIZE {
+                    out[i] = language::english::WORDS[points[i] as usize];
+                }
+            }
+        };
+
+        out
     }
 
     pub fn get(&self) -> String {

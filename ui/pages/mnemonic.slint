@@ -7,7 +7,6 @@ import { Logic } from "../logic.slint";
 
 export component MnemonicPage inherits Window {
     private property <bool> accepted : false;
-    property<[[string]]> words : [];
 
     callback continue(Routers);
 
@@ -51,7 +50,7 @@ export component MnemonicPage inherits Window {
                 alignment: center;
                 VerticalLayout {
                     width: 300pt;
-                    for list in words : HorizontalLayout {
+                    for list in Logic.random-words : HorizontalLayout {
                         padding: 5pt;
                         alignment: space-between;
                         for word in list : ZTag {
@@ -81,7 +80,7 @@ export component MnemonicPage inherits Window {
                         enabled: true;
                         hovered: false;
                         clicked => {
-                            // words = Logic.request-random-words();
+                            Logic.random-words = Logic.request-random-words();
                         }
                     }
                     Rectangle {
