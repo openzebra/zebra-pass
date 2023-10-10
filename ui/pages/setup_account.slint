@@ -1,0 +1,45 @@
+import { CheckBox } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { Routers } from "../routers.slint";
+import { ZTag } from "../components/tag.slint";
+import { ZButton } from "../components/button.slint";
+
+export component SetupAccountPage inherits Window {
+    callback continue(Routers);
+
+    HorizontalLayout {
+        VerticalLayout {
+            height: Theme.app-height;
+            Image {
+                source: @image-url("../images/zebra_print.png");
+                colorize: Theme.window-background-inverse;
+                height: 100%;
+                width: Theme.zerba-print-length;
+                image-fit: fill;
+            }
+        }
+        VerticalLayout {
+            width: Theme.app-width - Theme.zerba-print-length;
+            alignment: center;
+            HorizontalLayout {
+                width: 100%;
+                alignment: center;
+                padding-bottom: 15pt;
+                VerticalLayout {
+                    Text {
+                        text: @tr("Create a New Account");
+                        font-size: Theme.font-size-medium * 2;
+                        font-weight: Theme.font-weight-bold;
+                        horizontal-alignment: center;
+                    }
+                    Text {
+                        text: @tr("Setup Account parameters");
+                        font-size: Theme.font-size-medium;
+                        font-weight: Theme.font-weight-bold;
+                        horizontal-alignment: center;
+                    }
+                }
+            }
+        }
+    }
+}

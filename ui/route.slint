@@ -6,7 +6,8 @@ import {
     LangChoosePage,
     MnemonicPage,
     PrivacyPage,
-    LoginPage
+    LoginPage,
+    SetupAccountPage
 } from "./pages/pages.slint";
 import { Routers } from "./routers.slint";
 
@@ -24,13 +25,22 @@ export component Route inherits Window {
             root.route = new-route;
         }
     }
-    if(root.route == Routers.Mnemonic) : MnemonicPage {}
+    if(root.route == Routers.Mnemonic) : MnemonicPage {
+        continue(new-route) => {
+            root.route = new-route;
+        }
+    }
     if(root.route == Routers.Login) : LoginPage {
         continue(new-route) => {
             root.route = new-route;
         }
     }
     if(root.route == Routers.Privacy) : PrivacyPage {
+        continue(new-route) => {
+            root.route = new-route;
+        }
+    }
+    if(root.route == Routers.SetupAccount) : SetupAccountPage {
         continue(new-route) => {
             root.route = new-route;
         }
