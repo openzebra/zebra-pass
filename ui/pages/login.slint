@@ -4,6 +4,7 @@ import { ZInput } from "../components/input.slint";
 import { Zlink } from "../components/link.slint";
 import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
+import { Logic } from "../logic.slint";
 
 export component LoginPage inherits Window {
     callback continue(Routers);
@@ -109,6 +110,7 @@ export component LoginPage inherits Window {
                         enabled: true;
                         hovered: false;
                         clicked => {
+                            Logic.random-words = Logic.request-random-words();
                             continue(Routers.Mnemonic)
                         }
                     }
