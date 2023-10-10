@@ -3,8 +3,32 @@ import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
 import { ZTag } from "../components/tag.slint";
 import { ZButton } from "../components/button.slint";
+import { ZInput } from "../components/input.slint";
+
+
+struct CipherOrder {
+    name: string,
+    selected: bool,
+}
 
 export component SetupAccountPage inherits Window {
+    private property <bool> accepted_email : true;
+    private property <bool> accepted_sync : true;
+    private property <[CipherOrder]> cipher_orders : [
+        {
+            name: "AES-256",
+            selected: true,
+        },
+        {
+            name: "NTRUP",
+            selected: true,
+        },
+        {
+            name: "TwoFish",
+            selected: true,
+        },
+    ];
+
     callback continue(Routers);
 
     HorizontalLayout {
@@ -26,6 +50,7 @@ export component SetupAccountPage inherits Window {
                 alignment: center;
                 padding-bottom: 15pt;
                 VerticalLayout {
+                    alignment: center;
                     Text {
                         text: @tr("Create a New Account");
                         font-size: Theme.font-size-medium * 2;
@@ -37,6 +62,67 @@ export component SetupAccountPage inherits Window {
                         font-size: Theme.font-size-medium;
                         font-weight: Theme.font-weight-bold;
                         horizontal-alignment: center;
+                    }
+                    HorizontalLayout {
+                        alignment: center;
+                        padding-top: 10pt;
+                        VerticalLayout {
+                            ZInput {
+                                height: 46pt;
+                                width: 220pt;
+                                alignment: center;
+                                type: password;
+                                placeholder: @tr("Enter Master Password");
+                                label-color: Theme.window-background-inverse.darker(50%);
+                            }
+                            ZInput {
+                                height: 46pt;
+                                width: 220pt;
+                                alignment: center;
+                                enabled: accepted_email;
+                                placeholder: @tr("Email Optional");
+                                label-color: Theme.window-background-inverse.darker(50%);
+                            }
+                            CheckBox {
+                                text: @tr("Enable Email (Restore Password)");
+                                checked <=> accepted_email;
+                                enabled: true;
+                            }
+                            CheckBox {
+                                text: @tr("Enable Sync global server");
+                                checked <=> accepted_sync;
+                                enabled: true;
+                            }
+                            HorizontalLayout {
+                                alignment: center;
+                                spacing: 5pt;
+                                padding-bottom: 10pt;
+                                for cipher in cipher_orders : ZTag {
+                                    text: cipher.name;
+                                    width: 60pt;
+                                    height: 20pt;
+                                    selected: cipher.selected;
+                                    color: Theme.window-background-inverse;
+                                    background: Theme.secondary;
+                                    background-selected: Theme.primary;
+                                    color-selected: Theme.window-background-inverse;
+                                    font-size: Theme.font-size-regular;
+                                    clicked => {
+                                        cipher.selected = !cipher.selected;
+                                    }
+                                }
+                            }
+                            ZButton {
+                                height: 36pt;
+                                width: 220pt;
+                                color: Theme.window-background-inverse;
+                                background: Theme.primary;
+                                border-color: Theme.primary;
+                                text: @tr("Create");
+                                enabled: true;
+                                clicked => {}
+                            }
+                        }
                     }
                 }
             }

@@ -6,6 +6,7 @@ export component ZInput inherits VerticalLayout {
     in property <color> label-color;
     in property <InputType> type;
     in property <string> placeholder;
+    in-out property<bool> enabled : true;
 
     Text {
         text: root.label;
@@ -19,5 +20,6 @@ export component ZInput inherits VerticalLayout {
         input-type: root.type;
         font-size: Theme.font-size-medium;
         placeholder-text: root.placeholder;
+        enabled: enabled;
     }
 }
