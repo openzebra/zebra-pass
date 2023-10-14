@@ -2,5 +2,10 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-pub mod guard;
-pub mod handler;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Field {
+    pub name: String,
+    pub value: String,
+}

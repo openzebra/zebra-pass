@@ -8,4 +8,5 @@ pub mod bip39;
 pub mod errors;
 pub mod keychain;
 pub mod settings;
+pub mod state;
 pub mod storage;
