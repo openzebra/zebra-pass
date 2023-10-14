@@ -7,12 +7,11 @@ use serde::{Deserialize, Serialize};
 use super::field::Field;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Card {
-    pub bank_name: Option<String>,
-    pub card_holder: Option<String>,
-    pub card_number: Option<String>,
-    pub brand: Option<String>,
-    pub secure_code: Option<u16>,
-    pub note: String,
-    pub additional: Vec<Field>,
+pub struct PostalAddress {
+    pub street: String,
+    pub city: String,
+    pub district: Option<String>,
+    pub region: String,
+    pub postal_code: String,
+    pub country: String,
 }
