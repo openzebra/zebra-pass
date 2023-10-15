@@ -93,6 +93,8 @@ mod settings_tests {
         state.sync().unwrap();
 
         state.payload.settings.cipher.difficulty = 123;
+        state.payload.secure_key_store = String::from("test keys");
+        state.payload.secure_data_store = String::from("test data");
 
         state.update().unwrap();
 
@@ -103,6 +105,14 @@ mod settings_tests {
         assert_eq!(
             state.payload.settings.cipher.difficulty,
             new_state.payload.settings.cipher.difficulty
+        );
+        assert_eq!(
+            state.payload.secure_data_store,
+            new_state.payload.secure_data_store
+        );
+        assert_eq!(
+            state.payload.secure_key_store,
+            new_state.payload.secure_key_store
         );
     }
 }

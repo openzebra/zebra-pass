@@ -14,7 +14,6 @@ use crate::{
 };
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 
 // TODO: add time before lock session.
 pub struct ZebraGuard<'a> {
@@ -81,9 +80,9 @@ impl<'a> ZebraGuard<'a> {
     where
         T: Serialize,
     {
-        let state = &mut self.state.borrow_mut().payload;
-        let orders = &state.settings.cipher.cipher_orders;
-        let difficulty = state.settings.cipher.difficulty;
+        let state = &mut self.state.borrow_mut();
+        let orders = &state.payload.settings.cipher.cipher_orders;
+        let difficulty = state.payload.settings.cipher.difficulty;
 
         let pwd_keys = KeyChain::from_pass(password, difficulty)?;
         let bip39_keys = KeyChain::from_bip39(words, words_password)?;
@@ -94,9 +93,10 @@ impl<'a> ZebraGuard<'a> {
         let data_cipher = bip39_keys.encrypt(json.as_bytes().to_vec(), &orders)?;
 
         self.keys = Some(bip39_keys);
-        state.address = self.get_address()?;
-        state.secure_data_store = data_cipher;
-        state.secure_key_store = keys_cipher;
+        state.payload.secure_data_store = data_cipher;
+        state.payload.secure_key_store = keys_cipher;
+        state.payload.address = self.get_address()?;
+        state.update()?;
 
         Ok(())
     }
@@ -105,14 +105,15 @@ impl<'a> ZebraGuard<'a> {
     where
         T: Serialize,
     {
-        let state = &self.state.borrow().payload;
-        let orders = &state.settings.cipher.cipher_orders;
+        let state = &mut self.state.borrow_mut();
+        let orders = &state.payload.settings.cipher.cipher_orders;
 
         let bip39_keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
         let json = serde_json::to_string(&data).or(Err(ZebraErrors::GuardBrokenData))?;
         let data_cipher = bip39_keys.encrypt(json.as_bytes().to_vec(), &orders)?;
 
-        self.state.borrow_mut().payload.secure_data_store = data_cipher;
+        state.payload.secure_data_store = data_cipher;
+        state.update()?;
 
         Ok(())
     }
@@ -199,10 +200,18 @@ mod guard_tests {
 
         guard.update::<&[u8]>(&new_data).unwrap();
 
+        assert_ne!(
+            state.borrow().payload.secure_data_store,
+            new_state.borrow().payload.secure_data_store
+        );
+
+        assert_eq!(&data, &decrypted_data);
+
+        new_state.borrow_mut().sync().unwrap();
+
         assert_eq!(
             state.borrow().payload.secure_data_store,
             new_state.borrow().payload.secure_data_store
         );
-        assert_eq!(&data, &decrypted_data);
     }
 }
