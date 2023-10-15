@@ -2,44 +2,49 @@
 // -- Email: hicarus@yandex.ru
 // -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use zebra_pass::{core::core::Core, errors::ZebraErrors};
+use zebra_pass::{
+    core::{bip39, core::Core},
+    errors::ZebraErrors,
+};
 
-// slint::include_modules!();
-//
+slint::include_modules!();
 
-fn handler() -> Result<(), ZebraErrors> {
-    let core = Core::new()?;
+fn handler() -> Result<(), slint::PlatformError> {
+    slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/locale/"));
+    let app = AppWindow::new()?;
+    let main_window = app.as_weak().unwrap();
 
-    core.sync()?;
+    main_window
+        .global::<Logic>()
+        .on_request_random_words(|| bip39::gen_bip39_words(3));
 
-    dbg!(&core.state.borrow().payload);
+    app.run()
+}
 
+fn error_handler(error: ZebraErrors) -> Result<(), slint::PlatformError> {
+    dbg!(error);
+    // TODO: Show error window!
     Ok(())
 }
 
-fn main() {
-    handler().unwrap();
-}
-
-// fn main() -> Result<(), slint::PlatformError> {
-//     slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/locale/"));
-//
-//     let app = AppWindow::new()?;
-//     let main_window = app.as_weak().unwrap();
-//
-//     main_window.global::<Logic>().on_request_random_words(|| {
-//         let mut rng = rand::thread_rng();
-//
-//         let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
-//         let words_list = m.get_list().map(|s| SharedString::from(s));
-//         let mut chunks: Vec<ModelRc<SharedString>> = Vec::default();
-//
-//         for chunk in words_list.chunks(3) {
-//             chunks.push(VecModel::from_slice(chunk));
-//         }
-//
-//         VecModel::from_slice(&chunks)
-//     });
-//
-//     app.run()
+// fn main() {
+//     handler().unwrap();
 // }
+
+fn main() -> Result<(), slint::PlatformError> {
+    let core = match Core::new() {
+        Ok(c) => c,
+        Err(e) => {
+            return error_handler(e);
+        }
+    };
+
+    match core.sync() {
+        Ok(_) => {}
+        Err(e) => {
+            return error_handler(e);
+        }
+    }
+
+    handler()
+}
