@@ -1,6 +1,10 @@
 
-export global Logic  {
+export global Logic {
   in-out property<[[string]]> random_words : [];
+  in-out property<string> words_salt : "";
+  in-out property<string> password;
+  in-out property<string> email;
+
   pure callback request_random_words() -> [[string]];
   pure callback request_init_state();
 }
