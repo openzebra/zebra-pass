@@ -7,6 +7,7 @@ pub mod bip39;
 pub mod errors;
 pub mod guard;
 pub mod keychain;
+pub mod records;
 pub mod settings;
 pub mod state;
 pub mod storage;

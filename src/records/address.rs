@@ -14,4 +14,6 @@ pub struct PostalAddress {
     pub region: String,
     pub postal_code: String,
     pub country: String,
+    pub note: String,
+    pub additional: Vec<Field>,
 }
