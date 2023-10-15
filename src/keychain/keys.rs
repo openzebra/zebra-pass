@@ -16,7 +16,7 @@ use ntrulp::random::{CommonRandom, NTRURandom};
 use num_cpus;
 use pbkdf2::pbkdf2_hmac_array;
 use serde::{Deserialize, Serialize};
-use sha2::Sha512;
+use sha2::{Digest, Sha256, Sha512};
 
 use crate::bip39::mnemonic::Mnemonic;
 use crate::errors::ZebraErrors;
@@ -134,6 +134,14 @@ impl KeyChain {
         out[AES_KEY_SIZE + PUBLICKEYS_BYTES..].copy_from_slice(&sk.as_bytes());
 
         out
+    }
+
+    pub fn get_address(&self) -> [u8; SHA256_SIZE] {
+        let mut hasher = Sha256::new();
+        let pub_key = self.ntrup_keys.1.as_bytes();
+        hasher.update(pub_key);
+
+        hasher.finalize().into()
     }
 
     pub fn encrypt(&self, bytes: Vec<u8>, options: &[CipherOrders]) -> Result<String, ZebraErrors> {
