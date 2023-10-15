@@ -4,6 +4,7 @@
 
 pub mod background;
 pub mod bip39;
+pub mod config;
 pub mod errors;
 pub mod guard;
 pub mod keychain;

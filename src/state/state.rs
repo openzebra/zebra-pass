@@ -2,6 +2,8 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
+use std::rc::Rc;
+
 use crate::{
     errors::ZebraErrors,
     settings::{appearance::AppearanceSettings, cipher::CipherSettings, settings::SettingsPayload},
@@ -29,14 +31,14 @@ pub struct StatePayload {
     pub settings: SettingsPayload,
 }
 
-pub struct State<'a> {
+pub struct State {
     pub payload: StatePayload,
     pub ready: bool,
-    db: &'a LocalStorage,
+    db: Rc<LocalStorage>,
 }
 
-impl<'a> State<'a> {
-    pub fn from(db: &'a LocalStorage) -> Self {
+impl State {
+    pub fn from(db: Rc<LocalStorage>) -> Self {
         let appearance = AppearanceSettings::new();
         let cipher = CipherSettings::new();
         let settings = SettingsPayload { cipher, appearance };
@@ -87,8 +89,10 @@ mod settings_tests {
 
     #[test]
     fn test_zebra_state() {
-        let db = LocalStorage::new("com.test_state", "test-state Corp", "test_state App").unwrap();
-        let mut state = State::from(&db);
+        let db = Rc::new(
+            LocalStorage::new("com.test_state", "test-state Corp", "test_state App").unwrap(),
+        );
+        let mut state = State::from(db.clone());
 
         state.sync().unwrap();
 
@@ -98,7 +102,7 @@ mod settings_tests {
 
         state.update().unwrap();
 
-        let mut new_state = State::from(&db);
+        let mut new_state = State::from(db.clone());
 
         new_state.sync().unwrap();
 

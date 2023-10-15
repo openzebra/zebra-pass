@@ -31,7 +31,6 @@ pub struct LocalStorage {
 }
 
 impl LocalStorage {
-    /// let db = LocalStorage::new("com.zebra", "Zebra Corp", "Zebra App").unwrap();
     pub fn new(
         qualifier: &str,
         organization: &str,

@@ -16,13 +16,13 @@ use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
 use serde::{Deserialize, Serialize};
 
 // TODO: add time before lock session.
-pub struct ZebraGuard<'a> {
+pub struct ZebraGuard {
     keys: Option<KeyChain>,
-    state: Rc<RefCell<State<'a>>>,
+    state: Rc<RefCell<State>>,
 }
 
-impl<'a> ZebraGuard<'a> {
-    pub fn from(state: Rc<RefCell<State<'a>>>) -> Self {
+impl ZebraGuard {
+    pub fn from(state: Rc<RefCell<State>>) -> Self {
         Self { state, keys: None }
     }
 
@@ -137,8 +137,10 @@ mod guard_tests {
         let mut rng = rand::thread_rng();
 
         let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
-        let db = LocalStorage::new("com.guardtest", "TestGuard Corp", "TesingGuard App").unwrap();
-        let state = Rc::new(RefCell::new(State::from(&db)));
+        let db = Rc::new(
+            LocalStorage::new("com.guardtest", "TestGuard Corp", "TesingGuard App").unwrap(),
+        );
+        let state = Rc::new(RefCell::new(State::from(db.clone())));
         let mut guard = ZebraGuard::from(state.clone());
 
         let mut password = [0u8; 1245];
@@ -170,7 +172,7 @@ mod guard_tests {
         assert!(state.borrow().ready);
 
         // testing unlock
-        let new_state = Rc::new(RefCell::new(State::from(&db)));
+        let new_state = Rc::new(RefCell::new(State::from(db.clone())));
         let mut new_guard = ZebraGuard::from(new_state.clone());
 
         assert!(new_guard.keys.is_none());
