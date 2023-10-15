@@ -30,10 +30,17 @@ impl ZebraGuard {
     // -> decrypt keys_session(bip39)
     // -> decrypt secure_data via (bip39) keys
     pub fn try_unlock(&mut self, password: &[u8]) -> Result<(), ZebraErrors> {
-        let state = &self.state.borrow().payload;
-        let orders = &state.settings.cipher.cipher_orders;
-        let difficulty = state.settings.cipher.difficulty;
-        let secure_key_store = &state.secure_key_store;
+        let state = &self.state.borrow();
+        let orders = &state.payload.settings.cipher.cipher_orders;
+        let difficulty = state.payload.settings.cipher.difficulty;
+        let secure_key_store = &state.payload.secure_key_store;
+
+        if !state.payload.inited {
+            return Err(ZebraErrors::StateNotInited);
+        }
+        if !state.ready {
+            return Err(ZebraErrors::StateNotRead);
+        }
 
         let pass_keys = KeyChain::from_pass(&password, difficulty)
             .or(Err(ZebraErrors::GuardInvalidPassword))?;
@@ -96,6 +103,7 @@ impl ZebraGuard {
         state.payload.secure_data_store = data_cipher;
         state.payload.secure_key_store = keys_cipher;
         state.payload.address = self.get_address()?;
+        state.payload.inited = true;
         state.update()?;
 
         Ok(())
@@ -156,6 +164,8 @@ mod guard_tests {
 
         assert!(guard.keys.is_none());
         assert!(!state.borrow().ready);
+
+        assert!(guard.try_unlock(&password).is_err());
 
         // testing init
         state.borrow_mut().sync().unwrap();

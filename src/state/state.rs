@@ -19,6 +19,8 @@ pub struct StatePayload {
     pub server_sync: bool,
     // Possible to restore password via Zebras server
     pub restoreble: bool,
+    // flag for understand first start or not
+    pub inited: bool,
     // shasum of pubKey(Bip39) need for sync and save data on server.
     pub address: String,
 
@@ -47,6 +49,7 @@ impl State {
             email: None,
             server_sync: false,
             restoreble: false,
+            inited: false,
             address: String::default(),
             secure_key_store: String::default(),
             secure_data_store: String::default(),
@@ -57,6 +60,7 @@ impl State {
     }
 
     pub fn update(&self) -> Result<(), ZebraErrors> {
+        // TODO: here will be options for sync with server!
         if !self.ready {
             return Err(ZebraErrors::StateNotRead);
         }

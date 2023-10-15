@@ -37,4 +37,5 @@ pub enum ZebraErrors {
 
     // State
     StateNotRead,
+    StateNotInited,
 }

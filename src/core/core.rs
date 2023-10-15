@@ -15,14 +15,22 @@ use crate::{
 
 pub struct Core {
     pub data: Vec<Records>,
-    db: Rc<LocalStorage>,
-    guard: ZebraGuard,
-    state: Rc<RefCell<State>>,
+    pub db: Rc<LocalStorage>,
+    pub guard: ZebraGuard,
+    pub state: Rc<RefCell<State>>,
 }
 
 impl Core {
     pub fn new() -> Result<Self, ZebraErrors> {
-        let db = Rc::new(LocalStorage::new(QUALIFIER, ORGANIZATION, APPLICATION)?);
+        Core::from(QUALIFIER, ORGANIZATION, APPLICATION)
+    }
+
+    pub fn from(
+        qualifier: &str,
+        organization: &str,
+        application: &str,
+    ) -> Result<Self, ZebraErrors> {
+        let db = Rc::new(LocalStorage::new(qualifier, organization, application)?);
         let state = Rc::new(RefCell::new(State::from(db.clone())));
         let guard = ZebraGuard::from(state.clone());
         let data = Vec::default();
@@ -33,5 +41,9 @@ impl Core {
             guard,
             state,
         })
+    }
+
+    pub fn sync(&self) -> Result<(), ZebraErrors> {
+        self.state.borrow_mut().sync()
     }
 }

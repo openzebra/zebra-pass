@@ -2,14 +2,24 @@
 // -- Email: hicarus@yandex.ru
 // -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use rand;
-use slint::{ModelRc, SharedString, VecModel};
-use zebra_pass::bip39::mnemonic::Mnemonic;
+use zebra_pass::{core::core::Core, errors::ZebraErrors};
 
 // slint::include_modules!();
 //
 
-fn main() {}
+fn handler() -> Result<(), ZebraErrors> {
+    let core = Core::new()?;
+
+    core.sync()?;
+
+    dbg!(&core.state.borrow().payload);
+
+    Ok(())
+}
+
+fn main() {
+    handler().unwrap();
+}
 
 // fn main() -> Result<(), slint::PlatformError> {
 //     slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/locale/"));
