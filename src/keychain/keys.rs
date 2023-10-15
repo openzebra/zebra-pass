@@ -35,12 +35,6 @@ pub enum CipherOrders {
     NTRUP1277,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct SecureData {
-    pub content: String,
-    pub orders: Vec<CipherOrders>,
-}
-
 pub struct KeyChain {
     pub ntrup_keys: (Arc<PrivKey>, Arc<PubKey>),
     // TODO: Remake it to TwoFish
@@ -142,11 +136,10 @@ impl KeyChain {
         out
     }
 
-    pub fn encrypt(&self, bytes: Vec<u8>) -> Result<SecureData, ZebraErrors> {
-        let options = vec![CipherOrders::NTRUP1277, CipherOrders::AES256];
+    pub fn encrypt(&self, bytes: Vec<u8>, options: &[CipherOrders]) -> Result<String, ZebraErrors> {
         let mut tmp = bytes;
 
-        for o in &options {
+        for o in options {
             match o {
                 CipherOrders::AES256 => tmp = self.aes_encrypt(&tmp),
                 CipherOrders::NTRUP1277 => tmp = self.ntru_encrypt(&Arc::new(tmp))?,
@@ -155,10 +148,7 @@ impl KeyChain {
 
         let content = hex::encode(tmp);
 
-        Ok(SecureData {
-            content,
-            orders: options,
-        })
+        Ok(content)
     }
 
     pub fn decrypt(&self, data: &str, options: &[CipherOrders]) -> Result<Vec<u8>, ZebraErrors> {
@@ -337,10 +327,9 @@ mod test_key_chain {
 
         let keys = KeyChain::from_pass(&password, DIFFICULTY).unwrap();
 
-        let secure_data = keys.encrypt(ciphertext.clone()).unwrap();
-        let decrypted = keys
-            .decrypt(&secure_data.content, &secure_data.orders)
-            .unwrap();
+        let orders = vec![CipherOrders::NTRUP1277, CipherOrders::AES256];
+        let secure_data = keys.encrypt(ciphertext.clone(), &orders).unwrap();
+        let decrypted = keys.decrypt(&secure_data, &orders).unwrap();
 
         assert_eq!(decrypted, ciphertext);
     }

@@ -13,7 +13,6 @@ pub enum ZebraErrors {
     StorageWriteError,
     StorageTimeWentBackwards,
     //Guard Errors:
-    GuardIsNotReady,
     GuardIsNotEnable,
     GuardInvalidPassword,
     GuardBrokenData,
@@ -35,4 +34,7 @@ pub enum ZebraErrors {
     Bip39InvalidChecksum,
     Bip39BadEntropyBitCount(usize),
     Bip39InvalidMnemonic,
+
+    // State
+    StateNotRead,
 }
