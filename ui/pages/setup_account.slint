@@ -4,30 +4,11 @@ import { Routers } from "../routers.slint";
 import { ZTag } from "../components/tag.slint";
 import { ZButton } from "../components/button.slint";
 import { ZInput } from "../components/input.slint";
+import { KeyChainLogic } from "../logic.slint";
 
-
-struct CipherOrder {
-    name: string,
-    selected: bool,
-}
 
 export component SetupAccountPage inherits Window {
     private property <bool> accepted_email : true;
-    private property <bool> accepted_sync : true;
-    private property <[CipherOrder]> cipher_orders : [
-        {
-            name: "AES-256",
-            selected: true,
-        },
-        {
-            name: "NTRUP",
-            selected: true,
-        },
-        {
-            name: "TwoFish",
-            selected: true,
-        },
-    ];
 
     callback continue(Routers);
 
@@ -74,6 +55,7 @@ export component SetupAccountPage inherits Window {
                                 type: password;
                                 placeholder: @tr("Enter Master Password");
                                 label-color: Theme.window-background-inverse.darker(50%);
+                                value <=> KeyChainLogic.password;
                             }
                             ZInput {
                                 height: 46pt;
@@ -82,6 +64,7 @@ export component SetupAccountPage inherits Window {
                                 enabled: accepted_email;
                                 placeholder: @tr("Email Optional");
                                 label-color: Theme.window-background-inverse.darker(50%);
+                                value <=> KeyChainLogic.email;
                             }
                             CheckBox {
                                 text: @tr("Enable Email (Restore Password)");
@@ -90,27 +73,8 @@ export component SetupAccountPage inherits Window {
                             }
                             CheckBox {
                                 text: @tr("Enable Sync global server");
-                                checked <=> accepted_sync;
+                                checked <=> KeyChainLogic.sync;
                                 enabled: true;
-                            }
-                            HorizontalLayout {
-                                alignment: center;
-                                spacing: 5pt;
-                                padding-bottom: 10pt;
-                                for cipher in cipher_orders : ZTag {
-                                    text: cipher.name;
-                                    width: 60pt;
-                                    height: 20pt;
-                                    selected: cipher.selected;
-                                    color: Theme.window-background-inverse;
-                                    background: Theme.secondary;
-                                    background-selected: Theme.primary;
-                                    color-selected: Theme.window-background-inverse;
-                                    font-size: Theme.font-size-regular;
-                                    clicked => {
-                                        cipher.selected = !cipher.selected;
-                                    }
-                                }
                             }
                             ZButton {
                                 height: 36pt;

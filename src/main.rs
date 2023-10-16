@@ -9,14 +9,23 @@ use zebra_pass::{
 
 slint::include_modules!();
 
-fn handler() -> Result<(), slint::PlatformError> {
+fn handler(core: Core) -> Result<(), slint::PlatformError> {
     slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/locale/"));
     let app = AppWindow::new()?;
     let main_window = app.as_weak().unwrap();
+    let weak_keys_logic = Rc::new(app.as_weak().unwrap().global::<KeyChainLogic>());
 
     main_window
-        .global::<Logic>()
+        .global::<KeyChainLogic>()
         .on_request_random_words(|| bip39::gen_bip39_words(3));
+
+    main_window
+        .global::<KeyChainLogic>()
+        .on_request_create_account(|| {
+            let sync = weak_logic.get_sync();
+
+            [].into()
+        });
 
     app.run()
 }
@@ -46,5 +55,5 @@ fn main() -> Result<(), slint::PlatformError> {
         }
     }
 
-    handler()
+    handler(core)
 }
