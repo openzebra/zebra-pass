@@ -78,6 +78,7 @@ impl ZebraGuard {
     }
 
     pub fn bip39_cipher_from_password<T>(
+        // TODO: make words as Mnemonic type
         &mut self,
         password: &[u8],
         words: &str,

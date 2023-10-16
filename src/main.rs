@@ -2,25 +2,30 @@
 // -- Email: hicarus@yandex.ru
 // -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 use rand;
 use zebra_pass::{
     bip39::mnemonic::Mnemonic,
-    core::{bip39, core::Core},
+    core::{
+        bip39::{self, from_bip39_model},
+        core::Core,
+    },
     errors::ZebraErrors,
+    records::records::Records,
 };
 
 slint::include_modules!();
 
-fn handler(core: Rc<Core>) -> Result<(), slint::PlatformError> {
+fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
     slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/locale/"));
 
-    let state = core.state.borrow();
+    let core_ref_state = core.clone();
+    let state = &core_ref_state.borrow().state;
     let app = AppWindow::new()?;
     let main_window = Rc::new(app.as_weak().unwrap());
 
-    if !state.payload.inited {
+    if !state.borrow().payload.inited {
         main_window.set_route(Routers::LangChoose);
     }
 
@@ -34,6 +39,7 @@ fn handler(core: Rc<Core>) -> Result<(), slint::PlatformError> {
         });
 
     let keys_logic_ref = main_window.clone();
+    let core_ref = core.clone();
     main_window
         .global::<KeyChainLogic>()
         .on_request_create_account(move || {
@@ -42,7 +48,29 @@ fn handler(core: Rc<Core>) -> Result<(), slint::PlatformError> {
             let password = keys_logic_ref.global::<KeyChainLogic>().get_password();
             let words_salt = keys_logic_ref.global::<KeyChainLogic>().get_words_salt();
             let words_model = keys_logic_ref.global::<KeyChainLogic>().get_random_words();
-            // dbg!(sync, email, password, words_salt, words);
+            // TODO: make error hanlder!
+            let words = from_bip39_model(words_model).unwrap().get();
+            let data: Vec<Records> = Vec::new();
+            let mut mut_core = core_ref.borrow_mut();
+
+            // TODO: make error hanlder!
+            mut_core
+                .guard
+                .bip39_cipher_from_password::<Vec<Records>>(
+                    &password.as_bytes(),
+                    &words,
+                    &words_salt,
+                    data,
+                )
+                .unwrap();
+            let mut mut_state = mut_core.state.borrow_mut();
+
+            mut_state.payload.email = Some(email.to_string());
+            // TODO: make error hanlder!
+            mut_state.payload.address = mut_core.guard.get_address().unwrap();
+            mut_state.payload.inited = true;
+            mut_state.payload.restoreble = !email.is_empty();
+            mut_state.payload.server_sync = sync;
 
             [].into()
         });
@@ -75,5 +103,5 @@ fn main() -> Result<(), slint::PlatformError> {
         }
     }
 
-    handler(Rc::new(core))
+    handler(Rc::new(RefCell::new(core)))
 }
