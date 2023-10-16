@@ -84,7 +84,9 @@ export component SetupAccountPage inherits Window {
                                 border-color: Theme.primary;
                                 text: @tr("Create");
                                 enabled: true;
-                                clicked => {}
+                                clicked => {
+                                    KeyChainLogic.request-create-account();
+                                }
                             }
                         }
                     }

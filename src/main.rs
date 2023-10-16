@@ -34,9 +34,8 @@ fn handler(core: Rc<Core>) -> Result<(), slint::PlatformError> {
             let email = keys_logic_ref.global::<KeyChainLogic>().get_email();
             let password = keys_logic_ref.global::<KeyChainLogic>().get_password();
             let words_salt = keys_logic_ref.global::<KeyChainLogic>().get_words_salt();
-            let words = keys_logic_ref.global::<KeyChainLogic>().get_random_words();
-
-            dbg!(sync, email, password, words_salt, words);
+            let words_model = keys_logic_ref.global::<KeyChainLogic>().get_random_words();
+            // dbg!(sync, email, password, words_salt, words);
 
             [].into()
         });
