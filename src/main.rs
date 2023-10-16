@@ -4,7 +4,9 @@
 
 use std::rc::Rc;
 
+use rand;
 use zebra_pass::{
+    bip39::mnemonic::Mnemonic,
     core::{bip39, core::Core},
     errors::ZebraErrors,
 };
@@ -24,7 +26,12 @@ fn handler(core: Rc<Core>) -> Result<(), slint::PlatformError> {
 
     main_window
         .global::<KeyChainLogic>()
-        .on_request_random_words(|| bip39::gen_bip39_words(3));
+        .on_request_random_words(|| {
+            let mut rng = rand::thread_rng();
+            // TODO: make a error hanlder.
+            let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+            bip39::gen_bip39_words(&m, 3)
+        });
 
     let keys_logic_ref = main_window.clone();
     main_window

@@ -38,4 +38,7 @@ pub enum ZebraErrors {
     // State
     StateNotRead,
     StateNotInited,
+
+    // Core
+    CoreModelError,
 }

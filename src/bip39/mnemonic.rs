@@ -197,3 +197,16 @@ fn test_mnemonic() {
     assert!(is_valid);
     assert!(is_valid0);
 }
+
+#[test]
+fn test_seed() {
+    use rand;
+
+    let mut rng = rand::thread_rng();
+    let password = "SALT";
+    let m0 = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+    let words = m0.get();
+    let m1 = Mnemonic::mnemonic_to_entropy(&words).unwrap();
+
+    assert_eq!(m1.get_seed(password), m0.get_seed(password));
+}
