@@ -12,7 +12,6 @@ use zebra_pass::{
         core::Core,
     },
     errors::ZebraErrors,
-    records::records::Records,
 };
 
 slint::include_modules!();
@@ -21,7 +20,7 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
     slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/locale/"));
 
     let core_ref_state = core.clone();
-    let state = &core_ref_state.borrow().state;
+    let state = &core_ref_state.borrow().state.clone();
     let app = AppWindow::new()?;
     let main_window = Rc::new(app.as_weak().unwrap());
 
@@ -49,28 +48,11 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
             let words_salt = keys_logic_ref.global::<KeyChainLogic>().get_words_salt();
             let words_model = keys_logic_ref.global::<KeyChainLogic>().get_random_words();
             // TODO: make error hanlder!
-            let words = from_bip39_model(words_model).unwrap().get();
-            let data: Vec<Records> = Vec::new();
-            let mut mut_core = core_ref.borrow_mut();
+            let m = from_bip39_model(words_model).unwrap();
+            let mut core = core_ref.borrow_mut();
 
-            // TODO: make error hanlder!
-            mut_core
-                .guard
-                .bip39_cipher_from_password::<Vec<Records>>(
-                    &password.as_bytes(),
-                    &words,
-                    &words_salt,
-                    data,
-                )
+            core.init_data(sync, &email, &password, &words_salt, &m)
                 .unwrap();
-            let mut mut_state = mut_core.state.borrow_mut();
-
-            mut_state.payload.email = Some(email.to_string());
-            // TODO: make error hanlder!
-            mut_state.payload.address = mut_core.guard.get_address().unwrap();
-            mut_state.payload.inited = true;
-            mut_state.payload.restoreble = !email.is_empty();
-            mut_state.payload.server_sync = sync;
 
             [].into()
         });

@@ -5,6 +5,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
+    bip39::mnemonic::Mnemonic,
     config::app::{APPLICATION, ORGANIZATION, QUALIFIER},
     errors::ZebraErrors,
     guard::ZebraGuard,
@@ -45,5 +46,34 @@ impl Core {
 
     pub fn sync(&self) -> Result<(), ZebraErrors> {
         self.state.borrow_mut().sync()
+    }
+
+    pub fn init_data(
+        &mut self,
+        server_sync: bool,
+        email: &str,
+        password: &str,
+        words_salt: &str,
+        m: &Mnemonic,
+    ) -> Result<(), ZebraErrors> {
+        let mut state = self.state.borrow_mut();
+        self.guard.bip39_cipher_from_password::<&[Records]>(
+            password.as_bytes(),
+            m,
+            &words_salt,
+            &self.data,
+        )?;
+        let restoreble = email.is_empty();
+
+        if restoreble {
+            state.payload.email = Some(email.to_string());
+        }
+
+        state.payload.restoreble = restoreble;
+        state.payload.server_sync = server_sync;
+        state.payload.address = self.guard.get_address()?;
+        state.payload.inited = true;
+
+        Ok(())
     }
 }

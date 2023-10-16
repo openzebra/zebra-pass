@@ -92,12 +92,7 @@ impl KeyChain {
         })
     }
 
-    pub fn from_bip39(words: &str, password: &str) -> Result<Self, ZebraErrors> {
-        if !Mnemonic::validate_mnemonic(words) {
-            return Err(ZebraErrors::Bip39InvalidMnemonic);
-        }
-
-        let m = Mnemonic::mnemonic_to_entropy(&words)?;
+    pub fn from_bip39(m: &Mnemonic, password: &str) -> Result<Self, ZebraErrors> {
         let num_threads = num_cpus::get();
         let seed_bytes = m.get_seed(password);
         let (aes_key, pk, sk) = gen_from_seed(seed_bytes)?;
@@ -370,10 +365,9 @@ mod test_key_chain {
     fn te_keychain_bip39() {
         let mut rng = rand::thread_rng();
         let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
-        let words = m.get();
         let password = "test-password";
-        let keys0 = KeyChain::from_bip39(&words, password).unwrap();
-        let keys1 = KeyChain::from_bip39(&words, password).unwrap();
+        let keys0 = KeyChain::from_bip39(&m, password).unwrap();
+        let keys1 = KeyChain::from_bip39(&m, password).unwrap();
 
         assert_eq!(keys1.aes_key, keys0.aes_key);
         assert_eq!(keys1.ntrup_keys.0 .0.coeffs, keys0.ntrup_keys.0 .0.coeffs);

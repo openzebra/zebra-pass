@@ -8,6 +8,7 @@ extern crate serde_json;
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
+    bip39::mnemonic::Mnemonic,
     errors::ZebraErrors,
     keychain::keys::{KeyChain, AES_KEY_SIZE},
     state::state::State,
@@ -78,10 +79,9 @@ impl ZebraGuard {
     }
 
     pub fn bip39_cipher_from_password<T>(
-        // TODO: make words as Mnemonic type
         &mut self,
         password: &[u8],
-        words: &str,
+        m: &Mnemonic,
         words_password: &str,
         data: T,
     ) -> Result<(), ZebraErrors>
@@ -93,7 +93,7 @@ impl ZebraGuard {
         let difficulty = state.payload.settings.cipher.difficulty;
 
         let pwd_keys = KeyChain::from_pass(password, difficulty)?;
-        let bip39_keys = KeyChain::from_bip39(words, words_password)?;
+        let bip39_keys = KeyChain::from_bip39(m, words_password)?;
         let bip39_keys_bytes = bip39_keys.as_bytes().to_vec();
         let keys_cipher = pwd_keys.encrypt(bip39_keys_bytes, &orders)?;
 
