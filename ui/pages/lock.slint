@@ -1,15 +1,16 @@
-import { VerticalBox, Button, ComboBox, Slider, GridBox, GroupBox, HorizontalBox } from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
-import { ZLabel } from "../components/label.slint";
-import { ZComboBox } from "../components/combo_box.slint";
-import { ZTag } from "../components/tag.slint";
 import { Theme } from "../theme.slint";
-import { ZLockIcon, ZHideEyeIcon, ZGearIcon } from "../icons/icons.slint";
+import { ZInput } from "../components/input.slint";
+import { Routers } from "../routers.slint";
+import { ZLockIcon } from "../icons/lock.slint";
+import { Zlink } from "../components/link.slint";
 
 export component LockPage inherits Window {
-    GridLayout {
+    callback continue(Routers);
+
+    HorizontalLayout {
         VerticalLayout {
-            height: 450pt;
+            height: Theme.app-height;
             Image {
                 source: @image-url("../images/zebra_print.png");
                 colorize: Theme.window-background-inverse;
@@ -19,36 +20,73 @@ export component LockPage inherits Window {
             }
         }
         VerticalLayout {
-            height: 100%;
-            GridLayout {
-                VerticalBox {
-                    alignment: start;
-
-                    GroupBox {
-                        title: "dasdsadasd";
-
-                        HorizontalBox {
-                            alignment: start;
-
-                            ZButton {
-                                height: 36pt;
-                                width: 160pt;
-                                color: Theme.window-background;
-                                background: Theme.window-background-inverse;
-                                text: "dasdsadsadsadsadasd";
+            width: Theme.app-width - Theme.zerba-print-length;
+            alignment: center;
+            HorizontalLayout {
+                width: 100%;
+                alignment: center;
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 5pt;
+                    ZLockIcon {
+                        height: 40pt;
+                        fill: Theme.window-background-inverse;
+                    }
+                    ZInput {
+                        height: 46pt;
+                        width: 220pt;
+                        alignment: center;
+                        placeholder: @tr("Password");
+                        label-color: Theme.window-background-inverse.darker(50%);
+                    }
+                    HorizontalLayout {
+                        height: 15pt;
+                        Text {
+                            horizontal-alignment: center;
+                            color: Theme.danger;
+                            text: @tr("error");
+                        }
+                    }
+                    ZButton {
+                        height: 36pt;
+                        width: 220pt;
+                        color: Theme.window-background;
+                        background: Theme.window-background-inverse;
+                        text: @tr("Unlock");
+                        clicked => {
+                            // continue(Routers.SetupAccount)
+                        }
+                    }
+                    HorizontalLayout {
+                        alignment: center;
+                        VerticalLayout {
+                            padding-right: 2pt;
+                            alignment: center;
+                            Rectangle {
+                                width: 100pt;
+                                height: 1pt;
+                                background: Theme.window-background-inverse.transparentize(50%);
                             }
-                            ZLabel {
-                                text: "work";
-                                background: Theme.success;
+                        }
+                        Text {
+                            text: @tr("Or");
+                            color: Theme.window-background-inverse.transparentize(50%);
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            padding-left: 2pt;
+                            Rectangle {
+                                width: 100pt;
+                                height: 1pt;
+                                background: Theme.window-background-inverse.transparentize(50%);
                             }
-                            Button {
-                                text: "test";
-                            }
-                            ZLockIcon {
-                                fill: Theme.window-background-inverse;
-                                height: 20pt;
-                                width: 20pt;
-                            }
+                        }
+                    }
+                    HorizontalLayout {
+                        alignment: center;
+                        Zlink {
+                            color: Theme.secondary;
+                            text: @tr("Restore");
                         }
                     }
                 }

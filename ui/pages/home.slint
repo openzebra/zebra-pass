@@ -1,0 +1,14 @@
+import { CheckBox } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { Routers } from "../routers.slint";
+import { ZTag } from "../components/tag.slint";
+import { ZButton } from "../components/button.slint";
+import { ZInput } from "../components/input.slint";
+import { KeyChainLogic } from "../logic.slint";
+
+
+export component HomePage inherits Window {
+    callback continue(Routers);
+
+    HorizontalLayout {}
+}
