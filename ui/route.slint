@@ -14,7 +14,11 @@ import { Routers } from "./routers.slint";
 export component Route inherits Window {
     in-out property<Routers> route: Routers.Lock;
 
-    if(root.route == Routers.Lock) : LockPage {}
+    if(root.route == Routers.Lock) : LockPage {
+        continue(new-route) => {
+            root.route = new-route;
+        }
+    }
     if(root.route == Routers.Start) : StartPage {
         continue(new-route) => {
             root.route = new-route;
