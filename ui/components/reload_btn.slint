@@ -1,0 +1,36 @@
+import { StyleMetrics , Button} from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+
+export component ReloadButton {
+    in property <bool> hovered: true;
+    in property <string> text;
+    in-out property <color> background;
+    in-out property <color> hover-color;
+    in-out property<bool> enabled : true;
+
+    callback clicked;
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => {
+            if (root.enabled) {
+                clicked();
+            }
+        }
+    }
+
+    img := Image {
+        source: @image-url("../images/reload.svg");
+        colorize: root.background;
+        width: 30pt;
+        image-fit: fill;
+    }
+    states [
+        active when root.enabled && hovered && touch.has-hover: {
+            img.colorize: root.hover-color;
+            in {
+              animate img.colorize { duration: 150ms; }
+            }
+        }
+    ]
+}

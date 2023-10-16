@@ -6,13 +6,15 @@ import { Logic } from "logic.slint";
 
 
 component AppWindow inherits Window {
+    in-out property<Routers> route : Routers.Mnemonic;
+
     width: Theme.app-width;
     height: Theme.app-height;
     background: Theme.window-background;
 
     VerticalBox {
         Route {
-            route: Routers.SetupAccount;
+            route: route;
         }
     }
 }

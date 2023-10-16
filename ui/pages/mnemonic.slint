@@ -3,7 +3,8 @@ import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
 import { ZTag } from "../components/tag.slint";
 import { ZButton } from "../components/button.slint";
-import { Logic } from "../logic.slint";
+import { ReloadButton } from "../components/reload_btn.slint";
+import { KeyChainLogic } from "../logic.slint";
 
 export component MnemonicPage inherits Window {
     private property <bool> accepted : false;
@@ -44,13 +45,22 @@ export component MnemonicPage inherits Window {
                 }
             }
             HorizontalLayout {
+                alignment: center;
+                ReloadButton {
+                    background: Theme.window-background-inverse;
+                    hover-color: Theme.secondary;
+                    clicked => {
+                        KeyChainLogic.random-words = KeyChainLogic.request-random-words();
+                    }
+                }
+            }
+            HorizontalLayout {
                 width: 100%;
-                padding-top: 15pt;
                 padding-bottom: 15pt;
                 alignment: center;
                 VerticalLayout {
                     width: 300pt;
-                    for list in Logic.random-words : HorizontalLayout {
+                    for list in KeyChainLogic.random-words : HorizontalLayout {
                         padding: 5pt;
                         alignment: space-between;
                         for word in list : ZTag {
@@ -66,23 +76,9 @@ export component MnemonicPage inherits Window {
             }
             HorizontalLayout {
                 width: 100%;
-                padding-top: 15pt;
                 alignment: center;
                 VerticalLayout {
                     alignment: center;
-                    ZButton {
-                        height: 36pt;
-                        width: 200pt;
-                        color: Theme.window-background-inverse;
-                        background: Theme.window-background;
-                        border-color: Theme.window-background-inverse;
-                        text: @tr("Rerandom");
-                        enabled: true;
-                        hovered: false;
-                        clicked => {
-                            Logic.random-words = Logic.request-random-words();
-                        }
-                    }
                     Rectangle {
                         height: 10pt;
                     }

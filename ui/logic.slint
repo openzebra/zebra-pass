@@ -1,10 +1,24 @@
+export global KeyChainLogic {
+    in-out property<[[string]]> random_words : [
+        ["test", "test", "test"],
+        ["test", "test", "test"],
+        ["test", "test", "test"],
+    ];
+    in-out property<string> words_salt : "";
+    in-out property<string> password;
+    in-out property<string> email;
+
+    pure callback request_random_words() -> [[string]];
+    pure callback request_init_state();
+}
+
 
 export global Logic {
-  in-out property<[[string]]> random_words : [];
-  in-out property<string> words_salt : "";
-  in-out property<string> password;
-  in-out property<string> email;
+    in-out property<[[string]]> random_words : [];
+    in-out property<string> words_salt : "";
+    in-out property<string> password;
+    in-out property<string> email;
 
-  pure callback request_random_words() -> [[string]];
-  pure callback request_init_state();
+    pure callback request_random_words() -> [[string]];
+    pure callback request_init_state();
 }
