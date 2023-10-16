@@ -27,6 +27,8 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
 
     if !state.borrow().payload.inited {
         main_window.set_route(Routers::LangChoose);
+    } else {
+        main_window.set_route(Routers::Lock);
     }
 
     main_window
@@ -67,6 +69,25 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
                 Err(_) => LogicResult {
                     // TODO: make more informative errors
                     error: "Cannot init data".into(),
+                    success: false,
+                },
+            }
+        });
+
+    let lock_page_core_ref = core.clone();
+    main_window
+        .global::<KeyChainLogic>()
+        .on_request_unlock(move |password| {
+            let mut core = lock_page_core_ref.borrow_mut();
+
+            match core.guard.try_unlock(&password.to_string().as_bytes()) {
+                Ok(_) => LogicResult {
+                    error: SharedString::default(),
+                    success: true,
+                },
+                Err(_) => LogicResult {
+                    // TODO: add more informative errors
+                    error: "incorrect password".into(),
                     success: false,
                 },
             }
