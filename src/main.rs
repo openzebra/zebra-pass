@@ -2,6 +2,8 @@
 // -- Email: hicarus@yandex.ru
 // -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
+use std::rc::Rc;
+
 use zebra_pass::{
     core::{bip39, core::Core},
     errors::ZebraErrors,
@@ -9,20 +11,32 @@ use zebra_pass::{
 
 slint::include_modules!();
 
-fn handler(core: Core) -> Result<(), slint::PlatformError> {
+fn handler(core: Rc<Core>) -> Result<(), slint::PlatformError> {
     slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/locale/"));
+
+    let state = core.state.borrow();
     let app = AppWindow::new()?;
-    let main_window = app.as_weak().unwrap();
-    let weak_keys_logic = Rc::new(app.as_weak().unwrap().global::<KeyChainLogic>());
+    let main_window = Rc::new(app.as_weak().unwrap());
+
+    if !state.payload.inited {
+        main_window.set_route(Routers::LangChoose);
+    }
 
     main_window
         .global::<KeyChainLogic>()
         .on_request_random_words(|| bip39::gen_bip39_words(3));
 
+    let keys_logic_ref = main_window.clone();
     main_window
         .global::<KeyChainLogic>()
-        .on_request_create_account(|| {
-            let sync = weak_logic.get_sync();
+        .on_request_create_account(move || {
+            let sync = keys_logic_ref.global::<KeyChainLogic>().get_sync();
+            let email = keys_logic_ref.global::<KeyChainLogic>().get_email();
+            let password = keys_logic_ref.global::<KeyChainLogic>().get_password();
+            let words_salt = keys_logic_ref.global::<KeyChainLogic>().get_words_salt();
+            let words = keys_logic_ref.global::<KeyChainLogic>().get_random_words();
+
+            dbg!(sync, email, password, words_salt, words);
 
             [].into()
         });
@@ -55,5 +69,5 @@ fn main() -> Result<(), slint::PlatformError> {
         }
     }
 
-    handler(core)
+    handler(Rc::new(core))
 }
