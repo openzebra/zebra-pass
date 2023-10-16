@@ -1,3 +1,8 @@
+export struct LogicResult {
+    success: bool,
+    error: string
+}
+
 export global KeyChainLogic {
     in-out property<[[string]]> random_words : [];
     in-out property<string> words_salt : "";
@@ -6,7 +11,7 @@ export global KeyChainLogic {
     in-out property<bool> sync : true;
 
     pure callback request_random_words() -> [[string]];
-    pure callback request_create_account() -> [string];
+    pure callback request_create_account() -> LogicResult;
 }
 
 

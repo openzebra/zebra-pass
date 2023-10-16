@@ -5,6 +5,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use rand;
+use slint::SharedString;
 use zebra_pass::{
     bip39::mnemonic::Mnemonic,
     core::{
@@ -42,19 +43,33 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
     main_window
         .global::<KeyChainLogic>()
         .on_request_create_account(move || {
+            let mut core = core_ref.borrow_mut();
             let sync = keys_logic_ref.global::<KeyChainLogic>().get_sync();
             let email = keys_logic_ref.global::<KeyChainLogic>().get_email();
             let password = keys_logic_ref.global::<KeyChainLogic>().get_password();
             let words_salt = keys_logic_ref.global::<KeyChainLogic>().get_words_salt();
             let words_model = keys_logic_ref.global::<KeyChainLogic>().get_random_words();
-            // TODO: make error hanlder!
-            let m = from_bip39_model(words_model).unwrap();
-            let mut core = core_ref.borrow_mut();
+            let m = match from_bip39_model(words_model) {
+                Ok(r) => r,
+                Err(_) => {
+                    return LogicResult {
+                        error: "bip39 words are invalid".into(),
+                        success: true,
+                    }
+                }
+            };
 
-            core.init_data(sync, &email, &password, &words_salt, &m)
-                .unwrap();
-
-            [].into()
+            match core.init_data(sync, &email, &password, &words_salt, &m) {
+                Ok(_) => LogicResult {
+                    error: SharedString::default(),
+                    success: true,
+                },
+                Err(_) => LogicResult {
+                    // TODO: make more informative errors
+                    error: "Cannot init data".into(),
+                    success: false,
+                },
+            }
         });
 
     app.run()

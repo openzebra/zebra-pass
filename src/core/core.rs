@@ -56,13 +56,14 @@ impl Core {
         words_salt: &str,
         m: &Mnemonic,
     ) -> Result<(), ZebraErrors> {
-        let mut state = self.state.borrow_mut();
         self.guard.bip39_cipher_from_password::<&[Records]>(
             password.as_bytes(),
             m,
             &words_salt,
             &self.data,
         )?;
+
+        let mut state = self.state.borrow_mut();
         let restoreble = email.is_empty();
 
         if restoreble {
