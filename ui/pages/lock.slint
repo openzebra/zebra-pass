@@ -4,8 +4,14 @@ import { ZInput } from "../components/input.slint";
 import { Routers } from "../routers.slint";
 import { ZLockIcon } from "../icons/lock.slint";
 import { Zlink } from "../components/link.slint";
+import { KeyChainLogic, LogicResult } from "../logic.slint";
 
 export component LockPage inherits Window {
+    private property <LogicResult> result :  {
+        success: false,
+        error: ""
+    };
+
     callback continue(Routers);
 
     HorizontalLayout {
@@ -37,14 +43,16 @@ export component LockPage inherits Window {
                         width: 220pt;
                         alignment: center;
                         placeholder: @tr("Password");
+                        type: password;
                         label-color: Theme.window-background-inverse.darker(50%);
+                        value <=> KeyChainLogic.password;
                     }
                     HorizontalLayout {
                         height: 15pt;
                         Text {
                             horizontal-alignment: center;
                             color: Theme.danger;
-                            text: @tr("error");
+                            text: result.error;
                         }
                     }
                     ZButton {
@@ -54,6 +62,7 @@ export component LockPage inherits Window {
                         background: Theme.window-background-inverse;
                         text: @tr("Unlock");
                         clicked => {
+                            result = KeyChainLogic.request-unlock();
                             // continue(Routers.SetupAccount)
                         }
                     }
@@ -87,6 +96,9 @@ export component LockPage inherits Window {
                         Zlink {
                             color: Theme.secondary;
                             text: @tr("Restore");
+                            clicked => {
+                                // TODO: make it works
+                            }
                         }
                     }
                 }
