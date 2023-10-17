@@ -153,7 +153,6 @@ mod guard_tests {
         let mut guard = ZebraGuard::from(state.clone());
 
         let mut password = [0u8; 1245];
-        let words = m.get();
         let words_password = "test";
         let data = vec![
             "test0".to_string(),
@@ -171,12 +170,7 @@ mod guard_tests {
         // testing init
         state.borrow_mut().sync().unwrap();
         guard
-            .bip39_cipher_from_password::<Vec<String>>(
-                &password,
-                &words,
-                words_password,
-                data.clone(),
-            )
+            .bip39_cipher_from_password::<Vec<String>>(&password, &m, words_password, data.clone())
             .unwrap();
 
         assert!(guard.keys.is_some());

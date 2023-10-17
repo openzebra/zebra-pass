@@ -2519,9 +2519,9 @@ dependencies = [
 
 [[package]]
 name = "ntrulp"
-version = "0.1.7"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "610aea8c5ae218aeba0002f9e3b3922a794802804b68e5dcbb8dfba4aaea2ff4"
+checksum = "0c51545bfd18e9b8034e4867cfa7888218bf12a11bf26b75df525d479de374ec"
 dependencies = [
  "rand",
 ]
@@ -4852,6 +4852,7 @@ dependencies = [
  "num_cpus",
  "pbkdf2",
  "rand",
+ "rand_chacha",
  "serde",
  "serde_json",
  "sha2",

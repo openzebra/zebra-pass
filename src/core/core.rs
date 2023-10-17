@@ -78,3 +78,34 @@ impl Core {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod core_tests {
+    use super::*;
+    use rand;
+
+    #[test]
+    fn test_init() {
+        let mut core_data = Core::from("tes0", "tes1", "test2").unwrap();
+        core_data.sync().unwrap();
+
+        let mut rng = rand::thread_rng();
+        let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+        let password = "password";
+
+        core_data.init_data(false, "", &password, "", &m).unwrap();
+
+        drop(core_data);
+        drop(m);
+
+        let mut new_core_data = Core::from("tes0", "tes1", "test2").unwrap();
+        new_core_data.sync().unwrap();
+
+        assert!(new_core_data
+            .guard
+            .try_unlock("invalid password".as_bytes())
+            .is_err());
+
+        assert!(new_core_data.guard.try_unlock(password.as_bytes()).is_ok());
+    }
+}

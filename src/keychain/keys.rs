@@ -12,9 +12,11 @@ use ntrulp::ntru;
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
 use ntrulp::poly::r3::R3;
 use ntrulp::poly::rq::Rq;
-use ntrulp::random::{CommonRandom, NTRURandom};
+use ntrulp::random::{random_small, short_random};
 use num_cpus;
 use pbkdf2::pbkdf2_hmac_array;
+use rand::SeedableRng;
+use rand_chacha::ChaChaRng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256, Sha512};
 
@@ -45,27 +47,17 @@ pub struct KeyChain {
 fn gen_from_seed(
     seed_bytes: [u8; SHA512_SIZE],
 ) -> Result<([u8; SHA256_SIZE], PubKey, PrivKey), ZebraErrors> {
-    let seed_pq: [u8; 8] = seed_bytes[..8]
+    let seed_pq: [u8; SHA256_SIZE] = seed_bytes[..SHA256_SIZE]
         .try_into()
         .or(Err(ZebraErrors::KeyChainSliceError))?;
     let aes_key: [u8; SHA256_SIZE] = seed_bytes[SHA256_SIZE..]
         .try_into()
         .or(Err(ZebraErrors::KeyChainSliceError))?;
-
-    // TODO: make it as seed from 32 byts.
-    let pq_seed_u64 = u64::from_be_bytes(seed_pq);
-    let mut pq_rng = NTRURandom::from_u64(pq_seed_u64);
-    let f: Rq = Rq::from(
-        pq_rng
-            .short_random()
-            .or(Err(ZebraErrors::KeyChainNTRURngError))?,
-    );
+    let mut pq_rng = ChaChaRng::from_seed(seed_pq);
+    let f: Rq = Rq::from(short_random(&mut pq_rng).or(Err(ZebraErrors::KeyChainNTRURngError))?);
     let mut g: R3;
     let sk = loop {
-        // TODO: this can be endless.
-        let r = pq_rng
-            .random_small()
-            .or(Err(ZebraErrors::KeyChainNTRURngError))?;
+        let r = random_small(&mut pq_rng);
         g = R3::from(r);
 
         match PrivKey::compute(&f, &g) {
@@ -246,11 +238,11 @@ impl KeyChain {
     }
 
     fn ntru_encrypt(&self, bytes: &Arc<Vec<u8>>) -> Result<Vec<u8>, ZebraErrors> {
-        let mut rng = NTRURandom::new();
+        let mut pq_rng = ChaChaRng::from_entropy();
         let bytes = Arc::new(bytes);
         let pk = &self.ntrup_keys.1;
 
-        ntru::cipher::parallel_bytes_encrypt(&mut rng, &bytes, &pk, self.num_threads)
+        ntru::cipher::parallel_bytes_encrypt(&mut pq_rng, &bytes, &pk, self.num_threads)
             .or(Err(ZebraErrors::KeychainDataEncryptError))
     }
 }

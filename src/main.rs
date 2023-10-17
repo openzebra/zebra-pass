@@ -102,10 +102,6 @@ fn error_handler(error: ZebraErrors) -> Result<(), slint::PlatformError> {
     Ok(())
 }
 
-// fn main() {
-//     handler().unwrap();
-// }
-
 fn main() -> Result<(), slint::PlatformError> {
     let core = match Core::new() {
         Ok(c) => c,
