@@ -1,0 +1,15 @@
+import { Theme } from "../theme.slint";
+import { Button } from "std-widgets.slint";
+
+export component LeftBar inherits Rectangle {
+    background: Theme.primary;
+    height: Theme.app-height;
+    width: 40pt;
+
+    HorizontalLayout {
+        Text {
+            text: "Zebra Pass";
+            color: Theme.primary;
+        }
+    }
+}

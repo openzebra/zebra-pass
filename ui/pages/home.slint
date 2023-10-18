@@ -1,14 +1,23 @@
 import { CheckBox } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
-import { ZTag } from "../components/tag.slint";
-import { ZButton } from "../components/button.slint";
-import { ZInput } from "../components/input.slint";
-import { KeyChainLogic } from "../logic.slint";
+import { TopBar } from "../components/topbar.slint";
+import { LeftBar } from "../components/leftbar.slint";
 
 
 export component HomePage inherits Window {
     callback continue(Routers);
 
-    HorizontalLayout {}
+    HorizontalLayout {
+        LeftBar {}
+        VerticalLayout {
+            height: Theme.app-height;
+            TopBar {}
+            Rectangle {
+                width: Theme.app-width;
+                height: Theme.app-height;
+                background: #c29696;
+            }
+        }
+    }
 }
