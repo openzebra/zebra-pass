@@ -2,8 +2,30 @@ import { StandardListView } from "std-widgets.slint";
 import { ZButton } from "../components/button.slint";
 import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
+import { SettingsLogic } from "../logic.slint";
 
 export component LangChoosePage inherits Window {
+    private property <int> lang_index : 0;
+    private property <[string]> codes : ["en", "cn", "ru", "ja"];
+    private property <[StandardListViewItem]> models : [
+        {
+            text: "English",
+            code: "en",
+        },
+        {
+            text: "Chinese (Simplified Han, China)",
+            code: "cn",
+        },
+        {
+            text: "Russian",
+            code: "ru",
+        },
+        {
+            text: "Japanese",
+            code: "ja",
+        },
+    ];
+
     callback continue(Routers);
 
     HorizontalLayout {
@@ -30,30 +52,12 @@ export component LangChoosePage inherits Window {
                         horizontal-alignment: center;
                     }
                     StandardListView {
+                        current-item <=> lang_index;
                         height: 300pt;
-                        current-item: 0;
-                        model: [
-                            {
-                                text: "English",
-                                code: "en",
-                                encode: "UTF-8"
-                            },
-                            {
-                                text: "Chinese (Simplified Han, China)",
-                                code: "cn",
-                                encode: "GB2312"
-                            },
-                            {
-                                text: "Russian",
-                                code: "ru",
-                                encode: "ISO-8859-5"
-                            },
-                            {
-                                text: "Japanese",
-                                code: "ja",
-                                encode: "UTF-8"
-                            },
-                        ];
+                        model: models;
+                        item-pointer-event => {
+                            SettingsLogic.lang = codes[lang-index];
+                        }
                     }
                     continue-button := ZButton {
                         height: 36pt;
@@ -62,7 +66,7 @@ export component LangChoosePage inherits Window {
                         background: Theme.window-background-inverse;
                         text: @tr("Continue");
                         clicked => {
-                            continue(Routers.Start)
+                            continue(Routers.Start);
                         }
                     }
                 }

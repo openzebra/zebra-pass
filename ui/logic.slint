@@ -15,6 +15,9 @@ export global KeyChainLogic {
     pure callback request_unlock(string) -> LogicResult;
 }
 
+export global SettingsLogic {
+    in-out property <string> lang : "ru";
+}
 
 export global Logic {
 }

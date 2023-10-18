@@ -2,7 +2,7 @@ import { VerticalBox } from "std-widgets.slint";
 import { Route } from "./route.slint";
 import { Routers } from "./routers.slint";
 import { Theme } from "theme.slint";
-import { Logic, KeyChainLogic } from "logic.slint";
+import { Logic, KeyChainLogic, SettingsLogic } from "logic.slint";
 
 
 component AppWindow inherits Window {
@@ -22,5 +22,6 @@ component AppWindow inherits Window {
 export {
     Logic,
     KeyChainLogic,
+    SettingsLogic,
     AppWindow
 }
