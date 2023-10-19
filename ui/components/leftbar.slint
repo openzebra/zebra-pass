@@ -2,41 +2,12 @@ import { Theme } from "../theme.slint";
 import { Button } from "std-widgets.slint";
 import { ZLockIcon } from "../icons/lock.slint";
 import { ZGearIcon } from "../icons/gear.slint";
+import { IconWrap } from "../components/icon-wrap.slint";
 
 export enum SubHomeRoute {
     Manage,
     PasswordGen,
     Settings
-}
-
-component SafeButton {
-    in-out property <bool> selected : false;
-    in property <color> background;
-    
-    callback clicked;
-
-    HorizontalLayout {
-        alignment: start;
-        visible <=> selected;
-        Rectangle {
-            width: 3pt;
-            height: 30pt;
-            background: root.background;
-        }
-    }
-    touch := TouchArea {
-        mouse-cursor: pointer;
-        clicked => {
-            clicked();
-        }
-    }
-    HorizontalLayout {
-        alignment: center;
-        VerticalLayout {
-            alignment: center;
-            @children
-        }
-    }
 }
 
 export component LeftBar inherits Rectangle {
@@ -49,7 +20,7 @@ export component LeftBar inherits Rectangle {
     VerticalLayout {
         padding-top: 60pt;
         spacing: 10pt;
-        SafeButton {
+        IconWrap {
             selected: route == SubHomeRoute.Manage;
             background: Theme.window-background;
             clicked => {
@@ -63,7 +34,7 @@ export component LeftBar inherits Rectangle {
                 height: 20pt;
             }
         }
-        SafeButton {
+        IconWrap {
             selected: route == SubHomeRoute.PasswordGen;
             background: Theme.window-background;
             clicked => {
@@ -78,7 +49,7 @@ export component LeftBar inherits Rectangle {
                 height: 20pt;
             }
         }
-        SafeButton {
+        IconWrap {
             selected: route == SubHomeRoute.Settings;
             background: Theme.window-background;
             clicked => {

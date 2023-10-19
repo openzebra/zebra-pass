@@ -3,7 +3,7 @@ import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
 import { ZTag } from "../components/tag.slint";
 import { ZButton } from "../components/button.slint";
-import { ReloadButton } from "../components/reload_btn.slint";
+import { IconButton } from "../components/icon-btn.slint";
 import { ZInput } from "../components/input.slint";
 import { KeyChainLogic } from "../logic.slint";
 
@@ -13,6 +13,7 @@ export component MnemonicPage inherits Window {
 
     callback continue(Routers);
 
+    background: Theme.window-background;
     HorizontalLayout {
         VerticalLayout {
             height: Theme.app-height;
@@ -48,9 +49,11 @@ export component MnemonicPage inherits Window {
             }
             HorizontalLayout {
                 alignment: center;
-                ReloadButton {
+                IconButton {
                     background: Theme.window-background-inverse;
                     hover-color: Theme.secondary;
+                    source: @image-url("../images/reload.svg");
+                    img-width: 30pt;
                     clicked => {
                         KeyChainLogic.random-words = KeyChainLogic.request-random-words();
                     }
