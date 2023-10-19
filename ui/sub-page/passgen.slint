@@ -1,6 +1,5 @@
 import { Theme } from "../theme.slint";
 import { TopBar } from "../components/topbar.slint";
-import { ZCopyIcon } from "../icons/copy.slint";
 import { IconWrap } from "../components/icon-wrap.slint";
 import { IconButton } from "../components/icon-btn.slint";
 import { ZTag } from "../components/tag.slint";
@@ -66,7 +65,7 @@ component SelectType inherits VerticalLayout {
 }
 
 export component SubPagePassgen inherits VerticalLayout {
-    private property <GenType> type : GenType.Password;
+    private property <GenType> option : GenType.Password;
     private property <string> password : "dasdas3tg";
 
     alignment: start;
@@ -81,7 +80,7 @@ export component SubPagePassgen inherits VerticalLayout {
             alignment: center;
             spacing: 5pt;
             Text {
-                text: "Select options to set your password";
+                text: "Select options Generator options";
                 font-family: Theme.font-family;
                 font-size: 13pt;
                 horizontal-alignment: center;

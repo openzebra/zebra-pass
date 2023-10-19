@@ -41,4 +41,7 @@ pub enum ZebraErrors {
 
     // Core
     CoreModelError,
+
+    // password gen
+    PassGenInvalidRng,
 }
