@@ -1,5 +1,17 @@
 import { Theme } from "../theme.slint";
+import { TopBar } from "../components/topbar.slint";
 
-export component SubPagePassgen inherits Rectangle {
 
+enum GenType {
+    Password,
+    Mnemonic,
+    Pin
+}
+
+export component SubPagePassgen inherits VerticalLayout {
+    private property <GenType> type : GenType.Password;
+
+    TopBar {
+        title: "Generator";
+    }
 }

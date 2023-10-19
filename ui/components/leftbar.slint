@@ -12,7 +12,6 @@ export enum SubHomeRoute {
 component SafeButton {
     in-out property <bool> selected : false;
     in property <color> background;
-    in property <color> hover-color;
     
     callback clicked;
 
@@ -20,9 +19,9 @@ component SafeButton {
         alignment: start;
         visible <=> selected;
         Rectangle {
-            width: 2pt;
+            width: 3pt;
             height: 30pt;
-            background: Theme.window-background-inverse;
+            background: root.background;
         }
     }
     touch := TouchArea {
@@ -43,7 +42,7 @@ component SafeButton {
 export component LeftBar inherits Rectangle {
     in-out property <SubHomeRoute> route : SubHomeRoute.Manage;
 
-    background: Theme.window-background;
+    background: Theme.window-background-inverse;
     height: Theme.app-height;
     width: 40pt;
 
@@ -52,19 +51,21 @@ export component LeftBar inherits Rectangle {
         spacing: 10pt;
         SafeButton {
             selected: route == SubHomeRoute.Manage;
+            background: Theme.window-background;
             clicked => {
                 if (route != SubHomeRoute.Manage) {
                     route = SubHomeRoute.Manage;
                 }
             }
             ZLockIcon {
-                fill: Theme.window-background-inverse;
+                fill: Theme.window-background;
                 width: 20pt;
                 height: 20pt;
             }
         }
         SafeButton {
             selected: route == SubHomeRoute.PasswordGen;
+            background: Theme.window-background;
             clicked => {
                 if (route != SubHomeRoute.PasswordGen) {
                     route = SubHomeRoute.PasswordGen;
@@ -72,20 +73,21 @@ export component LeftBar inherits Rectangle {
             }
             Image {
                 source: @image-url("../images/magic.svg");
-                colorize: Theme.window-background-inverse;
+                colorize: Theme.window-background;
                 width: 20pt;
                 height: 20pt;
             }
         }
         SafeButton {
             selected: route == SubHomeRoute.Settings;
+            background: Theme.window-background;
             clicked => {
                 if (route != SubHomeRoute.Settings) {
                     route = SubHomeRoute.Settings;
                 }
             }
             ZGearIcon {
-                fill: Theme.window-background-inverse;
+                fill: Theme.window-background;
                 width: 20pt;
                 height: 20pt;
             }

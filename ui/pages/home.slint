@@ -8,28 +8,26 @@ import {
     SubPageSettings
 } from "../sub-page/pages.slint";
 
-
 export component HomePage inherits Window {
-    private property <SubHomeRoute> route;
+    private property <SubHomeRoute> route : SubHomeRoute.PasswordGen;
+    private property <string> top-bar-title;
 
     callback continue(Routers);
+
+    states []
 
     HorizontalLayout {
         LeftBar {
             route <=> route;
         }
-        VerticalLayout {
-            height: Theme.app-height;
-            TopBar {}
-            if route == SubHomeRoute.Manage: SubPageManage {
+        if route == SubHomeRoute.Manage: SubPageManage {
                 
-            }
-            if route == SubHomeRoute.PasswordGen: SubPagePassgen {
-                
-            }
-            if route == SubHomeRoute.Settings: SubPageSettings {
-                
-            }
+        }
+        if route == SubHomeRoute.PasswordGen: SubPagePassgen {
+            
+        }
+        if route == SubHomeRoute.Settings: SubPageSettings {
+            
         }
     }
 }

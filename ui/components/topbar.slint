@@ -2,9 +2,12 @@ import { Theme } from "../theme.slint";
 import { ZButton } from "button.slint";
 
 export component TopBar inherits Rectangle {
+    in property <string> title;
+
     background: Theme.window-background-inverse;
     height: 40pt;
     width: Theme.app-width;
+
     HorizontalLayout {
         alignment: space-between;
         padding-left: 10pt;
@@ -12,7 +15,7 @@ export component TopBar inherits Rectangle {
         VerticalLayout {
             alignment: center;
             Text {
-                text: "ZEBRA";
+                text: root.title;
                 color: Theme.primary;
                 font-family: Theme.font-family;
                 font-size: Theme.font-size-medium;

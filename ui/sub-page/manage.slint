@@ -1,5 +1,8 @@
 import { Theme } from "../theme.slint";
+import { TopBar } from "../components/topbar.slint";
 
-export component SubPageManage inherits Rectangle {
-
+export component SubPageManage inherits VerticalLayout {
+    TopBar {
+        title: "Mange";
+    }
 }
