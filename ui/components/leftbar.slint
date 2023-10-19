@@ -1,15 +1,94 @@
 import { Theme } from "../theme.slint";
 import { Button } from "std-widgets.slint";
+import { ZLockIcon } from "../icons/lock.slint";
+import { ZGearIcon } from "../icons/gear.slint";
+
+export enum SubHomeRoute {
+    Manage,
+    PasswordGen,
+    Settings
+}
+
+component SafeButton {
+    in-out property <bool> selected : false;
+    in property <color> background;
+    in property <color> hover-color;
+    
+    callback clicked;
+
+    HorizontalLayout {
+        alignment: start;
+        visible <=> selected;
+        Rectangle {
+            width: 2pt;
+            height: 30pt;
+            background: Theme.window-background-inverse;
+        }
+    }
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => {
+            clicked();
+        }
+    }
+    HorizontalLayout {
+        alignment: center;
+        VerticalLayout {
+            alignment: center;
+            @children
+        }
+    }
+}
 
 export component LeftBar inherits Rectangle {
-    background: Theme.primary;
+    in-out property <SubHomeRoute> route : SubHomeRoute.Manage;
+
+    background: Theme.window-background;
     height: Theme.app-height;
     width: 40pt;
 
-    HorizontalLayout {
-        Text {
-            text: "Zebra Pass";
-            color: Theme.primary;
+    VerticalLayout {
+        padding-top: 60pt;
+        spacing: 10pt;
+        SafeButton {
+            selected: route == SubHomeRoute.Manage;
+            clicked => {
+                if (route != SubHomeRoute.Manage) {
+                    route = SubHomeRoute.Manage;
+                }
+            }
+            ZLockIcon {
+                fill: Theme.window-background-inverse;
+                width: 20pt;
+                height: 20pt;
+            }
+        }
+        SafeButton {
+            selected: route == SubHomeRoute.PasswordGen;
+            clicked => {
+                if (route != SubHomeRoute.PasswordGen) {
+                    route = SubHomeRoute.PasswordGen;
+                }
+            }
+            Image {
+                source: @image-url("../images/magic.svg");
+                colorize: Theme.window-background-inverse;
+                width: 20pt;
+                height: 20pt;
+            }
+        }
+        SafeButton {
+            selected: route == SubHomeRoute.Settings;
+            clicked => {
+                if (route != SubHomeRoute.Settings) {
+                    route = SubHomeRoute.Settings;
+                }
+            }
+            ZGearIcon {
+                fill: Theme.window-background-inverse;
+                width: 20pt;
+                height: 20pt;
+            }
         }
     }
 }
