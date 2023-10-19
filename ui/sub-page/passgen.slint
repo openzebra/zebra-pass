@@ -4,6 +4,7 @@ import { IconWrap } from "../components/icon-wrap.slint";
 import { IconButton } from "../components/icon-btn.slint";
 import { ZTag } from "../components/tag.slint";
 import { SpinBox , Slider, CheckBox} from "std-widgets.slint";
+import { PassGenForm } from "../components/pass-gen-form.slint";
 
 
 enum GenType {
@@ -78,7 +79,7 @@ export component SubPagePassgen inherits VerticalLayout {
         height: 100%;
         VerticalLayout {
             alignment: center;
-            spacing: 5pt;
+            spacing: 20pt;
             Text {
                 text: "Select options Generator options";
                 font-family: Theme.font-family;
@@ -86,91 +87,7 @@ export component SubPagePassgen inherits VerticalLayout {
                 horizontal-alignment: center;
             }
             SelectType {}
-            Rectangle {
-                background: Theme.success;
-                height: 50pt;
-                width: Theme.app-width / 2 - 50pt;
-                border-radius: 8pt;
-                VerticalLayout {
-                    alignment: center;
-                    padding-left: 16pt;
-                    HorizontalLayout {
-                        alignment: space-between;
-                        VerticalLayout {
-                            alignment: center;
-                            TextInput {
-                                text: password;
-                                read-only: true;
-                                font-family: Theme.font-family;
-                                font-size: Theme.font-size-medium;
-                            }
-                        }
-                        HorizontalLayout {
-                            IconButton {
-                                background: Theme.window-background-inverse;
-                                hover-color: Theme.secondary;
-                                source: @image-url("../images/copy.svg");
-                                img-width: 20pt;
-                                clicked => {
-                                }
-                            }
-                            IconButton {
-                                background: Theme.window-background-inverse;
-                                hover-color: Theme.secondary;
-                                source: @image-url("../images/reload.svg");
-                                img-width: 30pt;
-                                clicked => {
-                                    
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            HorizontalLayout {
-                spacing: 5pt;
-                Slider {
-                    min-width: 160px;
-                    minimum: -100;
-                    maximum: 100;
-                    value: 42;
-                }
-                SpinBox {
-                    vertical-stretch: 0;
-                    value: 42;
-                    width: 100pt;
-                    enabled: true;
-                }
-            }
-            HorizontalLayout {
-                alignment: center;
-                VerticalLayout {
-                    alignment: start;
-                    CheckBox {
-                        text: @tr("Lowercase (a-z)");
-                        checked: true;
-                        enabled: true;
-                    }
-                    CheckBox {
-                        text: @tr("Numbers (0-9)");
-                        checked: true;
-                        enabled: true;
-                    }
-                }
-                VerticalLayout {
-                    alignment: start;
-                    CheckBox {
-                        text: @tr("Uppercase (A-Z)");
-                        checked: true;
-                        enabled: true;
-                    }
-                    CheckBox {
-                        text: @tr("Symbols (!-$^+)");
-                        checked: true;
-                        enabled: true;
-                    }
-                }
-            }
+            PassGenForm {}
         }
     }
 }

@@ -11,6 +11,7 @@ use zebra_pass::{
     core::{
         bip39::{self, from_bip39_model},
         core::Core,
+        passgen::PassGen,
     },
     errors::ZebraErrors,
 };
@@ -56,6 +57,7 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
                 Err(_) => {
                     return LogicResult {
                         error: "bip39 words are invalid".into(),
+                        response: SharedString::default(),
                         success: true,
                     }
                 }
@@ -64,11 +66,13 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
             match core.init_data(sync, &email, &password, &words_salt, &m) {
                 Ok(_) => LogicResult {
                     error: SharedString::default(),
+                    response: SharedString::default(),
                     success: true,
                 },
                 Err(_) => LogicResult {
                     // TODO: make more informative errors
                     error: "Cannot init data".into(),
+                    response: SharedString::default(),
                     success: false,
                 },
             }
@@ -83,15 +87,40 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
             match core.guard.try_unlock(&password.to_string().as_bytes()) {
                 Ok(_) => LogicResult {
                     error: SharedString::default(),
+                    response: SharedString::default(),
                     success: true,
                 },
                 Err(_) => LogicResult {
                     // TODO: add more informative errors
                     error: "incorrect password".into(),
+                    response: SharedString::default(),
                     success: false,
                 },
             }
         });
+
+    main_window
+        .global::<GeneratorLogic>()
+        .on_request_password_gen(
+            move |lowercase: bool, upercase: bool, nums: bool, symbols: bool, length: i32| {
+                let mut rng = rand::thread_rng();
+                let pass_gen = PassGen::from(lowercase, upercase, nums, symbols);
+
+                match pass_gen.gen(length as usize, &mut rng) {
+                    Ok(password) => LogicResult {
+                        error: SharedString::default(),
+                        success: true,
+                        response: String::from_utf8_lossy(&password).to_string().into(),
+                    },
+                    Err(_) => LogicResult {
+                        // TODO: add more informative errors
+                        error: "Invalid RNG".into(),
+                        response: SharedString::default(),
+                        success: false,
+                    },
+                }
+            },
+        );
 
     app.run()
 }

@@ -1,0 +1,144 @@
+import { Theme } from "../theme.slint";
+import { IconButton } from "../components/icon-btn.slint";
+import { SpinBox , Slider, CheckBox} from "std-widgets.slint";
+import { GeneratorLogic, LogicResult } from "../logic.slint";
+
+export component PassGenForm inherits VerticalLayout {
+    private property <LogicResult> result : GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+    in-out property <string> password : result.response;
+    in-out property <bool> lowercase : true;
+    in-out property <bool> upercase : true;
+    in-out property <bool> nums : true;
+    in-out property <bool> symbols : true;
+    in-out property <int> length : 30;
+    in property <int> maximum : 255;
+    in property <int> minimum : 2;
+
+    spacing: 15pt;
+    Rectangle {
+        background: Theme.success;
+        height: 50pt;
+        width: Theme.app-width / 2 - 50pt;
+        border-radius: 8pt;
+        VerticalLayout {
+            alignment: center;
+            padding-left: 16pt;
+            HorizontalLayout {
+                alignment: space-between;
+                VerticalLayout {
+                    alignment: center;
+                    TextInput {
+                        text <=> password;
+                        read-only: true;
+                        width: Theme.app-width / 2 - 130pt;
+                        font-family: Theme.font-family;
+                        font-size: Theme.font-size-medium;
+                    }
+                }
+                HorizontalLayout {
+                    IconButton {
+                        background: Theme.window-background-inverse;
+                        hover-color: Theme.secondary;
+                        source: @image-url("../images/copy.svg");
+                        img-width: 20pt;
+                        clicked => {
+                            // TODO: make buffer copy clibboard
+                        }
+                    }
+                    IconButton {
+                        background: Theme.window-background-inverse;
+                        hover-color: Theme.secondary;
+                        source: @image-url("../images/reload.svg");
+                        img-width: 30pt;
+                        clicked => {
+                            result = GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+                            if (result.success) {
+                                password = result.response;
+                            }
+                            // TODO: add Error hanlder.
+                        }
+                    }
+                }
+            }
+        }
+    }
+    HorizontalLayout {
+        spacing: 5pt;
+        Slider {
+            min-width: 160px;
+            minimum: root.minimum;
+            maximum: root.maximum;
+            value: length;
+            changed(v) => {
+                length = v;
+                result = GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+                if (result.success) {
+                    password = result.response;
+                }
+            }
+        }
+        SpinBox {
+            vertical-stretch: 0;
+            value <=> length;
+            maximum: root.maximum;
+            minimum: root.minimum;
+            width: 100pt;
+            edited => {
+                result = GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+                if (result.success) {
+                    password = result.response;
+                }
+            }
+        }
+    }
+    HorizontalLayout {
+        alignment: center;
+        VerticalLayout {
+            alignment: start;
+            CheckBox {
+                text: @tr("Lowercase (a-z)");
+                checked <=> lowercase;
+                toggled => {
+                    result = GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+                    if (result.success) {
+                        password = result.response;
+                    }
+                }
+            }
+            CheckBox {
+                text: @tr("Numbers (0-9)");
+                checked <=> nums;
+                toggled => {
+                    result = GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+                    if (result.success) {
+                        password = result.response;
+                    }
+                }
+            }
+        }
+        VerticalLayout {
+            alignment: start;
+            CheckBox {
+                text: @tr("Uppercase (A-Z)");
+                checked <=> upercase;
+                toggled => {
+                    result = GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+                    if (result.success) {
+                        password = result.response;
+                    }
+                }
+            }
+            CheckBox {
+                text: @tr("Symbols (!-$^+)");
+                checked <=> symbols;
+                toggled => {
+                    result = GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+                    if (result.success) {
+                        password = result.response;
+                    }
+                }
+            }
+        }
+    }
+}
+
