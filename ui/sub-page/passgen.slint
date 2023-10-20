@@ -5,6 +5,7 @@ import { IconButton } from "../components/icon-btn.slint";
 import { ZTag } from "../components/tag.slint";
 import { SpinBox , Slider, CheckBox} from "std-widgets.slint";
 import { PassGenForm } from "../components/pass-gen-form.slint";
+import { MnemonicGenForm } from "../components/mnemonic-gen.slint";
 
 
 enum GenType {
@@ -66,7 +67,7 @@ component SelectType inherits VerticalLayout {
 }
 
 export component SubPagePassgen inherits VerticalLayout {
-    private property <GenType> option : GenType.Password;
+    private property <GenType> option : GenType.Mnemonic;
     private property <string> password : "dasdas3tg";
 
     alignment: start;
@@ -79,15 +80,18 @@ export component SubPagePassgen inherits VerticalLayout {
         height: 100%;
         VerticalLayout {
             alignment: center;
-            spacing: 20pt;
+            spacing: 10pt;
             Text {
                 text: "Select options Generator options";
                 font-family: Theme.font-family;
                 font-size: 13pt;
                 horizontal-alignment: center;
             }
-            SelectType {}
-            PassGenForm {}
+            SelectType {
+                option <=> option;
+            }
+            if option == GenType.Password : PassGenForm {}
+            if option == GenType.Mnemonic : MnemonicGenForm {}
         }
     }
 }

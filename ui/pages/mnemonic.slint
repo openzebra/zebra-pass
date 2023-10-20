@@ -6,6 +6,7 @@ import { ZButton } from "../components/button.slint";
 import { IconButton } from "../components/icon-btn.slint";
 import { ZInput } from "../components/input.slint";
 import { KeyChainLogic } from "../logic.slint";
+import { MnemonicGenForm } from "../components/mnemonic-gen.slint";
 
 
 export component MnemonicPage inherits Window {
@@ -47,37 +48,8 @@ export component MnemonicPage inherits Window {
                     }
                 }
             }
-            HorizontalLayout {
-                alignment: center;
-                IconButton {
-                    background: Theme.window-background-inverse;
-                    hover-color: Theme.secondary;
-                    source: @image-url("../images/reload.svg");
-                    img-width: 30pt;
-                    clicked => {
-                        KeyChainLogic.random-words = KeyChainLogic.request-random-words();
-                    }
-                }
-            }
-            HorizontalLayout {
-                width: 100%;
-                padding-bottom: 15pt;
-                alignment: center;
-                VerticalLayout {
-                    width: 300pt;
-                    for list in KeyChainLogic.random-words : HorizontalLayout {
-                        padding: 5pt;
-                        alignment: space-between;
-                        for word in list : ZTag {
-                            text: word;
-                            width: 90pt;
-                            height: 30pt;
-                            color: Theme.window-background-inverse;
-                            background: Theme.primary;
-                            font-size: Theme.font-size-medium;
-                        }
-                    }
-                }
+            MnemonicGenForm {
+                random-words <=> KeyChainLogic.random-words;
             }
             HorizontalLayout {
                 width: 100%;

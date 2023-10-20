@@ -12,7 +12,7 @@ export global KeyChainLogic {
     in-out property<bool> sync : true;
 
     // TODO: Move to GeneratorLogic
-    pure callback request_random_words() -> [[string]];
+    pure callback request_random_words(string) -> [[string]];
     pure callback request_create_account() -> LogicResult;
     pure callback request_unlock(string) -> LogicResult;
 }

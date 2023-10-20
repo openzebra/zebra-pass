@@ -110,7 +110,7 @@ export component LoginPage inherits Window {
                         enabled: true;
                         hovered: false;
                         clicked => {
-                            KeyChainLogic.random-words = KeyChainLogic.request-random-words();
+                            KeyChainLogic.random-words = KeyChainLogic.request-random-words(12);
                             continue(Routers.Mnemonic)
                         }
                     }

@@ -1,0 +1,65 @@
+import { ComboBox, ScrollView } from "std-widgets.slint";
+
+import { IconButton } from "../components/icon-btn.slint";
+import { ZTag } from "../components/tag.slint";
+import { Theme } from "../theme.slint";
+import { KeyChainLogic } from "../logic.slint";
+
+export component MnemonicGenForm inherits VerticalLayout {
+    in-out property<string> length : "12";
+    in-out property<[[string]]> random-words : KeyChainLogic.request-random-words(length);
+
+    HorizontalLayout {
+        alignment: center;
+        spacing: 15pt;
+        IconButton {
+            background: Theme.window-background-inverse;
+            hover-color: Theme.secondary;
+            source: @image-url("../images/reload.svg");
+            img-width: 30pt;
+            clicked => {
+                random-words = KeyChainLogic.request-random-words(length);
+            }
+        }
+        ComboBox {
+            width: 90pt;
+            height: 20pt;
+            model: ["12", "15", "18", "21", "24"];
+            current-value <=> length;
+        }
+        IconButton {
+            background: Theme.window-background-inverse;
+            hover-color: Theme.secondary;
+            source: @image-url("../images/copy.svg");
+            img-width: 20pt;
+            clicked => {
+                // TODO: make buffer copy clibboard
+            }
+        }
+    }
+    HorizontalLayout {
+        width: 100%;
+        padding-bottom: 15pt;
+        alignment: center;
+        ScrollView {
+            width: 250pt;
+            height: 230pt;
+            VerticalLayout {
+                width: 250pt;
+                for list in random-words : HorizontalLayout {
+                    padding: 4pt;
+                    alignment: space-between;
+                    for word in list : ZTag {
+                        text: word;
+                        width: 70pt;
+                        height: 20pt;
+                        color: Theme.window-background-inverse;
+                        background: Theme.primary;
+                        font-size: Theme.font-size-regular;
+                    }
+                }
+            }
+        }
+    }
+}
+
