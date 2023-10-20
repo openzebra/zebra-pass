@@ -12,6 +12,9 @@ import { MnemonicGenForm } from "../components/mnemonic-gen.slint";
 export component MnemonicPage inherits Window {
     private property <bool> accepted : false;
 
+    in-out property<string> length : "12";
+    in-out property<[[string]]> random-words : KeyChainLogic.request-random-words(length);
+
     callback continue(Routers);
 
     background: Theme.window-background;
@@ -49,7 +52,7 @@ export component MnemonicPage inherits Window {
                 }
             }
             MnemonicGenForm {
-                random-words <=> KeyChainLogic.random-words;
+                random-words <=> random-words;
             }
             HorizontalLayout {
                 width: 100%;
@@ -86,6 +89,7 @@ export component MnemonicPage inherits Window {
                         text: @tr("Continue");
                         enabled: accepted;
                         clicked => {
+                            KeyChainLogic.random-words = random-words;
                             continue(Routers.SetupAccount)
                         }
                     }

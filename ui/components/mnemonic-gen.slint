@@ -26,6 +26,9 @@ export component MnemonicGenForm inherits VerticalLayout {
             height: 20pt;
             model: ["12", "15", "18", "21", "24"];
             current-value <=> length;
+            selected => {
+                random-words = KeyChainLogic.request-random-words(length);
+            }
         }
         IconButton {
             background: Theme.window-background-inverse;

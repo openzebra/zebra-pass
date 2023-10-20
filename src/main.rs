@@ -34,7 +34,7 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
 
     main_window
         .global::<KeyChainLogic>()
-        .on_request_random_words(|| {
+        .on_request_random_words(|length| {
             let mut rng = rand::thread_rng();
             // TODO: make a error hanlder.
             let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
