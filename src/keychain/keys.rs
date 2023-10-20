@@ -249,6 +249,8 @@ impl KeyChain {
 
 #[cfg(test)]
 mod test_key_chain {
+    use crate::bip39::mnemonic::Language;
+
     use super::*;
     use rand;
     use rand::RngCore;
@@ -356,7 +358,7 @@ mod test_key_chain {
     #[test]
     fn te_keychain_bip39() {
         let mut rng = rand::thread_rng();
-        let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+        let m = Mnemonic::gen(&mut rng, 12, Language::English).unwrap();
         let password = "test-password";
         let keys0 = KeyChain::from_bip39(&m, password).unwrap();
         let keys1 = KeyChain::from_bip39(&m, password).unwrap();

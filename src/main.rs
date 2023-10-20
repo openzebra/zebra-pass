@@ -7,7 +7,7 @@ use std::{cell::RefCell, rc::Rc};
 use rand;
 use slint::SharedString;
 use zebra_pass::{
-    bip39::mnemonic::Mnemonic,
+    bip39::mnemonic::{Language, Mnemonic},
     core::{
         bip39::{self, from_bip39_model},
         core::Core,
@@ -34,10 +34,11 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
 
     main_window
         .global::<KeyChainLogic>()
-        .on_request_random_words(|length| {
+        .on_request_random_words(|length_str| {
             let mut rng = rand::thread_rng();
+            let count: usize = length_str.to_string().parse().unwrap_or(12);
             // TODO: make a error hanlder.
-            let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+            let m = Mnemonic::gen(&mut rng, count, Language::English).unwrap();
             bip39::gen_bip39_words(&m, 3)
         });
 

@@ -81,6 +81,8 @@ impl Core {
 
 #[cfg(test)]
 mod core_tests {
+    use crate::bip39::mnemonic::Language;
+
     use super::*;
     use rand;
 
@@ -90,7 +92,7 @@ mod core_tests {
         core_data.sync().unwrap();
 
         let mut rng = rand::thread_rng();
-        let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+        let m = Mnemonic::gen(&mut rng, 15, Language::English).unwrap();
         let password = "password";
 
         core_data.init_data(false, "", &password, "", &m).unwrap();

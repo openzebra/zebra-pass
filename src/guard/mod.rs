@@ -139,13 +139,16 @@ mod guard_tests {
     use rand::RngCore;
 
     use super::*;
-    use crate::{bip39::mnemonic::Mnemonic, storage::db::LocalStorage};
+    use crate::{
+        bip39::mnemonic::{Language, Mnemonic},
+        storage::db::LocalStorage,
+    };
 
     #[test]
     fn test_init_unlock() {
         let mut rng = rand::thread_rng();
 
-        let m = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+        let m = Mnemonic::gen(&mut rng, 12, Language::English).unwrap();
         let db = Rc::new(
             LocalStorage::new("com.guardtest", "TestGuard Corp", "TesingGuard App").unwrap(),
         );

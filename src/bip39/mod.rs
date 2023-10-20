@@ -4,5 +4,4 @@
 
 pub mod config;
 pub mod language;
-pub mod m;
 pub mod mnemonic;

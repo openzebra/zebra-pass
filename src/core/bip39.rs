@@ -1,11 +1,18 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use crate::{bip39::mnemonic::Mnemonic, errors::ZebraErrors};
+use crate::{
+    bip39::mnemonic::{Language, Mnemonic},
+    errors::ZebraErrors,
+};
 use slint::{Model, ModelRc, SharedString, VecModel};
 
 pub fn gen_bip39_words(m: &Mnemonic, chunk_size: usize) -> ModelRc<ModelRc<SharedString>> {
-    let words_list = m.get_list().map(|s| SharedString::from(s));
+    let words_list = m
+        .get_vec()
+        .iter()
+        .map(|s| SharedString::from(*s))
+        .collect::<Vec<SharedString>>();
     let mut chunks: Vec<ModelRc<SharedString>> = Vec::default();
 
     for chunk in words_list.chunks(chunk_size) {
@@ -25,13 +32,15 @@ pub fn from_bip39_model(model: ModelRc<ModelRc<SharedString>>) -> Result<Mnemoni
         })
         .collect::<Vec<String>>()
         .join(" ");
-    let m = Mnemonic::mnemonic_to_entropy(&words)?;
+    let m = Mnemonic::mnemonic_to_entropy(Language::English, &words)?;
 
     Ok(m)
 }
 
 #[cfg(test)]
 mod guard_tests {
+    use crate::bip39::mnemonic::Language;
+
     use super::*;
     use rand;
 
@@ -40,7 +49,7 @@ mod guard_tests {
         let mut rng = rand::thread_rng();
 
         let salt = "salt123";
-        let m0 = Mnemonic::generate_mnemonic(&mut rng).unwrap();
+        let m0 = Mnemonic::gen(&mut rng, 18, Language::English).unwrap();
         let model = gen_bip39_words(&m0, 3);
         let m1 = from_bip39_model(model).unwrap();
 
