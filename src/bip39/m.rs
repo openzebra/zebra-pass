@@ -13,10 +13,12 @@ use sha2::{Digest, Sha256, Sha512};
 use std::borrow::Cow;
 use unicode_normalization::UnicodeNormalization;
 
+#[derive(Debug)]
 pub enum Language {
     English,
 }
 
+#[derive(Debug)]
 pub struct Mnemonic {
     pub indicators: [u16; MAX_NB_WORDS],
     pub lang: Language,
@@ -30,8 +32,16 @@ fn normalize_utf8_cow<'a>(cow: &mut Cow<'a, str>) {
     }
 }
 
+fn is_invalid_word_count(word_count: usize) -> bool {
+    word_count < MIN_NB_WORDS || word_count % 3 != 0 || word_count > MAX_NB_WORDS
+}
+
 impl Mnemonic {
-    pub fn entropy_to_mnemonic(entropy: &[u8], size: usize) -> Result<Self, ZebraErrors> {
+    pub fn entropy_to_mnemonic(
+        language: Language,
+        entropy: &[u8],
+        size: usize,
+    ) -> Result<Mnemonic, ZebraErrors> {
         const MAX_ENTROPY_BITS: usize = 256;
         const MIN_ENTROPY_BITS: usize = 128;
         const MAX_CHECKSUM_BITS: usize = 8;
@@ -72,18 +82,20 @@ impl Mnemonic {
             words[i] = idx;
         }
 
-        Ok(Self {
-            size,
+        Ok(Mnemonic {
             indicators: words,
-            lang: Language::English,
+            lang: language,
+            size,
         })
     }
 
-    pub fn mnemonic_to_entropy(mnemonic: &str) -> Result<Self, ZebraErrors> {
-        // TODO: make detect lang.
+    pub fn mnemonic_to_entropy(
+        language: Language,
+        mnemonic: &str,
+    ) -> Result<Mnemonic, ZebraErrors> {
         let nb_words = mnemonic.split_whitespace().count();
 
-        if nb_words < MIN_NB_WORDS || nb_words % 3 != 0 {
+        if is_invalid_word_count(nb_words) {
             return Err(ZebraErrors::Bip39BadWordCount(nb_words));
         }
 
@@ -91,15 +103,15 @@ impl Mnemonic {
         let mut bits = [false; MAX_NB_WORDS * 11];
 
         for (i, word) in mnemonic.split_whitespace().enumerate() {
-            let index = language::english::WORDS
+            let idx = language::english::WORDS
                 .iter()
                 .position(|w| *w == word)
                 .ok_or(ZebraErrors::Bip39UnknownWord(i))?;
 
-            words[i] = index as u16;
+            words[i] = idx as u16;
 
             for j in 0..11 {
-                bits[i * 11 + j] = index >> (10 - j) & 1 == 1;
+                bits[i * 11 + j] = idx >> (10 - j) & 1 == 1;
             }
         }
 
@@ -112,7 +124,7 @@ impl Mnemonic {
                 }
             }
         }
-        // TODO: replace to keccak
+
         let mut hasher = Sha256::new();
         hasher.update(&entropy[0..nb_bytes_entropy]);
         let check = hasher.finalize();
@@ -123,9 +135,9 @@ impl Mnemonic {
             }
         }
 
-        Ok(Self {
+        Ok(Mnemonic {
+            lang: language,
             indicators: words,
-            lang: Language::English,
             size: nb_words,
         })
     }
@@ -134,16 +146,16 @@ impl Mnemonic {
     where
         R: rand::RngCore + rand::CryptoRng,
     {
-        let entropy_bytes = (size / 3) * 4;
-        let mut entropy = [0u8; (MAX_NB_WORDS / 3) * 4];
+        let mut entropy = vec![0u8; (size / 3) * 4];
 
-        rand::RngCore::fill_bytes(rng, &mut entropy[0..entropy_bytes]);
+        rand::RngCore::fill_bytes(rng, &mut entropy);
 
-        Self::entropy_to_mnemonic(&entropy, size)
+        Self::entropy_to_mnemonic(Language::English, &entropy, size)
     }
 
     pub fn validate(words: &str) -> bool {
-        match Self::mnemonic_to_entropy(&words) {
+        // TODO: make lang detect
+        match Self::mnemonic_to_entropy(Language::English, &words) {
             Ok(_) => return true,
             Err(_) => return false,
         }
@@ -197,6 +209,15 @@ mod test_bip39_mnemonic {
     use rand;
 
     #[test]
+    fn test_invalid_words() {
+        let words =
+            "getter advice cage absurd amount doctor acoustic avoid letter advice cage above";
+        let r = Mnemonic::mnemonic_to_entropy(Language::English, &words);
+
+        assert!(r.is_err());
+    }
+
+    #[test]
     fn test_gen_12_words() {
         const SIZE: usize = 12;
         let mut rng = rand::thread_rng();
@@ -207,47 +228,47 @@ mod test_bip39_mnemonic {
         assert!(m.get_vec().len() == SIZE);
     }
 
-    // #[test]
-    // fn test_gen_15_words() {
-    //     const SIZE: usize = 15;
-    //     let mut rng = rand::thread_rng();
-    //     let m = Mnemonic::gen(&mut rng, SIZE).unwrap();
-    //     let words = m.get();
-    //
-    //     assert!(Mnemonic::validate(&words));
-    //     // assert!(m.get_list().len() == SIZE);
-    // }
-    //
-    // #[test]
-    // fn test_gen_18_words() {
-    //     const SIZE: usize = 18;
-    //     let mut rng = rand::thread_rng();
-    //     let m = Mnemonic::gen(&mut rng, SIZE).unwrap();
-    //     let words = m.get();
-    //
-    //     assert!(Mnemonic::validate(&words));
-    //     // assert!(m.get_list().len() == SIZE);
-    // }
-    //
-    // #[test]
-    // fn test_gen_21_words() {
-    //     const SIZE: usize = 21;
-    //     let mut rng = rand::thread_rng();
-    //     let m = Mnemonic::gen(&mut rng, SIZE).unwrap();
-    //     let words = m.get();
-    //
-    //     assert!(Mnemonic::validate(&words));
-    //     // assert!(m.get_list().len() == SIZE);
-    // }
-    //
-    // #[test]
-    // fn test_gen_24_words() {
-    //     const SIZE: usize = 24;
-    //     let mut rng = rand::thread_rng();
-    //     let m = Mnemonic::gen(&mut rng, SIZE).unwrap();
-    //     let words = m.get();
-    //
-    //     assert!(Mnemonic::validate(&words));
-    //     // assert!(m.get_list().len() == SIZE);
-    // }
+    #[test]
+    fn test_gen_15_words() {
+        const SIZE: usize = 15;
+        let mut rng = rand::thread_rng();
+        let m = Mnemonic::gen(&mut rng, SIZE).unwrap();
+        let words = m.get();
+
+        assert!(Mnemonic::validate(&words));
+        assert!(m.get_vec().len() == SIZE);
+    }
+
+    #[test]
+    fn test_gen_18_words() {
+        const SIZE: usize = 18;
+        let mut rng = rand::thread_rng();
+        let m = Mnemonic::gen(&mut rng, SIZE).unwrap();
+        let words = m.get();
+
+        assert!(Mnemonic::validate(&words));
+        assert!(m.get_vec().len() == SIZE);
+    }
+
+    #[test]
+    fn test_gen_21_words() {
+        const SIZE: usize = 21;
+        let mut rng = rand::thread_rng();
+        let m = Mnemonic::gen(&mut rng, SIZE).unwrap();
+        let words = m.get();
+
+        assert!(Mnemonic::validate(&words));
+        assert!(m.get_vec().len() == SIZE);
+    }
+
+    #[test]
+    fn test_gen_24_words() {
+        const SIZE: usize = 24;
+        let mut rng = rand::thread_rng();
+        let m = Mnemonic::gen(&mut rng, SIZE).unwrap();
+        let words = m.get();
+
+        assert!(Mnemonic::validate(&words));
+        assert!(m.get_vec().len() == SIZE);
+    }
 }
