@@ -16,7 +16,7 @@ export component ItemComponent inherits Rectangle {
 
     states [
         pressed when root.selected : {
-            root.background : Theme.secondary.transparentize(70%);
+            root.background : Theme.secondary.darker(70%);
             touch.mouse-cursor: default;
         }
     ]
@@ -36,8 +36,8 @@ export component ItemComponent inherits Rectangle {
             Image {
                 source: data.icon;
                 colorize: red;
-                height: 30pt;
-                width: 30pt;
+                height: 20pt;
+                width: 20pt;
             }
         }
         VerticalLayout {
@@ -45,17 +45,17 @@ export component ItemComponent inherits Rectangle {
             Text {
                 text: data.title;
                 font-family: Theme.font-family;
-                font-size: Theme.font-size-medium;
+                font-size: 10pt;
                 font-weight: Theme.font-weight-bold;
                 color: Theme.window-background-inverse;
             }
             Text {
                 text: data.domain;
                 font-family: Theme.font-family;
-                font-size: Theme.font-size-regular;
+                font-size: 8pt;
                 font-weight: Theme.font-weight-regular;
                 color: Theme.secondary;
-                height: 15pt;
+                height: 10pt;
             }
         }
     }
@@ -102,7 +102,7 @@ export component SubPageManage inherits VerticalLayout {
             }
             for item[index] in model: Rectangle {
                 ItemComponent {
-                    preferred-height: 45pt;
+                    preferred-height: 35pt;
                     preferred-width: 200pt;
                     data: item;
                     selected: selected-index == index;
