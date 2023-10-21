@@ -1,8 +1,120 @@
 import { Theme } from "../theme.slint";
 import { TopBar } from "../components/topbar.slint";
+import { ZSearchInput } from "../components/search.slint";
+
+struct Item {
+    title: string,
+    domain: string,
+    icon: image,
+}
+
+export component ItemComponent inherits Rectangle {
+    in-out property <Item> data;
+    in-out property <bool> selected;
+
+    callback clicked();
+
+    states [
+        pressed when root.selected : {
+            root.background : Theme.secondary.transparentize(70%);
+            touch.mouse-cursor: default;
+        }
+    ]
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => {
+            clicked();
+        }
+    }
+
+    HorizontalLayout {
+        padding-left: 30pt;
+        spacing: 16pt;
+        VerticalLayout {
+            alignment: center;
+            Image {
+                source: data.icon;
+                colorize: red;
+                height: 30pt;
+                width: 30pt;
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            Text {
+                text: data.title;
+                font-family: Theme.font-family;
+                font-size: Theme.font-size-medium;
+                font-weight: Theme.font-weight-bold;
+                color: Theme.window-background-inverse;
+            }
+            Text {
+                text: data.domain;
+                font-family: Theme.font-family;
+                font-size: Theme.font-size-regular;
+                font-weight: Theme.font-weight-regular;
+                color: Theme.secondary;
+                height: 15pt;
+            }
+        }
+    }
+}
 
 export component SubPageManage inherits VerticalLayout {
+    private property <[Item]> model : [
+        {
+            title: "Rust",
+            domain: "rust-lang.org",
+            icon: @image-url("../images/rust.png"),
+            selected: false
+        },
+        {
+            title: "Atom",
+            domain: "atom.org",
+            icon: @image-url("../images/atom.png"),
+            selected: false
+        },
+        {
+            title: "Zebra",
+            domain: "zebra.sh",
+            icon: @image-url("../images/zebra.png"),
+            selected: false
+        }
+    ];
+    private property <int> selected-index : 0;
+
     TopBar {
         title: "Mange";
+    }
+    HorizontalLayout {
+        height: 100%;
+        VerticalLayout {
+            alignment: start;
+            HorizontalLayout {
+                ZSearchInput {
+                    height: 50pt;
+                    width: 200pt;
+                }
+            }
+            for item[index] in model: Rectangle {
+                ItemComponent {
+                    preferred-height: 45pt;
+                    preferred-width: 200pt;
+                    data: item;
+                    selected: selected-index == index;
+                    clicked => {
+                        selected-index = index;
+                    }
+                }                
+            }
+        }
+        Rectangle {
+            height: 100%;
+            width: 1pt;
+            background: Theme.secondary.transparentize(70%);
+        }
+        VerticalLayout {
+        }
     }
 }

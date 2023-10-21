@@ -1,6 +1,5 @@
 import { Theme } from "../theme.slint";
 import { Routers } from "../routers.slint";
-import { TopBar } from "../components/topbar.slint";
 import { LeftBar, SubHomeRoute } from "../components/leftbar.slint";
 import {
     SubPageManage,
@@ -9,7 +8,7 @@ import {
 } from "../sub-page/pages.slint";
 
 export component HomePage inherits Window {
-    private property <SubHomeRoute> route : SubHomeRoute.PasswordGen;
+    private property <SubHomeRoute> route : SubHomeRoute.Manage;
     private property <string> top-bar-title;
 
     callback continue(Routers);
