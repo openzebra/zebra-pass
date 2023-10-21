@@ -92,9 +92,12 @@ export component SubPageManage inherits VerticalLayout {
         VerticalLayout {
             alignment: start;
             HorizontalLayout {
+                padding-top: 10pt;
+                padding-bottom: 10pt;
+                alignment: center;
+                width: 200pt;
                 ZSearchInput {
-                    height: 50pt;
-                    width: 200pt;
+                    width: 150pt;
                 }
             }
             for item[index] in model: Rectangle {

@@ -1,8 +1,15 @@
-import { LineEdit , TextEdit} from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 
 export component ZSearchInput inherits Rectangle {
+    in-out property <string> value;
+
+    border-width: 1pt;
+    border-color: Theme.window-background-inverse;
+    border-radius: 15pt;
+    padding: 5pt;
+
     VerticalLayout {
+        padding: 5pt;
         alignment: center;
         HorizontalLayout {
             spacing: 5pt;
@@ -10,13 +17,16 @@ export component ZSearchInput inherits Rectangle {
             Image {
                 source: @image-url("../images/search.svg");
                 colorize: Theme.window-background-inverse;
-                height: 25pt;
-                width: 25pt;
+                height: 20pt;
+                width: 20pt;
             }
-            LineEdit {
-                font-size: 14px;
-                width: parent.width - 60pt;
-                height: 30pt;
+            TextInput {
+                width: parent.width;
+                font-family: Theme.font-family;
+                font-size: Theme.font-size-regular;
+                color: Theme.window-background-inverse;
+                text <=> value;
+                vertical-alignment: center;
             }
         }
     }
