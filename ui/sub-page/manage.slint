@@ -1,12 +1,8 @@
 import { Theme } from "../theme.slint";
 import { TopBar } from "../components/topbar.slint";
 import { ZSearchInput } from "../components/search.slint";
-
-struct Item {
-    title: string,
-    domain: string,
-    icon: image,
-}
+import { ElementOfItem } from "../components/element.slint";
+import { Item } from "../logic.slint";
 
 export component ItemComponent inherits Rectangle {
     in-out property <Item> data;
@@ -117,7 +113,8 @@ export component SubPageManage inherits VerticalLayout {
             width: 1pt;
             background: Theme.secondary.transparentize(70%);
         }
-        VerticalLayout {
+        ElementOfItem {
+            data: model[selected-index];
         }
     }
 }

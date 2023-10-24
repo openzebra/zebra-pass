@@ -9,6 +9,8 @@ export component IconButton {
     in property <color> background;
     in property<image> source;
     in property <length> img-width;
+    in property <length> img-height;
+    in property <length> font-size;
 
     callback clicked;
 
@@ -21,15 +23,32 @@ export component IconButton {
         }
     }
 
-    img := Image {
-        source: root.source;
-        colorize: root.background;
-        width: root.img-width;
-        image-fit: fill;
+    HorizontalLayout {
+        VerticalLayout {
+            alignment: center;
+            img := Image {
+                source: root.source;
+                colorize: root.background;
+                width: root.img-width;
+                height: root.img-height;
+                image-fit: fill;
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            txt := Text {
+                text: root.text;
+                color: root.background;
+                font-family: Theme.font-family;
+                font-size: root.font-size;
+            }
+        }
     }
+
     states [
         active when root.enabled && hovered && touch.has-hover: {
             img.colorize: root.hover-color;
+            txt.color: root.hover-color;
             in {
               animate img.colorize { duration: 150ms; }
             }

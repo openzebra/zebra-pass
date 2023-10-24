@@ -4,6 +4,12 @@ export struct LogicResult {
     error: string
 }
 
+export struct Item {
+    title: string,
+    domain: string,
+    icon: image,
+}
+
 export global KeyChainLogic {
     in-out property<[[string]]> random_words : [];
     in-out property<string> words_salt : "";
