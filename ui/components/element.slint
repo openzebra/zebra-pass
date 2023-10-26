@@ -3,7 +3,7 @@ import { ComboBox, ScrollView , HorizontalBox} from "std-widgets.slint";
 import { IconButton } from "../components/icon-btn.slint";
 import { ZTag } from "../components/tag.slint";
 import { Theme } from "../theme.slint";
-import { Item } from "../logic.slint";
+import { Element } from "../logic.slint";
 
 
 component Items inherits Rectangle {
@@ -74,7 +74,7 @@ component Items inherits Rectangle {
 }
 
 export component ElementOfItem inherits VerticalLayout {
-    in property <Item> data;
+    in property <Element> data;
 
     alignment: start;
     padding: 10pt;
@@ -122,8 +122,8 @@ export component ElementOfItem inherits VerticalLayout {
                 height: 35pt;
                 copy: true;
                 reveal: true;
-                name: data.domain;
-                value: data.title;
+                name: data.website;
+                value: data.name;
             }
         }
         HorizontalLayout {

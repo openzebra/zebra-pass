@@ -23,18 +23,12 @@ export struct ElementItem {
 export struct Element {
     name: string,
     website: string,
-    icon: string,
+    icon: image,
     type: ElementTypes,
     created: string,
     updated: string,
     fields: [ElementItem],
     extra_fields: [ElementItem]
-}
-
-export struct Item {
-    title: string,
-    domain: string,
-    icon: image,
 }
 
 export global KeyChainLogic {

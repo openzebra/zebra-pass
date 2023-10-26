@@ -3,10 +3,10 @@ import { TopBar } from "../components/topbar.slint";
 import { ZSearchInput } from "../components/search.slint";
 import { ElementOfItem } from "../components/element.slint";
 import { IconButton } from "../components/icon-btn.slint";
-import { Item, Logic } from "../logic.slint";
+import { Logic, Element } from "../logic.slint";
 
 export component ItemComponent inherits Rectangle {
-    in-out property <Item> data;
+    in-out property <Element> data;
     in-out property <bool> selected;
 
     callback clicked();
@@ -40,14 +40,14 @@ export component ItemComponent inherits Rectangle {
         VerticalLayout {
             alignment: center;
             Text {
-                text: data.title;
+                text: data.name;
                 font-family: Theme.font-family;
                 font-size: 10pt;
                 font-weight: Theme.font-weight-bold;
                 color: Theme.window-background-inverse;
             }
             Text {
-                text: data.domain;
+                text: data.website;
                 font-family: Theme.font-family;
                 font-size: 8pt;
                 font-weight: Theme.font-weight-regular;
@@ -59,26 +59,6 @@ export component ItemComponent inherits Rectangle {
 }
 
 export component SubPageManage inherits VerticalLayout {
-    private property <[Item]> model : [
-        {
-            title: "Rust",
-            domain: "rust-lang.org",
-            icon: @image-url("../images/rust.png"),
-            selected: false,
-        },
-        {
-            title: "Atom",
-            domain: "atom.org",
-            icon: @image-url("../images/atom.png"),
-            selected: false
-        },
-        {
-            title: "Zebra",
-            domain: "zebra.sh",
-            icon: @image-url("../images/zebra.png"),
-            selected: false
-        }
-    ];
     private property <int> selected-index : 0;
 
     TopBar {
@@ -98,7 +78,7 @@ export component SubPageManage inherits VerticalLayout {
                     width: 150pt;
                 }
             }
-            for item[index] in model: Rectangle {
+            for item[index] in Logic.elements: Rectangle {
                 ItemComponent {
                     preferred-height: 35pt;
                     preferred-width: 200pt;
@@ -116,7 +96,7 @@ export component SubPageManage inherits VerticalLayout {
             background: Theme.secondary.transparentize(70%);
         }
         ElementOfItem {
-            data: model[selected-index];
+            data: Logic.elements[selected-index];
         }
     }
     if Logic.elements.length == 0 : HorizontalLayout {
