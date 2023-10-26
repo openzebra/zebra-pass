@@ -4,6 +4,33 @@ export struct LogicResult {
     error: string
 }
 
+export enum ElementTypes {
+    Login,
+    Card,
+    Swift,
+    CryptoWallet,
+    Identity,
+    Address,
+}
+
+export struct ElementItem {
+    title: string,
+    value: string,
+    hide: bool,
+    copy: bool
+}
+
+export struct Element {
+    name: string,
+    website: string,
+    icon: string,
+    type: ElementTypes,
+    created: string,
+    updated: string,
+    fields: [ElementItem],
+    extra_fields: [ElementItem]
+}
+
 export struct Item {
     title: string,
     domain: string,
