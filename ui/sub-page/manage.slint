@@ -2,7 +2,8 @@ import { Theme } from "../theme.slint";
 import { TopBar } from "../components/topbar.slint";
 import { ZSearchInput } from "../components/search.slint";
 import { ElementOfItem } from "../components/element.slint";
-import { Item } from "../logic.slint";
+import { IconButton } from "../components/icon-btn.slint";
+import { Item, Logic } from "../logic.slint";
 
 export component ItemComponent inherits Rectangle {
     in-out property <Item> data;
@@ -83,7 +84,8 @@ export component SubPageManage inherits VerticalLayout {
     TopBar {
         title: "Mange";
     }
-    HorizontalLayout {
+
+    if Logic.elements.length > 0 : HorizontalLayout {
         height: 100%;
         VerticalLayout {
             alignment: start;
@@ -115,6 +117,22 @@ export component SubPageManage inherits VerticalLayout {
         }
         ElementOfItem {
             data: model[selected-index];
+        }
+    }
+    if Logic.elements.length == 0 : HorizontalLayout {
+        alignment: center;
+        VerticalLayout {
+            alignment: center;
+            IconButton {
+                background: Theme.window-background-inverse;
+                hover-color: Theme.secondary;
+                source: @image-url("../images/add.svg");
+                img-width: 60pt;
+                img-height: 60pt;
+                clicked => {
+                    debug("Add icon cliced");
+                }
+            }
         }
     }
 }
