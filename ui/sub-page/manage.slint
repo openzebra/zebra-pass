@@ -4,6 +4,7 @@ import { ZSearchInput } from "../components/search.slint";
 import { ElementOfItem } from "../components/element.slint";
 import { IconButton } from "../components/icon-btn.slint";
 import { Logic, Element } from "../logic.slint";
+import { StandardButton } from "std-widgets.slint";
 
 export component ItemComponent inherits Rectangle {
     in-out property <Element> data;
@@ -65,6 +66,26 @@ export component SubPageManage inherits VerticalLayout {
         title: "Mange";
     }
 
+    popup := PopupWindow {
+        x: 40px;
+        y: 100px;
+        width: min(confirm_popup_layout.preferred-width, root.width - 80px);
+        Rectangle {
+            background: Theme.window-background;
+            border-color: confirm_popup_text.color;
+            border-width: 1px;
+        }
+        confirm_popup_layout := Dialog {
+            height:100%; width: 100%;
+            confirm_popup_text := Text {
+                text: "Some items are not done, are you sure you wish to quit?";
+                wrap: word-wrap;
+            }
+            StandardButton { kind: yes; clicked => {} }
+            StandardButton { kind: no; }
+        }
+    }
+
     if Logic.elements.length > 0 : HorizontalLayout {
         height: 100%;
         VerticalLayout {
@@ -111,6 +132,7 @@ export component SubPageManage inherits VerticalLayout {
                 img-height: 60pt;
                 clicked => {
                     debug("Add icon cliced");
+                    popup.show();
                 }
             }
         }
