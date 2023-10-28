@@ -1,7 +1,10 @@
+import { ScrollView } from "std-widgets.slint";
+
 import { IconButton } from "../components/icon-btn.slint";
 import { RecordField } from "../components/field.slint";
 import { Theme } from "../theme.slint";
 import { KeyChainLogic, Element } from "../logic.slint";
+import { ZButton } from "./button.slint";
 
 export component EditLogin {
     in property <bool> read-only;
@@ -36,31 +39,51 @@ export component EditLogin {
         extra_fields: []
     };
 
+    callback save();
+
     VerticalLayout {
-        spacing: 5pt;
-        RecordField {
-            height: 40pt;
-            background: Theme.primary;
-            read-only: root.read-only;
-            label: @tr("Name");
-            value: "";
+        ScrollView {
+            height: Theme.app-height - 140pt;
+            VerticalLayout {
+                spacing: 5pt;
+                RecordField {
+                    height: 40pt;
+                    background: Theme.primary;
+                    read-only: root.read-only;
+                    label: @tr("Name");
+                    value: "";
+                }
+                RecordField {
+                    height: 40pt;
+                    background: Theme.primary;
+                    read-only: root.read-only;
+                    label: @tr("website");
+                    value: "";
+                }
+                for field in element.fields : RecordField {
+                    height: 40pt;
+                    background: Theme.primary;
+                    read-only: root.read-only;
+                    label: field.title;
+                    value: field.value;
+                    reload: field.title == "Password"; // TODO: add random username
+                    hide: field.title == "Password";
+                }
+            }
         }
-        RecordField {
-            height: 40pt;
-            background: Theme.primary;
-            read-only: root.read-only;
-            label: @tr("website");
-            value: "";
-        }
-        for field in element.fields : RecordField {
-            height: 40pt;
-            background: Theme.primary;
-            read-only: root.read-only;
-            label: field.title;
-            value: field.value;
-            reload: field.title == "Password"; // TODO: add random username
-            hide: field.title == "Password";
+        // add extra fields.
+        HorizontalLayout {
+            alignment: center;
+            ZButton {
+                text: @tr("Save");
+                background: Theme.window-background-inverse;
+                color: Theme.window-background;
+                width: 120pt;
+                height: 30pt;
+                clicked => {
+                    save();
+                }
+            }
         }
     }
-    // add extra fields.
 }
