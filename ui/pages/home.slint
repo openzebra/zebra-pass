@@ -20,13 +20,9 @@ export component HomePage inherits Window {
             route <=> route;
         }
         if route == SubHomeRoute.Manage: SubPageManage {
-                
+            add-record => {}
         }
-        if route == SubHomeRoute.PasswordGen: SubPagePassgen {
-            
-        }
-        if route == SubHomeRoute.Settings: SubPageSettings {
-            
-        }
+        if route == SubHomeRoute.PasswordGen: SubPagePassgen {}
+        if route == SubHomeRoute.Settings: SubPageSettings {        }
     }
 }
