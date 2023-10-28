@@ -4,7 +4,7 @@ import { ZSearchInput } from "../components/search.slint";
 import { ElementOfItem } from "../components/element.slint";
 import { IconButton } from "../components/icon-btn.slint";
 import { Logic, Element } from "../logic.slint";
-import { StandardButton } from "std-widgets.slint";
+import { AddElementForm } from "../components/add-record.slint";
 
 export component ItemComponent inherits Rectangle {
     in-out property <Element> data;
@@ -67,23 +67,29 @@ export component SubPageManage inherits VerticalLayout {
     }
 
     popup := PopupWindow {
-        x: 40px;
-        y: 100px;
-        width: min(confirm_popup_layout.preferred-width, root.width - 80px);
         Rectangle {
+            height:100%;
+            width: 100%;
             background: Theme.window-background;
-            border-color: confirm_popup_text.color;
-            border-width: 1px;
+            border-color: Theme.primary;
+            border-width: 2pt;
+            border-radius: 8pt;
+            drop-shadow-blur: 16pt;
+            drop-shadow-color: Theme.primary;
         }
-        confirm_popup_layout := Dialog {
-            height:100%; width: 100%;
-            confirm_popup_text := Text {
-                text: "Some items are not done, are you sure you wish to quit?";
-                wrap: word-wrap;
+        AddElementForm {
+            height:100%;
+            width: 100%;
+            title: @tr("Add Record");
+            close => {
+                popup.close();
             }
-            StandardButton { kind: yes; clicked => {} }
-            StandardButton { kind: no; }
         }
+        x: 20px;
+        y: 20px;
+        height: Theme.app-height - 40pt;
+        width: Theme.app-width - 80pt;
+        close-on-click: false;
     }
 
     if Logic.elements.length > 0 : HorizontalLayout {
