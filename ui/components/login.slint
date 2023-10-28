@@ -51,14 +51,14 @@ export component EditLogin {
                     background: Theme.primary;
                     read-only: root.read-only;
                     label: @tr("Name");
-                    value: "";
+                    value: element.name;
                 }
                 RecordField {
                     height: 40pt;
                     background: Theme.primary;
                     read-only: root.read-only;
                     label: @tr("website");
-                    value: "";
+                    value: element.website;
                 }
                 for field in element.fields : RecordField {
                     height: 40pt;
