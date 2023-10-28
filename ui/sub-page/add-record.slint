@@ -1,15 +1,19 @@
 import { IconButton } from "../components/icon-btn.slint";
 import { Theme } from "../theme.slint";
 import { ZComboBox } from "../components/combo-box.slint";
+import { EditLogin } from "../components/login.slint";
 import { ComboBox } from "std-widgets.slint";
 import { Logic } from "../logic.slint";
 
 export component AddEditPageManage inherits VerticalLayout {
-    in property <int> index : 0;
+    private property <int> type-index : 0;
+
+    in property <int> index : -1;
 
     callback close();
 
     VerticalLayout {
+        spacing: 16pt;
         padding: 15pt;
         padding-left: 45pt;
         padding-right: 45pt;
@@ -38,13 +42,21 @@ export component AddEditPageManage inherits VerticalLayout {
         HorizontalLayout {
             alignment: center;
             VerticalLayout {
+                spacing: 10pt;
                 width: Theme.app-width  / 2;
                 HorizontalLayout {
                     alignment: center;
                     ComboBox {
                         width: parent.width / 2;
                         model: Logic.records-types;
-                        current-index: index;
+                        current-index <=> type-index;
+                    }
+                }
+                HorizontalLayout {
+                    alignment: center;
+                    if type-index == 0 : EditLogin {
+                        height: 40pt;
+                        width: 100%;
                     }
                 }
             }

@@ -1,0 +1,66 @@
+import { IconButton } from "../components/icon-btn.slint";
+import { RecordField } from "../components/field.slint";
+import { Theme } from "../theme.slint";
+import { KeyChainLogic, Element } from "../logic.slint";
+
+export component EditLogin {
+    in property <bool> read-only;
+    in-out property <Element> element : {
+        name: "",
+        website: "",
+        icon: @image-url("../images/add.svg"),
+        type: 0,
+        favourite: false,
+        created: "",
+        updated: "",
+        fields: [
+            {
+                title: "Username",
+                value: "",
+                hide: false,
+                copy: false
+            },
+            {
+                title: "Password",
+                value: "",
+                hide: true,
+                copy: false
+            },
+            {
+                title: "Authenticator key (TOTP)",
+                value: "",
+                hide: false,
+                copy: false
+            },
+        ],
+        extra_fields: []
+    };
+
+    VerticalLayout {
+        spacing: 5pt;
+        RecordField {
+            height: 40pt;
+            background: Theme.primary;
+            read-only: root.read-only;
+            label: @tr("Name");
+            value: "";
+        }
+        RecordField {
+            height: 40pt;
+            background: Theme.primary;
+            read-only: root.read-only;
+            label: @tr("website");
+            value: "";
+        }
+        for field in element.fields : RecordField {
+            height: 40pt;
+            background: Theme.primary;
+            read-only: root.read-only;
+            label: field.title;
+            value: field.value;
+            reload: field.title == "Password"; // TODO: add random username
+            hide: field.title == "Password";
+        }
+    }
+    // add extra fields.
+}

@@ -1,0 +1,57 @@
+import { Theme } from "../theme.slint";
+import { Element } from "../logic.slint";
+import { IconButton } from "./icon-btn.slint";
+
+export component RecordField inherits Rectangle {
+    in property <bool> reload : false;
+    in property <bool> hide : false;
+    in property <bool> read-only;
+    in property <string> label;
+    in-out property <string> value;
+
+    private property <bool> is-open-eye : !hide;
+
+    border-radius: 8pt;
+    HorizontalLayout {
+        padding-right: 5pt;
+        padding-left: 2pt;
+        alignment: space-between;
+        VerticalLayout {
+            width: 80%;
+            padding: 3pt;
+            Text {
+                text: root.label;
+                font-family: Theme.font-family;
+                font-size: Theme.font-size-regular;
+            }
+            TextInput {
+                text <=> value;
+                read-only: root.read-only;
+                font-family: Theme.font-family;
+                font-size: Theme.font-size-medium;
+                input-type: !is-open-eye ? password : text;
+            }
+        }
+        HorizontalLayout {
+            if hide : IconButton {
+                background: Theme.window-background-inverse;
+                hover-color: Theme.secondary;
+                source: is-open-eye ? @image-url("../images/open-eye.svg") : @image-url("../images/closed-eye.svg");
+                img-width: 20pt;
+                img-height: 20pt;
+                clicked => {
+                    is-open-eye = !is-open-eye;
+                }
+            }
+            if reload : IconButton {
+                background: Theme.window-background-inverse;
+                hover-color: Theme.secondary;
+                source: @image-url("../images/reload.svg");
+                img-width: 24pt;
+                img-height: 22pt;
+                clicked => {
+                }
+            }
+        }
+    }
+}
