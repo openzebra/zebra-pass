@@ -7,7 +7,8 @@ import { IconWrap } from "../components/icon-wrap.slint";
 export enum SubHomeRoute {
     Manage,
     PasswordGen,
-    Settings
+    Settings,
+    AddEdit
 }
 
 export component LeftBar inherits Rectangle {
@@ -21,7 +22,7 @@ export component LeftBar inherits Rectangle {
         padding-top: 60pt;
         spacing: 10pt;
         IconWrap {
-            selected: route == SubHomeRoute.Manage;
+            selected: route == SubHomeRoute.Manage || route == SubHomeRoute.AddEdit;
             background: Theme.window-background;
             clicked => {
                 if (route != SubHomeRoute.Manage) {

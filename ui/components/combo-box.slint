@@ -10,7 +10,7 @@ export component ZComboBox inherits Rectangle {
     in property <color> hover-font-color;
 
     border-radius: 8pt;
-    border-width: 2pt;
+    border-width: 1pt;
     border-color: #000;
     height: 36pt;
     min-width: label.x + label.width + i.width;
@@ -50,12 +50,14 @@ export component ZComboBox inherits Rectangle {
         Rectangle {
             background: root.background;
             border-radius: 8pt;
-            border-color: yellow;
+            border-color: root.border-color;
+            border-width: 3pt;
         }
         ListView {
-            min-height: 200pt;
+            // min-height: 200pt;
             for value[idx] in root.choices: Rectangle {
                 background: item-area.has-hover ? root.hover-color : root.background;
+                border-radius: 8pt;
                 HorizontalLayout {
                     padding: 4pt;
                     padding-left: 10pt;

@@ -1,68 +1,53 @@
-import { Theme } from "../theme.slint";
-import { TopBar } from "../components/topbar.slint";
-import { ZSearchInput } from "../components/search.slint";
-import { ElementOfItem } from "../components/element.slint";
 import { IconButton } from "../components/icon-btn.slint";
-import { Logic, Element } from "../logic.slint";
-import { AddElementForm } from "../components/add-record.slint";
-
-export component ItemComponent inherits Rectangle {
-    in-out property <Element> data;
-    in-out property <bool> selected;
-
-    callback clicked();
-
-    states [
-        pressed when root.selected : {
-            root.background : Theme.secondary.darker(70%);
-            touch.mouse-cursor: default;
-        }
-    ]
-
-    touch := TouchArea {
-        mouse-cursor: pointer;
-        clicked => {
-            clicked();
-        }
-    }
-
-    HorizontalLayout {
-        padding-left: 30pt;
-        spacing: 16pt;
-        VerticalLayout {
-            alignment: center;
-            Image {
-                source: data.icon;
-                colorize: red;
-                height: 20pt;
-                width: 20pt;
-            }
-        }
-        VerticalLayout {
-            alignment: center;
-            Text {
-                text: data.name;
-                font-family: Theme.font-family;
-                font-size: 10pt;
-                font-weight: Theme.font-weight-bold;
-                color: Theme.window-background-inverse;
-            }
-            Text {
-                text: data.website;
-                font-family: Theme.font-family;
-                font-size: 8pt;
-                font-weight: Theme.font-weight-regular;
-                color: Theme.secondary;
-                height: 10pt;
-            }
-        }
-    }
-}
+import { Theme } from "../theme.slint";
+import { ZComboBox } from "../components/combo-box.slint";
+import { ComboBox } from "std-widgets.slint";
+import { Logic } from "../logic.slint";
 
 export component AddEditPageManage inherits VerticalLayout {
-    in property <int> index;
+    in property <int> index : 0;
 
-    TopBar {
-        title: "Add Record";
+    callback close();
+
+    VerticalLayout {
+        padding: 15pt;
+        padding-left: 45pt;
+        padding-right: 45pt;
+        width: Theme.app-width - 40pt;
+        alignment: start;
+        HorizontalLayout {
+            alignment: space-between;
+            Text {
+                text: "New Record";
+                font-family: Theme.font-family;
+                font-size: Theme.font-size-big;
+                font-weight: Theme.font-weight-bold;
+                vertical-alignment: center;
+            }
+            IconButton {
+                background: Theme.window-background-inverse;
+                hover-color: Theme.secondary;
+                source: @image-url("../images/close.svg");
+                img-width: 30pt;
+                img-height: 30pt;
+                clicked => {
+                    close();
+                }
+            }
+        }
+        HorizontalLayout {
+            alignment: center;
+            VerticalLayout {
+                width: Theme.app-width  / 2;
+                HorizontalLayout {
+                    alignment: center;
+                    ComboBox {
+                        width: parent.width / 2;
+                        model: Logic.records-types;
+                        current-index: index;
+                    }
+                }
+            }
+        }
     }
 }

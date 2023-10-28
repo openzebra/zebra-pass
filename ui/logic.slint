@@ -4,15 +4,6 @@ export struct LogicResult {
     error: string
 }
 
-export enum ElementTypes {
-    Login,
-    Card,
-    Swift,
-    CryptoWallet,
-    Identity,
-    Address,
-}
-
 export struct ElementItem {
     title: string,
     value: string,
@@ -24,7 +15,7 @@ export struct Element {
     name: string,
     website: string,
     icon: image,
-    type: ElementTypes,
+    type: string,
     created: string,
     updated: string,
     fields: [ElementItem],
@@ -54,5 +45,13 @@ export global GeneratorLogic {
 }
 
 export global Logic {
+    in-out property <[string]> records_types : [
+        "Login",
+        "Card",
+        "Swift",
+        "CryptoWallet",
+        "Identity",
+        "Address",
+    ];
     in-out property <[Element]> elements : [];
 }
