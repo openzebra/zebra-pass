@@ -24,6 +24,22 @@ pub struct Core {
     pub state: Rc<RefCell<State>>,
 }
 
+impl serde::Serialize for ElementItem {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("ElementItem", 4)?;
+
+        state.serialize_field("title", &self.title.to_string())?;
+        state.serialize_field("value", &self.value.to_string())?;
+        state.serialize_field("hide", &self.hide)?;
+        state.serialize_field("copy", &self.copy)?;
+
+        state.end()
+    }
+}
+
 impl serde::Serialize for Element {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
