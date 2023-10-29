@@ -5,7 +5,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use rand;
-use slint::SharedString;
+use slint::{Model, SharedString, VecModel};
 use zebra_pass::{
     bip39::mnemonic::{Language, Mnemonic},
     core::{
@@ -122,6 +122,26 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
                 }
             },
         );
+
+    let logic_ref_add_new_element = Rc::clone(&main_window);
+    main_window
+        .global::<Logic>()
+        .on_add_new_element(move |element| {
+            let elements = logic_ref_add_new_element.global::<Logic>().get_elements();
+            let mut vec_elements = elements
+                .as_any()
+                .downcast_ref::<Vec<Element>>()
+                .unwrap()
+                .clone();
+
+            vec_elements.push(element);
+
+            LogicElementsUpdateResult {
+                error: "".into(),
+                success: true,
+                response: VecModel::from_slice(&vec_elements),
+            }
+        });
 
     app.run()
 }

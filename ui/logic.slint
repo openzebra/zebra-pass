@@ -23,6 +23,12 @@ export struct Element {
     extra_fields: [ElementItem]
 }
 
+export struct LogicElementsUpdateResult {
+    success: bool,
+    response: [Element],
+    error: string
+}
+
 export global KeyChainLogic {
     in-out property<[[string]]> random_words : [];
     in-out property<string> words_salt : "";
@@ -56,5 +62,5 @@ export global Logic {
     ];
     in-out property <[Element]> elements : [];
 
-    pure callback add_new_element(Element) -> LogicResult;
+    pure callback add_new_element(Element) -> LogicElementsUpdateResult;
 }

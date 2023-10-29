@@ -4,6 +4,10 @@
 
 use std::{cell::RefCell, rc::Rc};
 
+slint::include_modules!();
+
+use serde::ser::SerializeStruct;
+
 use crate::{
     bip39::mnemonic::Mnemonic,
     config::app::{APPLICATION, ORGANIZATION, QUALIFIER},
@@ -15,10 +19,31 @@ use crate::{
 };
 
 pub struct Core {
-    pub data: Vec<Records>,
     pub db: Rc<LocalStorage>,
     pub guard: ZebraGuard,
     pub state: Rc<RefCell<State>>,
+}
+
+impl serde::Serialize for Element {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        // fields: [ElementItem],
+        // extra_fields: [ElementItem]
+        let mut state = serializer.serialize_struct("Element", 9)?;
+
+        state.serialize_field("icon", &self.icon.path())?;
+        state.serialize_field("name", &self.name.to_string())?;
+        state.serialize_field("website", &self.website.to_string())?;
+        state.serialize_field("type", &self.r#type)?;
+        state.serialize_field("created", &self.created.to_string())?;
+        state.serialize_field("updated", &self.updated.to_string())?;
+        state.serialize_field("favourite", &self.favourite)?;
+        state.serialize_field("favourite", &self.favourite)?;
+
+        state.end()
+    }
 }
 
 impl Core {
@@ -34,14 +59,8 @@ impl Core {
         let db = Rc::new(LocalStorage::new(qualifier, organization, application)?);
         let state = Rc::new(RefCell::new(State::from(db.clone())));
         let guard = ZebraGuard::from(state.clone());
-        let data = Vec::default();
 
-        Ok(Self {
-            data,
-            db,
-            guard,
-            state,
-        })
+        Ok(Self { db, guard, state })
     }
 
     pub fn sync(&self) -> Result<(), ZebraErrors> {
@@ -60,7 +79,7 @@ impl Core {
             password.as_bytes(),
             m,
             &words_salt,
-            &self.data,
+            &[],
         )?;
 
         let mut state = self.state.borrow_mut();
@@ -74,6 +93,12 @@ impl Core {
         state.payload.server_sync = server_sync;
         state.payload.address = self.guard.get_address()?;
         state.payload.inited = true;
+
+        Ok(())
+    }
+
+    pub fn records_update(&mut self, records: Vec<Element>) -> Result<(), ZebraErrors> {
+        self.guard.update(records)?;
 
         Ok(())
     }
