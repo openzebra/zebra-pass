@@ -12,6 +12,7 @@ export component RecordField inherits Rectangle {
     private property <bool> is-open-eye : !hide;
 
     callback refrash();
+    callback edited(string);
 
     border-radius: 8pt;
     HorizontalLayout {
@@ -28,10 +29,15 @@ export component RecordField inherits Rectangle {
             }
             TextInput {
                 text <=> value;
+                single-line: true;
                 read-only: root.read-only;
+                width: 300pt;
                 font-family: Theme.font-family;
                 font-size: Theme.font-size-medium;
                 input-type: !is-open-eye ? password : text;
+                edited => {
+                    edited(value);
+                }
             }
         }
         HorizontalLayout {

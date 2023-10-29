@@ -99,6 +99,9 @@ export component EditLogin {
                     refrash => {
                         popup.show();
                     }
+                    edited(value) => {
+                        element.fields[1].value = value;
+                    }
                 }
                 RecordField {
                     height: 40pt;
