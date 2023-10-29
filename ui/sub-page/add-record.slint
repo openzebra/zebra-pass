@@ -58,6 +58,10 @@ export component AddEditPageManage inherits VerticalLayout {
                     if type-index == 0 : EditLogin {
                         height: 40pt;
                         width: 100%;
+                        save(element) => {
+                            Logic.add-new-element(element);
+                            close();
+                        }
                     }
                 }
             }
