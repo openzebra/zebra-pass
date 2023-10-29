@@ -47,6 +47,12 @@ export component LockPage inherits Window {
                         type: password;
                         label-color: Theme.window-background-inverse.darker(50%);
                         value <=> password_value;
+                        accepted => {
+                            result = KeyChainLogic.request-unlock(password_value);
+                            if (result.success) {
+                                continue(Routers.Home);
+                            }
+                        }
                     }
                     HorizontalLayout {
                         height: 15pt;

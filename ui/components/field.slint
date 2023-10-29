@@ -11,6 +11,8 @@ export component RecordField inherits Rectangle {
 
     private property <bool> is-open-eye : !hide;
 
+    callback refrash();
+
     border-radius: 8pt;
     HorizontalLayout {
         padding-right: 5pt;
@@ -50,6 +52,7 @@ export component RecordField inherits Rectangle {
                 img-width: 24pt;
                 img-height: 22pt;
                 clicked => {
+                    refrash();
                 }
             }
         }

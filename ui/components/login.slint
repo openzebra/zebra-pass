@@ -39,7 +39,7 @@ export component EditLogin {
         extra_fields: []
     };
 
-    callback save();
+    callback save(Element);
 
     VerticalLayout {
         ScrollView {
@@ -60,14 +60,77 @@ export component EditLogin {
                     label: @tr("website");
                     value: element.website;
                 }
-                for field in element.fields : RecordField {
+                RecordField {
                     height: 40pt;
                     background: Theme.primary;
                     read-only: root.read-only;
-                    label: field.title;
-                    value: field.value;
-                    reload: field.title == "Password"; // TODO: add random username
-                    hide: field.title == "Password";
+                    label: element.fields[0].title;
+                    value: element.fields[0].value;
+                }
+                RecordField {
+                    height: 40pt;
+                    background: Theme.primary;
+                    read-only: root.read-only;
+                    label: element.fields[1].title;
+                    value: element.fields[1].value;
+                    reload: true;
+                    hide: true;
+                    refrash => {
+                        popup.show();
+                    }
+                    popup := PopupWindow {
+                        // width: parent.width;
+                        x: root.width / 4;
+                        height: 90pt;
+                        close-on-click: false;
+                
+                        Rectangle {
+                            background: Theme.window-background;
+                            border-radius: 8pt;
+                            border-color: Theme.primary;
+                            border-width: 2pt;
+                        }
+                        VerticalLayout {
+                            alignment: space-between;
+                            padding: 10pt;
+                            Text {
+                                horizontal-alignment: center;
+                                text: @tr("Are you sure?");
+                                font-family: Theme.font-family;
+                                font-size: Theme.font-size-big;
+                            }
+                            HorizontalLayout {
+                                spacing: 5pt;
+                                ZButton {
+                                    text: @tr("Update");
+                                    background: Theme.window-background-inverse;
+                                    color: Theme.window-background;
+                                    width: 100pt;
+                                    height: 30pt;
+                                    clicked => {
+                                        debug("update password");
+                                    }
+                                }
+                                ZButton {
+                                    text: @tr("Cancel");
+                                    background: Theme.window-background-inverse;
+                                    color: Theme.window-background;
+                                    width: 100pt;
+                                    height: 30pt;
+                                    clicked => {
+                                        popup.close();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                RecordField {
+                    height: 40pt;
+                    background: Theme.primary;
+                    read-only: root.read-only;
+                    label: element.fields[2].title;
+                    value: element.fields[2].value;
                 }
             }
         }
@@ -81,7 +144,7 @@ export component EditLogin {
                 width: 120pt;
                 height: 30pt;
                 clicked => {
-                    save();
+                    save(element);
                 }
             }
         }

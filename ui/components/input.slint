@@ -9,6 +9,8 @@ export component ZInput inherits VerticalLayout {
     in-out property<bool> enabled : true;
     in-out property<string> value;
 
+    callback accepted();
+
     Text {
         text: root.label;
         color: root.label-color;
@@ -23,5 +25,8 @@ export component ZInput inherits VerticalLayout {
         placeholder-text: root.placeholder;
         enabled: enabled;
         text <=> value;
+        accepted => {
+            accepted();
+        }
     }
 }
