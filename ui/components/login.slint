@@ -1,13 +1,15 @@
-import { ScrollView } from "std-widgets.slint";
+import { ScrollView , VerticalBox} from "std-widgets.slint";
 
 import { IconButton } from "../components/icon-btn.slint";
 import { RecordField } from "../components/field.slint";
 import { Theme } from "../theme.slint";
 import { KeyChainLogic, Element } from "../logic.slint";
 import { ZButton } from "./button.slint";
+import { PassGenForm } from "../components/pass-gen-form.slint";
 
 export component EditLogin {
     in property <bool> read-only;
+    in property <bool> edit : false;
     in-out property <Element> element : {
         name: "",
         website: "",
@@ -41,6 +43,25 @@ export component EditLogin {
 
     callback save(Element);
 
+    popup := PopupWindow {
+        close-on-click: false;
+
+        Rectangle {
+            background: Theme.window-background;
+            border-color: Theme.window-background-inverse;
+            border-width: 2pt;
+            border-radius: 8pt;
+            padding: 16pt;
+        }
+        VerticalBox {
+            padding: 16pt;
+            PassGenForm {
+                on-random(pass) => {
+                    element.fields[1].value = pass;
+                }
+            }
+        }
+    }
     VerticalLayout {
         ScrollView {
             height: Theme.app-height - 140pt;
@@ -77,52 +98,6 @@ export component EditLogin {
                     hide: true;
                     refrash => {
                         popup.show();
-                    }
-                    popup := PopupWindow {
-                        // width: parent.width;
-                        x: root.width / 4;
-                        height: 90pt;
-                        close-on-click: false;
-                
-                        Rectangle {
-                            background: Theme.window-background;
-                            border-radius: 8pt;
-                            border-color: Theme.primary;
-                            border-width: 2pt;
-                        }
-                        VerticalLayout {
-                            alignment: space-between;
-                            padding: 10pt;
-                            Text {
-                                horizontal-alignment: center;
-                                text: @tr("Are you sure?");
-                                font-family: Theme.font-family;
-                                font-size: Theme.font-size-big;
-                            }
-                            HorizontalLayout {
-                                spacing: 5pt;
-                                ZButton {
-                                    text: @tr("Update");
-                                    background: Theme.window-background-inverse;
-                                    color: Theme.window-background;
-                                    width: 100pt;
-                                    height: 30pt;
-                                    clicked => {
-                                        debug("update password");
-                                    }
-                                }
-                                ZButton {
-                                    text: @tr("Cancel");
-                                    background: Theme.window-background-inverse;
-                                    color: Theme.window-background;
-                                    width: 100pt;
-                                    height: 30pt;
-                                    clicked => {
-                                        popup.close();
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
                 RecordField {

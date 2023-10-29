@@ -14,6 +14,8 @@ export component PassGenForm inherits VerticalLayout {
     in property <int> maximum : 255;
     in property <int> minimum : 2;
 
+    callback on-random(string);
+
     spacing: 15pt;
     Rectangle {
         background: Theme.success;
@@ -55,6 +57,7 @@ export component PassGenForm inherits VerticalLayout {
                             if (result.success) {
                                 password = result.response;
                             }
+                            on-random(password);
                             // TODO: add Error hanlder.
                         }
                     }
@@ -75,6 +78,7 @@ export component PassGenForm inherits VerticalLayout {
                 if (result.success) {
                     password = result.response;
                 }
+                on-random(password);
             }
         }
         SpinBox {
@@ -88,6 +92,7 @@ export component PassGenForm inherits VerticalLayout {
                 if (result.success) {
                     password = result.response;
                 }
+                on-random(password);
             }
         }
     }
@@ -103,6 +108,7 @@ export component PassGenForm inherits VerticalLayout {
                     if (result.success) {
                         password = result.response;
                     }
+                    on-random(password);
                 }
             }
             CheckBox {
@@ -113,6 +119,7 @@ export component PassGenForm inherits VerticalLayout {
                     if (result.success) {
                         password = result.response;
                     }
+                    on-random(password);
                 }
             }
         }
@@ -126,6 +133,7 @@ export component PassGenForm inherits VerticalLayout {
                     if (result.success) {
                         password = result.response;
                     }
+                    on-random(password);
                 }
             }
             CheckBox {
@@ -136,6 +144,7 @@ export component PassGenForm inherits VerticalLayout {
                     if (result.success) {
                         password = result.response;
                     }
+                    on-random(password);
                 }
             }
         }
