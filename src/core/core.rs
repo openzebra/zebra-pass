@@ -49,7 +49,10 @@ where
     }
 
     pub fn sync(&self) -> Result<(), ZebraErrors> {
-        self.state.borrow_mut().sync()
+        self.state.borrow_mut().sync();
+        self.data = self.guard.get_data()?;
+
+        Ok(())
     }
 
     pub fn init_data(
