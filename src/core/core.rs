@@ -84,10 +84,10 @@ where
 
     pub fn add_element(&mut self, elem: T) -> Result<(), ZebraErrors> {
         self.data.push(elem);
+        self.guard.update(&self.data)?;
 
         // TODO: add email validator.
         // TODO: add created, updated time.
-        // TODO: add storage updater;
 
         Ok(())
     }

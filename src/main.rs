@@ -4,6 +4,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
+use chrono::{DateTime, Local};
 use rand;
 use serde::ser::SerializeStruct;
 use slint::{Model, SharedString, VecModel};
@@ -169,7 +170,12 @@ fn handler(core: Rc<RefCell<Core<Element>>>) -> Result<(), slint::PlatformError>
     let logic_ref_add_new_element = Rc::clone(&main_window);
     main_window
         .global::<Logic>()
-        .on_add_new_element(move |element| {
+        .on_add_new_element(move |mut element| {
+            let local: DateTime<Local> = Local::now();
+            let formatted_date = local.format("%a %b %e %Y %H:%M:%S GMT%:z (%Z)").to_string();
+
+            element.created = formatted_date.into();
+            element.updated = element.created.clone();
             let mut core = core_elements_add_ref.borrow_mut();
 
             core.add_element(element).unwrap();
