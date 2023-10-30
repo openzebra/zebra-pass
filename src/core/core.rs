@@ -84,6 +84,9 @@ where
 
     pub fn add_element(&mut self, elem: T) -> Result<(), ZebraErrors> {
         self.data.push(elem);
+
+        // TODO: add email validator.
+        // TODO: add created, updated time.
         // TODO: add storage updater;
 
         Ok(())
@@ -96,6 +99,7 @@ mod core_tests {
 
     use super::*;
     use rand;
+    use serde::Deserialize;
 
     #[derive(Debug, Serialize, Deserialize)]
     struct TEST {}

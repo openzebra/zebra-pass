@@ -6,7 +6,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use rand;
 use serde::ser::SerializeStruct;
-use slint::{Model, ModelRc, SharedString, VecModel};
+use slint::{Model, SharedString, VecModel};
 use zebra_pass::{
     bip39::mnemonic::{Language, Mnemonic},
     core::{
@@ -41,6 +41,8 @@ impl serde::Serialize for Element {
         S: serde::Serializer,
     {
         let mut state = serializer.serialize_struct("Element", 9)?;
+        let fields = self.fields.iter().collect::<Vec<ElementItem>>();
+        let extra_fields = self.extra_fields.iter().collect::<Vec<ElementItem>>();
 
         state.serialize_field("icon", &self.icon.path())?;
         state.serialize_field("name", &self.name.to_string())?;
@@ -50,8 +52,9 @@ impl serde::Serialize for Element {
         state.serialize_field("updated", &self.updated.to_string())?;
         state.serialize_field("favourite", &self.favourite)?;
         state.serialize_field("favourite", &self.favourite)?;
-        // state.serialize_field("fields", &self.fields)?;
-        // state.serialize_field("extra_fields", &self.extra_fields)?;
+
+        state.serialize_field("fields", &fields)?;
+        state.serialize_field("extra_fields", &extra_fields)?;
 
         state.end()
     }
@@ -170,20 +173,15 @@ fn handler(core: Rc<RefCell<Core<Element>>>) -> Result<(), slint::PlatformError>
             let mut core = core_elements_add_ref.borrow_mut();
 
             core.add_element(element).unwrap();
-
             logic_ref_add_new_element
                 .global::<Logic>()
                 .set_elements(VecModel::from_slice(&core.data));
+
             LogicResult {
                 error: "".into(),
                 response: SharedString::default(),
                 success: false,
             }
-            // LogicElementsUpdateResult {
-            //     error: "".into(),
-            //     success: false,
-            //     response: VecModel::from_slice(&[]), // response: VecModel::from_slice(&vec_elements),
-            // }
         });
 
     app.run()
