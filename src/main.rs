@@ -5,7 +5,8 @@
 use std::{cell::RefCell, rc::Rc};
 
 use rand;
-use slint::{Model, SharedString, VecModel};
+use serde::ser::SerializeStruct;
+use slint::{Model, ModelRc, SharedString, VecModel};
 use zebra_pass::{
     bip39::mnemonic::{Language, Mnemonic},
     core::{
@@ -18,7 +19,45 @@ use zebra_pass::{
 
 slint::include_modules!();
 
-fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
+impl serde::Serialize for ElementItem {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("ElementItem", 4)?;
+
+        state.serialize_field("title", &self.title.to_string())?;
+        state.serialize_field("value", &self.value.to_string())?;
+        state.serialize_field("hide", &self.hide)?;
+        state.serialize_field("copy", &self.copy)?;
+
+        state.end()
+    }
+}
+
+impl serde::Serialize for Element {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("Element", 9)?;
+
+        state.serialize_field("icon", &self.icon.path())?;
+        state.serialize_field("name", &self.name.to_string())?;
+        state.serialize_field("website", &self.website.to_string())?;
+        state.serialize_field("type", &self.r#type)?;
+        state.serialize_field("created", &self.created.to_string())?;
+        state.serialize_field("updated", &self.updated.to_string())?;
+        state.serialize_field("favourite", &self.favourite)?;
+        state.serialize_field("favourite", &self.favourite)?;
+        // state.serialize_field("fields", &self.fields)?;
+        // state.serialize_field("extra_fields", &self.extra_fields)?;
+
+        state.end()
+    }
+}
+
+fn handler(core: Rc<RefCell<Core<Element>>>) -> Result<(), slint::PlatformError> {
     slint::init_translations!(concat!(env!("CARGO_MANIFEST_DIR"), "/locale/"));
 
     let core_ref_state = core.clone();
@@ -123,24 +162,28 @@ fn handler(core: Rc<RefCell<Core>>) -> Result<(), slint::PlatformError> {
             },
         );
 
+    let core_elements_add_ref = core.clone();
     let logic_ref_add_new_element = Rc::clone(&main_window);
     main_window
         .global::<Logic>()
         .on_add_new_element(move |element| {
-            let elements = logic_ref_add_new_element.global::<Logic>().get_elements();
-            let mut vec_elements = elements
-                .as_any()
-                .downcast_ref::<Vec<Element>>()
-                .unwrap()
-                .clone();
+            let mut core = core_elements_add_ref.borrow_mut();
 
-            vec_elements.push(element);
+            core.add_element(element).unwrap();
 
-            LogicElementsUpdateResult {
+            logic_ref_add_new_element
+                .global::<Logic>()
+                .set_elements(VecModel::from_slice(&core.data));
+            LogicResult {
                 error: "".into(),
-                success: true,
-                response: VecModel::from_slice(&vec_elements),
+                response: SharedString::default(),
+                success: false,
             }
+            // LogicElementsUpdateResult {
+            //     error: "".into(),
+            //     success: false,
+            //     response: VecModel::from_slice(&[]), // response: VecModel::from_slice(&vec_elements),
+            // }
         });
 
     app.run()
@@ -153,7 +196,7 @@ fn error_handler(error: ZebraErrors) -> Result<(), slint::PlatformError> {
 }
 
 fn main() -> Result<(), slint::PlatformError> {
-    let core = match Core::new() {
+    let core: Core<Element> = match Core::new() {
         Ok(c) => c,
         Err(e) => {
             return error_handler(e);

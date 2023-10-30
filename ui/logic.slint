@@ -60,7 +60,7 @@ export global Logic {
         "Identity",
         "Address",
     ];
-    in-out property <[Element]> elements : [];
+    in property <[Element]> elements : [];
 
-    pure callback add_new_element(Element) -> LogicElementsUpdateResult;
+    pure callback add_new_element(Element) -> LogicResult;
 }

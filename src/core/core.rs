@@ -4,65 +4,28 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-slint::include_modules!();
-
-use serde::ser::SerializeStruct;
+use serde::Serialize;
 
 use crate::{
     bip39::mnemonic::Mnemonic,
     config::app::{APPLICATION, ORGANIZATION, QUALIFIER},
     errors::ZebraErrors,
     guard::ZebraGuard,
-    records::records::Records,
     state::state::State,
     storage::db::LocalStorage,
 };
 
-pub struct Core {
+pub struct Core<T> {
     pub db: Rc<LocalStorage>,
     pub guard: ZebraGuard,
     pub state: Rc<RefCell<State>>,
+    pub data: Vec<T>,
 }
 
-impl serde::Serialize for ElementItem {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let mut state = serializer.serialize_struct("ElementItem", 4)?;
-
-        state.serialize_field("title", &self.title.to_string())?;
-        state.serialize_field("value", &self.value.to_string())?;
-        state.serialize_field("hide", &self.hide)?;
-        state.serialize_field("copy", &self.copy)?;
-
-        state.end()
-    }
-}
-
-impl serde::Serialize for Element {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        // fields: [ElementItem],
-        // extra_fields: [ElementItem]
-        let mut state = serializer.serialize_struct("Element", 9)?;
-
-        state.serialize_field("icon", &self.icon.path())?;
-        state.serialize_field("name", &self.name.to_string())?;
-        state.serialize_field("website", &self.website.to_string())?;
-        state.serialize_field("type", &self.r#type)?;
-        state.serialize_field("created", &self.created.to_string())?;
-        state.serialize_field("updated", &self.updated.to_string())?;
-        state.serialize_field("favourite", &self.favourite)?;
-        state.serialize_field("favourite", &self.favourite)?;
-
-        state.end()
-    }
-}
-
-impl Core {
+impl<T> Core<T>
+where
+    T: Serialize,
+{
     pub fn new() -> Result<Self, ZebraErrors> {
         Core::from(QUALIFIER, ORGANIZATION, APPLICATION)
     }
@@ -75,8 +38,14 @@ impl Core {
         let db = Rc::new(LocalStorage::new(qualifier, organization, application)?);
         let state = Rc::new(RefCell::new(State::from(db.clone())));
         let guard = ZebraGuard::from(state.clone());
+        let data = Vec::default();
 
-        Ok(Self { db, guard, state })
+        Ok(Self {
+            db,
+            guard,
+            state,
+            data,
+        })
     }
 
     pub fn sync(&self) -> Result<(), ZebraErrors> {
@@ -91,11 +60,11 @@ impl Core {
         words_salt: &str,
         m: &Mnemonic,
     ) -> Result<(), ZebraErrors> {
-        self.guard.bip39_cipher_from_password::<&[Records]>(
+        self.guard.bip39_cipher_from_password::<&[T]>(
             password.as_bytes(),
             m,
             &words_salt,
-            &[],
+            &self.data,
         )?;
 
         let mut state = self.state.borrow_mut();
@@ -113,8 +82,9 @@ impl Core {
         Ok(())
     }
 
-    pub fn records_update(&mut self, records: Vec<Element>) -> Result<(), ZebraErrors> {
-        self.guard.update(records)?;
+    pub fn add_element(&mut self, elem: T) -> Result<(), ZebraErrors> {
+        self.data.push(elem);
+        // TODO: add storage updater;
 
         Ok(())
     }
@@ -127,9 +97,12 @@ mod core_tests {
     use super::*;
     use rand;
 
+    #[derive(Debug, Serialize, Deserialize)]
+    struct TEST {}
+
     #[test]
     fn test_init() {
-        let mut core_data = Core::from("tes0", "tes1", "test2").unwrap();
+        let mut core_data: Core<TEST> = Core::from("tes0", "tes1", "test2").unwrap();
         core_data.sync().unwrap();
 
         let mut rng = rand::thread_rng();
@@ -141,7 +114,7 @@ mod core_tests {
         drop(core_data);
         drop(m);
 
-        let mut new_core_data = Core::from("tes0", "tes1", "test2").unwrap();
+        let mut new_core_data: Core<TEST> = Core::from("tes0", "tes1", "test2").unwrap();
         new_core_data.sync().unwrap();
 
         assert!(new_core_data

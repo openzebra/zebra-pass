@@ -3,11 +3,10 @@ import { Theme } from "../theme.slint";
 import { ZComboBox } from "../components/combo-box.slint";
 import { EditLogin } from "../components/login.slint";
 import { ComboBox } from "std-widgets.slint";
-import { Logic, LogicElementsUpdateResult } from "../logic.slint";
+import { Logic } from "../logic.slint";
 
 export component AddEditPageManage inherits VerticalLayout {
     private property <int> type-index : 0;
-    private property <LogicElementsUpdateResult> result;
 
     in property <int> index : -1;
 
@@ -60,10 +59,7 @@ export component AddEditPageManage inherits VerticalLayout {
                         height: 40pt;
                         width: 100%;
                         save(element) => {
-                            result = Logic.add-new-element(element);
-                            if (result.success) {
-                                Logic.elements = result.response;
-                            }
+                            Logic.add-new-element(element);
                             close();
                         }
                     }
