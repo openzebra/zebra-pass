@@ -6,8 +6,11 @@ use std::{cell::RefCell, rc::Rc};
 
 use chrono::{DateTime, Local};
 use rand;
-use serde::ser::SerializeStruct;
-use slint::{Model, SharedString, VecModel};
+use serde::{
+    de::{MapAccess, Visitor},
+    ser::SerializeStruct,
+};
+use slint::{Image, Model, SharedString, VecModel};
 use zebra_pass::{
     bip39::mnemonic::{Language, Mnemonic},
     core::{
@@ -19,6 +22,181 @@ use zebra_pass::{
 };
 
 slint::include_modules!();
+
+impl<'de> serde::Deserialize<'de> for ElementItem {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct ElementItemVisitor;
+
+        impl<'de> Visitor<'de> for ElementItemVisitor {
+            type Value = ElementItem;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("struct ElementItem")
+            }
+
+            fn visit_map<V>(self, mut map: V) -> Result<ElementItem, V::Error>
+            where
+                V: MapAccess<'de>,
+            {
+                let mut title: Option<String> = None;
+                let mut value: Option<String> = None;
+                let mut hide: Option<bool> = None;
+                let mut copy: Option<bool> = None;
+
+                while let Some(key) = map.next_key()? {
+                    match key {
+                        "title" => {
+                            title = Some(map.next_value()?);
+                        }
+                        "value" => {
+                            value = Some(map.next_value()?);
+                        }
+                        "hide" => {
+                            hide = Some(map.next_value()?);
+                        }
+                        "copy" => {
+                            copy = Some(map.next_value()?);
+                        }
+                        _ => {
+                            // Ignore unknown fields
+                            map.next_value()?;
+                        }
+                    }
+                }
+
+                let title = title.ok_or_else(|| serde::de::Error::missing_field("title"))?;
+                let value = value.ok_or_else(|| serde::de::Error::missing_field("value"))?;
+                let hide = hide.unwrap_or(false);
+                let copy = copy.unwrap_or(false);
+
+                Ok(ElementItem {
+                    hide,
+                    copy,
+                    title: title.into(),
+                    value: value.into(),
+                })
+            }
+        }
+
+        deserializer.deserialize_struct(
+            "ElementItem",
+            &["title", "value", "hide", "copy"],
+            ElementItemVisitor,
+        )
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for Element {
+    fn deserialize<D>(deserializer: D) -> Result<Element, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct ElementVisitor;
+
+        impl<'de> Visitor<'de> for ElementVisitor {
+            type Value = Element;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("struct Element")
+            }
+
+            fn visit_map<V>(self, mut map: V) -> Result<Element, V::Error>
+            where
+                V: MapAccess<'de>,
+            {
+                let mut icon: Option<String> = None;
+                let mut name: Option<String> = None;
+                let mut website: Option<String> = None;
+                let mut r#type: Option<i32> = None;
+                let mut created: Option<String> = None;
+                let mut updated: Option<String> = None;
+                let mut favourite: Option<bool> = None;
+                let mut fields: Option<Vec<ElementItem>> = None;
+                let mut extra_fields: Option<Vec<ElementItem>> = None;
+
+                while let Some(key) = map.next_key()? {
+                    match key {
+                        "icon" => {
+                            icon = Some(map.next_value()?);
+                        }
+                        "name" => {
+                            name = Some(map.next_value()?);
+                        }
+                        "website" => {
+                            website = Some(map.next_value()?);
+                        }
+                        "type" => {
+                            r#type = Some(map.next_value()?);
+                        }
+                        "created" => {
+                            created = Some(map.next_value()?);
+                        }
+                        "updated" => {
+                            updated = Some(map.next_value()?);
+                        }
+                        "favourite" => {
+                            favourite = Some(map.next_value()?);
+                        }
+                        "fields" => {
+                            fields = Some(map.next_value()?);
+                        }
+                        "extra_fields" => {
+                            extra_fields = Some(map.next_value()?);
+                        }
+                        _ => {
+                            // Ignore unknown fields
+                            let _: serde_json::Value = map.next_value()?;
+                        }
+                    }
+                }
+
+                let _icon = icon.ok_or_else(|| serde::de::Error::missing_field("icon"))?;
+                let name = name.ok_or_else(|| serde::de::Error::missing_field("name"))?;
+                let website = website.ok_or_else(|| serde::de::Error::missing_field("website"))?;
+                let r#type = r#type.ok_or_else(|| serde::de::Error::missing_field("type"))?;
+                let created = created.ok_or_else(|| serde::de::Error::missing_field("created"))?;
+                let updated = updated.ok_or_else(|| serde::de::Error::missing_field("updated"))?;
+                let favourite =
+                    favourite.ok_or_else(|| serde::de::Error::missing_field("favourite"))?;
+                let fields = fields.ok_or_else(|| serde::de::Error::missing_field("fields"))?;
+                let extra_fields =
+                    extra_fields.ok_or_else(|| serde::de::Error::missing_field("extra_fields"))?;
+
+                Ok(Element {
+                    // TODO: make it works.
+                    favourite,
+                    icon: Image::default(),
+                    name: name.into(),
+                    website: website.into(),
+                    r#type: r#type.into(),
+                    created: created.into(),
+                    updated: updated.into(),
+                    fields: VecModel::from_slice(&fields),
+                    extra_fields: VecModel::from_slice(&extra_fields),
+                })
+            }
+        }
+
+        deserializer.deserialize_struct(
+            "Element",
+            &[
+                "icon",
+                "name",
+                "website",
+                "type",
+                "created",
+                "updated",
+                "favourite",
+                "fields",
+                "extra_fields",
+            ],
+            ElementVisitor,
+        )
+    }
+}
 
 impl serde::Serialize for ElementItem {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -128,7 +306,7 @@ fn handler(core: Rc<RefCell<Core<Element>>>) -> Result<(), slint::PlatformError>
         .on_request_unlock(move |password| {
             let mut core = lock_page_core_ref.borrow_mut();
 
-            match core.guard.try_unlock(&password.to_string().as_bytes()) {
+            match core.unlock(&password.to_string()) {
                 Ok(_) => LogicResult {
                     error: SharedString::default(),
                     response: SharedString::default(),

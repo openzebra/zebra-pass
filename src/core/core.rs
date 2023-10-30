@@ -4,7 +4,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     bip39::mnemonic::Mnemonic,
@@ -24,7 +24,7 @@ pub struct Core<T> {
 
 impl<T> Core<T>
 where
-    T: Serialize,
+    T: for<'c> Deserialize<'c> + Serialize,
 {
     pub fn new() -> Result<Self, ZebraErrors> {
         Core::from(QUALIFIER, ORGANIZATION, APPLICATION)
@@ -49,8 +49,7 @@ where
     }
 
     pub fn sync(&self) -> Result<(), ZebraErrors> {
-        self.state.borrow_mut().sync();
-        self.data = self.guard.get_data()?;
+        self.state.borrow_mut().sync()?;
 
         Ok(())
     }
@@ -81,6 +80,13 @@ where
         state.payload.server_sync = server_sync;
         state.payload.address = self.guard.get_address()?;
         state.payload.inited = true;
+
+        Ok(())
+    }
+
+    pub fn unlock(&mut self, password: &str) -> Result<(), ZebraErrors> {
+        self.guard.try_unlock(&password.as_bytes())?;
+        self.data = self.guard.get_data()?;
 
         Ok(())
     }
