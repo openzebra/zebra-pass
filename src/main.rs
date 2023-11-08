@@ -400,6 +400,23 @@ mod main_tests {
     use slint::{ModelRc, SharedString};
 
     #[test]
+    fn test_element_item_deserialize() {
+        let test_item_element = ElementItem {
+            title: "title".into(),
+            value: "some value".into(),
+            hide: false,
+            copy: true,
+        };
+        let json_payload = serde_json::to_string(&test_item_element).unwrap();
+        let data: ElementItem = serde_json::from_str(&json_payload).unwrap();
+
+        assert_eq!(test_item_element.title, data.title);
+        assert_eq!(test_item_element.value, data.value);
+        assert_eq!(test_item_element.hide, data.hide);
+        assert_eq!(test_item_element.copy, data.copy);
+    }
+
+    #[test]
     fn test_element_deserialize() {
         let test_element = Element {
             name: SharedString::from("name"),
