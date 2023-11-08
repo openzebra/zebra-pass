@@ -10,7 +10,7 @@ use serde::{
     de::{MapAccess, Visitor},
     ser::SerializeStruct,
 };
-use slint::{Image, Model, SharedString, VecModel};
+use slint::{Model, SharedString, VecModel};
 use zebra_pass::{
     bip39::mnemonic::{Language, Mnemonic},
     core::{
@@ -148,12 +148,12 @@ impl<'de> serde::Deserialize<'de> for Element {
                         }
                         _ => {
                             // Ignore unknown fields
-                            let _: serde_json::Value = map.next_value()?;
+                            map.next_value()?;
                         }
                     }
                 }
 
-                let _icon = icon.ok_or_else(|| serde::de::Error::missing_field("icon"))?;
+                let icon = icon.ok_or_else(|| serde::de::Error::missing_field("icon"))?;
                 let name = name.ok_or_else(|| serde::de::Error::missing_field("name"))?;
                 let website = website.ok_or_else(|| serde::de::Error::missing_field("website"))?;
                 let r#type = r#type.ok_or_else(|| serde::de::Error::missing_field("type"))?;
@@ -168,7 +168,7 @@ impl<'de> serde::Deserialize<'de> for Element {
                 Ok(Element {
                     // TODO: make it works.
                     favourite,
-                    icon: Image::default(),
+                    icon: icon.into(),
                     name: name.into(),
                     website: website.into(),
                     r#type: r#type.into(),
@@ -223,13 +223,12 @@ impl serde::Serialize for Element {
         let fields = self.fields.iter().collect::<Vec<ElementItem>>();
         let extra_fields = self.extra_fields.iter().collect::<Vec<ElementItem>>();
 
-        state.serialize_field("icon", &self.icon.path())?;
         state.serialize_field("name", &self.name.to_string())?;
+        state.serialize_field("icon", &self.icon.to_string())?;
         state.serialize_field("website", &self.website.to_string())?;
         state.serialize_field("type", &self.r#type)?;
         state.serialize_field("created", &self.created.to_string())?;
         state.serialize_field("updated", &self.updated.to_string())?;
-        state.serialize_field("favourite", &self.favourite)?;
         state.serialize_field("favourite", &self.favourite)?;
 
         state.serialize_field("fields", &fields)?;
@@ -393,4 +392,63 @@ fn main() -> Result<(), slint::PlatformError> {
     }
 
     handler(Rc::new(RefCell::new(core)))
+}
+
+#[cfg(test)]
+mod main_tests {
+    use super::*;
+    use slint::{ModelRc, SharedString};
+
+    #[test]
+    fn test_element_deserialize() {
+        let test_element = Element {
+            name: SharedString::from("name"),
+            website: SharedString::from("domain.com"),
+            icon: SharedString::default(),
+            r#type: 0,
+            created: SharedString::from("time"),
+            updated: SharedString::from("time"),
+            favourite: true,
+            fields: ModelRc::default(),
+            extra_fields: ModelRc::default(),
+        };
+        let json_payload = serde_json::to_string(&test_element).unwrap();
+        let data: Element = serde_json::from_str(&json_payload).unwrap();
+
+        assert_eq!(test_element.name, data.name);
+        assert_eq!(test_element.website, data.website);
+        assert_eq!(test_element.icon, data.icon);
+        assert_eq!(test_element.r#type, data.r#type);
+        assert_eq!(test_element.created, data.created);
+        assert_eq!(test_element.updated, data.updated);
+        assert_eq!(test_element.favourite, data.favourite);
+        assert_eq!(
+            test_element.fields.iter().collect::<Vec<ElementItem>>(),
+            data.fields.iter().collect::<Vec<ElementItem>>(),
+        );
+        assert_eq!(
+            test_element
+                .extra_fields
+                .iter()
+                .collect::<Vec<ElementItem>>(),
+            data.extra_fields.iter().collect::<Vec<ElementItem>>(),
+        );
+    }
+
+    #[test]
+    fn test_main() {
+        let core: Core<Element> = match Core::from("test_main", "test_main_app", "test_main_corp") {
+            Ok(c) => c,
+            Err(e) => {
+                panic!("{:?}", e);
+            }
+        };
+
+        match core.sync() {
+            Ok(_) => {}
+            Err(e) => {
+                panic!("{:?}", e);
+            }
+        }
+    }
 }
