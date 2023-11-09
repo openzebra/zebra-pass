@@ -97,7 +97,7 @@ export component ElementOfItem inherits VerticalLayout {
             copy: field.copy;
         }
     }
-    HorizontalLayout {
+    if data.extra-fields.length > 0 : HorizontalLayout {
         padding-top: 10pt;
         padding-bottom: 10pt;
         alignment: center;

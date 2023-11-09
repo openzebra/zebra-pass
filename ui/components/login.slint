@@ -3,11 +3,18 @@ import { ScrollView , VerticalBox} from "std-widgets.slint";
 import { IconButton } from "../components/icon-btn.slint";
 import { RecordField } from "../components/field.slint";
 import { Theme } from "../theme.slint";
-import { KeyChainLogic, Element } from "../logic.slint";
+import { KeyChainLogic, Element, GeneratorLogic, LogicResult } from "../logic.slint";
 import { ZButton } from "./button.slint";
 import { PassGenForm } from "../components/pass-gen-form.slint";
 
 export component EditLogin {
+    private property <LogicResult> result : GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+    private property <bool> lowercase : true;
+    private property <bool> upercase : true;
+    private property <bool> nums : true;
+    private property <bool> symbols : true;
+    private property <int> length : 30;
+
     in property <bool> read-only;
     in property <bool> edit : false;
     in-out property <Element> element : {
@@ -27,7 +34,7 @@ export component EditLogin {
             },
             {
                 title: "Password",
-                value: "",
+                value: result.response,
                 hide: true,
                 copy: false
             },
@@ -56,6 +63,12 @@ export component EditLogin {
         VerticalBox {
             padding: 16pt;
             PassGenForm {
+                lowercase <=> lowercase;
+                upercase <=> upercase;
+                nums <=> nums;
+                symbols <=> symbols;
+                length <=> length;
+                password: element.fields[1].value;
                 on-random(pass) => {
                     element.fields[1].value = pass;
                 }
@@ -73,6 +86,9 @@ export component EditLogin {
                     read-only: root.read-only;
                     label: @tr("Name");
                     value: element.name;
+                    edited(new_value) => {
+                        element.name = new_value;
+                    }
                 }
                 RecordField {
                     height: 40pt;
@@ -80,6 +96,9 @@ export component EditLogin {
                     read-only: root.read-only;
                     label: @tr("website");
                     value: element.website;
+                    edited(new_value) => {
+                        element.website = new_value;
+                    }
                 }
                 RecordField {
                     height: 40pt;
@@ -98,6 +117,8 @@ export component EditLogin {
                     hide: true;
                     refrash => {
                         popup.show();
+                        result = GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+                        element.fields[1].value = result.response;
                     }
                     edited(value) => {
                         element.fields[1].value = value;

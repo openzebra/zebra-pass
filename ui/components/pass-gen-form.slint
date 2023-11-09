@@ -15,6 +15,14 @@ export component PassGenForm inherits VerticalLayout {
     in property <int> minimum : 2;
 
     callback on-random(string);
+    callback request() -> string;
+    request() => {
+        result = GeneratorLogic.request-password-gen(lowercase, upercase, nums, symbols, length);
+        if (result.success) {
+            password = result.response;
+        }
+        return password;
+    }
 
     spacing: 15pt;
     Rectangle {
