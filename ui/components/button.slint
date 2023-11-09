@@ -6,9 +6,11 @@ export component ZButton {
   in property <string> text;
   in-out property <color> background;
   in-out property <color> color;
+  in-out property <color> color-hover : background;
   in-out property <length> font-size : Theme.font-size-medium;
   in-out property<bool> enabled : true;
-  in property <color> border-color : root.background;
+  in property <color> border-color : background;
+  in property <color> border-color-hover : border-color;
   in property <bool> loading : false;
 
   callback clicked;
@@ -53,9 +55,9 @@ export component ZButton {
 
   states [
     active when root.enabled && hovered && touch.has-hover: {
-        label.color: root.background;
+        label.color: root.color-hover;
         rect.background: Colors.transparent;
-        rect.border-color: root.border-color;
+        rect.border-color: root.border-color-hover;
         touch.mouse-cursor: pointer;
         in {
           animate rect.background { duration: 150ms; }

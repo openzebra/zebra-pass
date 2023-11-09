@@ -5,6 +5,7 @@ import { ElementOfItem } from "../components/element.slint";
 import { IconButton } from "../components/icon-btn.slint";
 import { ItemComponent } from "../components/item-field.slint";
 import { Logic, Element } from "../logic.slint";
+import { Button } from "std-widgets.slint";
 
 
 export component SubPageManage inherits VerticalLayout {
@@ -49,7 +50,8 @@ export component SubPageManage inherits VerticalLayout {
             data: Logic.elements[selected-index];
             index: selected-index;
             edit => {}
-            delete => {}
+            delete => {
+            }
         }
     }
     if Logic.elements.length == 0 : HorizontalLayout {

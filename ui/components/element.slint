@@ -1,10 +1,11 @@
-import { HorizontalBox } from "std-widgets.slint";
+import { HorizontalBox , Button} from "std-widgets.slint";
 
 import { IconButton } from "../components/icon-btn.slint";
 import { ZTag } from "../components/tag.slint";
 import { Theme } from "../theme.slint";
 import { Element } from "../logic.slint";
 import { RecordField } from "field.slint";
+import { ZButton } from "button.slint";
 
 
 
@@ -20,6 +21,59 @@ export component ElementOfItem inherits VerticalLayout {
     padding-left: 20pt;
     padding-right: 20pt;
     width: Theme.app-width - 245pt;
+    popup := PopupWindow {
+        close-on-click: false;
+        x: Theme.app-width / 2 - 270pt;
+        y: Theme.app-height / 2 - 50pt;
+        width: 100pt;
+
+        Rectangle {
+            background: Theme.window-background;
+            border-color: Theme.window-background-inverse;
+            border-width: 2pt;
+            border-radius: 8pt;
+            padding: 16pt;
+        }
+        VerticalLayout {
+            alignment: center;
+            padding: 10pt;
+            Text {
+                text: @tr("Are you sure want to remove this item?");
+                horizontal-alignment: center;
+                font-family: Theme.font-family;
+                font-size: Theme.font-size-medium;
+            }
+            HorizontalLayout {
+                spacing: 5pt;
+                padding: 16pt;
+                alignment: center;
+                ZButton {
+                    text: @tr("Yes");
+                    background: Theme.window-background;
+                    border-color: Theme.warning;
+                    color: Theme.warning;
+                    color-hover: Theme.danger;
+                    border-color-hover: Theme.danger;
+                    width: 120pt;
+                    height: 30pt;
+                    clicked => {
+                        delete(index);
+                        popup.close();
+                    }
+                }
+                ZButton {
+                    text: @tr("Cancel");
+                    background: Theme.window-background-inverse;
+                    color: Theme.window-background;
+                    width: 120pt;
+                    height: 30pt;
+                    clicked => {
+                        popup.close();
+                    }
+                }
+            }
+        }
+    }
     HorizontalLayout {
         alignment: space-between;
         HorizontalBox {
@@ -42,7 +96,7 @@ export component ElementOfItem inherits VerticalLayout {
                 img-height: 15pt;
                 text: "delete";
                 clicked => {
-                    delete(index);
+                    popup.show();
                 }
             }
          }
