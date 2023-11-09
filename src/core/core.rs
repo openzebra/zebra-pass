@@ -100,6 +100,13 @@ where
 
         Ok(())
     }
+
+    pub fn remove_element(&mut self, index: usize) -> Result<(), ZebraErrors> {
+        self.data.remove(index);
+        self.guard.update(&self.data)?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

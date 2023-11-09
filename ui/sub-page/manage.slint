@@ -51,6 +51,8 @@ export component SubPageManage inherits VerticalLayout {
             index: selected-index;
             edit => {}
             delete => {
+                Logic.remove_element(selected-index);
+                selected-index -= 1;
             }
         }
     }

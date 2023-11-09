@@ -360,7 +360,7 @@ fn handler(core: Rc<RefCell<Core<Element>>>) -> Result<(), slint::PlatformError>
             element.updated = element.created.clone();
             let mut core = core_elements_add_ref.borrow_mut();
 
-            core.add_element(element).unwrap();
+            core.add_element(element).unwrap(); // TODO: make match
             logic_ref_add_new_element
                 .global::<Logic>()
                 .set_elements(VecModel::from_slice(&core.data));
@@ -369,6 +369,34 @@ fn handler(core: Rc<RefCell<Core<Element>>>) -> Result<(), slint::PlatformError>
                 error: "".into(),
                 response: SharedString::default(),
                 success: false,
+            }
+        });
+
+    let core_elements_remove_ref = core.clone();
+    let logic_ref_remove_new_element = Rc::clone(&main_window);
+    main_window
+        .global::<Logic>()
+        .on_remove_element(move |index| {
+            let mut core = core_elements_remove_ref.borrow_mut();
+
+            match core.remove_element(index as usize) {
+                Ok(_) => {
+                    logic_ref_remove_new_element
+                        .global::<Logic>()
+                        .set_elements(VecModel::from_slice(&core.data));
+
+                    LogicResult {
+                        error: "".into(),
+                        response: SharedString::default(),
+                        success: false,
+                    }
+                }
+                Err(_) => LogicResult {
+                    // TODO: add error hanlder
+                    error: "Cannot remove element".into(),
+                    response: SharedString::default(),
+                    success: false,
+                },
             }
         });
 
