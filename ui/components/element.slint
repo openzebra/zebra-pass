@@ -4,74 +4,9 @@ import { IconButton } from "../components/icon-btn.slint";
 import { ZTag } from "../components/tag.slint";
 import { Theme } from "../theme.slint";
 import { Element } from "../logic.slint";
+import { RecordField } from "field.slint";
 
 
-component Items inherits Rectangle {
-    in-out property <InputType> input-type;
-    in property <bool> copy;
-    in property <bool> reveal;
-    in property <string> name;
-    in property <string> value;
-
-    border-radius: 8pt;
-    background: Theme.primary;
-    VerticalLayout {
-        alignment: center;
-        padding-left: 5pt;
-        padding-right: 5pt;
-        HorizontalLayout {
-            alignment: space-between;
-            Text {
-                width: 80pt;
-                text: name;
-                font-size: 11pt;
-                color: Theme.window-background-inverse.transparentize(40%);
-            }
-            HorizontalLayout {
-                alignment: start;
-                width: parent.width - 140pt;
-                padding-left: 2pt;
-                padding-right: 2pt;
-                value-input := TextInput {
-                    text: value;
-                    read-only: true;
-                    font-size: 14pt;
-                    width: parent.width;
-                    input-type: root.input-type;
-                    color: Theme.window-background-inverse;
-                }
-            }
-            HorizontalLayout {
-                alignment: space-around;
-                min-width: 45pt;
-                if reveal: IconButton {
-                    background: Theme.window-background-inverse;
-                    hover-color: Theme.secondary;
-                    source: @image-url("../images/closed-eye.svg");
-                    img-width: 15pt;
-                    img-height: 15pt;
-                    clicked => {
-                        if (value-input.input-type == InputType.text) {
-                            value-input.input-type = InputType.password;
-                        } else {
-                            value-input.input-type = InputType.text;
-                        }
-                    }
-                }
-                if copy: IconButton {
-                    background: Theme.window-background-inverse;
-                    hover-color: Theme.secondary;
-                    source: @image-url("../images/copy.svg");
-                    img-width: 15pt;
-                    img-height: 15pt;
-                    clicked => {
-                        debug("copy");
-                    }
-                }
-            }
-        }
-    }
-}
 
 export component ElementOfItem inherits VerticalLayout {
     in property <int> index : 0;
@@ -117,48 +52,71 @@ export component ElementOfItem inherits VerticalLayout {
         padding-top: 15pt;
         HorizontalLayout {
             alignment: center;
-            Items {
-                width: parent.width;
-                height: 35pt;
-                copy: true;
-                reveal: true;
-                name: data.website;
-                value: data.name;
+            padding-bottom: 10pt;
+            Rectangle {
+                width: 30pt;
+                height: 30pt;
+                background: red;
+                border-radius: 100pt;
             }
         }
-        HorizontalLayout {
-            alignment: center;
-            Items {
-                width: parent.width;
-                height: 35pt;
-                copy: true;
-                reveal: true;
-                input-type: password;
-                name: "passowrd";
-                value: "dasdasdsadsands884btnio";
-            }
+        RecordField {
+            height: 40pt;
+            background: Theme.primary;
+            read-only: true;
+            label: @tr("Name");
+            value: data.name;
+        }
+        RecordField {
+            height: 40pt;
+            background: Theme.primary;
+            read-only: true;
+            label: @tr("website");
+            value: data.website;
         }
     }
-    VerticalLayout {
-        padding-top: 15pt;
-        Text {
-            text: "Additional";
-            font-family: Theme.font-family;
-            font-size: Theme.font-size-medium;
+    HorizontalLayout {
+        padding-top: 10pt;
+        padding-bottom: 10pt;
+        alignment: center;
+        Rectangle {
+            height: 1pt;
+            width: 70%;
+            background: Theme.window-background-inverse.transparentize(50%);
         }
     }
     VerticalLayout {
         spacing: 5pt;
-        HorizontalLayout {
-            alignment: center;
-            Items {
-                width: parent.width;
-                height: 35pt;
-                copy: true;
-                reveal: true;
-                name: "Note";
-                value: "Note test";
-            }
+        for field in data.fields : RecordField {
+            height: 40pt;
+            background: Theme.primary;
+            read-only: true;
+            label: field.title;
+            value: field.value;
+            hide: field.hide;
+            copy: field.copy;
+        }
+    }
+    HorizontalLayout {
+        padding-top: 10pt;
+        padding-bottom: 10pt;
+        alignment: center;
+        Rectangle {
+            height: 1pt;
+            width: 70%;
+            background: Theme.window-background-inverse.transparentize(50%);
+        }
+    }
+    VerticalLayout {
+        spacing: 5pt;
+        for field in data.extra-fields : RecordField {
+            height: 40pt;
+            background: Theme.primary;
+            read-only: true;
+            label: field.title;
+            value: field.value;
+            hide: field.hide;
+            copy: field.copy;
         }
     }
     VerticalLayout {
@@ -169,7 +127,7 @@ export component ElementOfItem inherits VerticalLayout {
                 text: "Last Modified:";
             }
             Text {
-                text: "10 January 2019 22:44:48 +05";
+                text: data.updated;
             }
         }
         HorizontalLayout {
@@ -178,7 +136,7 @@ export component ElementOfItem inherits VerticalLayout {
                 text: "Created::";
             }
             Text {
-                text: "1 January 2019 22:44:48 +05";
+                text: data.created;
             }
         }
     }

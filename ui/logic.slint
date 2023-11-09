@@ -60,7 +60,29 @@ export global Logic {
         "Identity",
         "Address",
     ];
-    in property <[Element]> elements : [];
+    in property <[Element]> elements : [
+        {
+            name: "test_name",
+            website: "test.com",
+            icon: "test",
+            type: 0,
+            created: "10 January 2019 22:44:48 +05",
+            updated: "10 January 2019 22:44:48 +05",
+            favourite: false,
+            fields: [{
+                title: "password",
+                value: "dasdwfd3",
+                hide: true,
+                copy: true
+            }],
+            extra_fields: [{
+                title: "secret",
+                value: "dasdwfd3",
+                hide: true,
+                copy: true
+            }]
+        }
+    ];
 
     pure callback add_new_element(Element) -> LogicResult;
 }

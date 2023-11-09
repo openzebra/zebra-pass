@@ -300,17 +300,22 @@ fn handler(core: Rc<RefCell<Core<Element>>>) -> Result<(), slint::PlatformError>
         });
 
     let lock_page_core_ref = core.clone();
+    let unlock_logic_ref = main_window.clone();
     main_window
         .global::<KeyChainLogic>()
         .on_request_unlock(move |password| {
             let mut core = lock_page_core_ref.borrow_mut();
 
             match core.unlock(&password.to_string()) {
-                Ok(_) => LogicResult {
-                    error: SharedString::default(),
-                    response: SharedString::default(),
-                    success: true,
-                },
+                Ok(_) => {
+                    let elements = VecModel::from_slice(&core.data);
+                    unlock_logic_ref.global::<Logic>().set_elements(elements);
+                    LogicResult {
+                        error: SharedString::default(),
+                        response: SharedString::default(),
+                        success: true,
+                    }
+                }
                 Err(_) => LogicResult {
                     // TODO: add more informative errors
                     error: "incorrect password".into(),

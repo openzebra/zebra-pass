@@ -5,6 +5,7 @@ import { IconButton } from "./icon-btn.slint";
 export component RecordField inherits Rectangle {
     in property <bool> reload : false;
     in property <bool> hide : false;
+    in property <bool> copy : false;
     in property <bool> read-only;
     in property <string> label;
     in-out property <string> value;
@@ -41,6 +42,7 @@ export component RecordField inherits Rectangle {
             }
         }
         HorizontalLayout {
+            spacing: 5pt;
             if hide : IconButton {
                 background: Theme.window-background-inverse;
                 hover-color: Theme.secondary;
@@ -49,6 +51,16 @@ export component RecordField inherits Rectangle {
                 img-height: 20pt;
                 clicked => {
                     is-open-eye = !is-open-eye;
+                }
+            }
+            if copy : IconButton {
+                background: Theme.window-background-inverse;
+                hover-color: Theme.secondary;
+                source: @image-url("../images/copy.svg");
+                img-width: 20pt;
+                img-height: 20pt;
+                clicked => {
+                    // COpying
                 }
             }
             if reload : IconButton {
