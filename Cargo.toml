@@ -2,7 +2,6 @@
 name = "zebra-pass"
 version = "0.1.0"
 edition = "2021"
-build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,7 +11,6 @@ pbkdf2 = "0.12.2"
 serde = { version = "1.0.188", features = ["derive"] }
 sled = "0.34.7"
 unicode-normalization = "0.1.22"
-slint = { version = "1.2.2", features = ["gettext"] }
 sha2 = { version = "0.10", default-features = false }
 rand = { version = "0.8.5", features = ["small_rng"] }
 ntrulp = { version = "0.1.9", features = ["ntrup1277"] }
@@ -23,6 +21,3 @@ hex = "0.4.3"
 rand_chacha = "0.3.1"
 chrono = "0.4.31"
 
-
-[build-dependencies]
-slint-build = "1.2.2"
