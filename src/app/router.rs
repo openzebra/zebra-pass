@@ -5,8 +5,8 @@
 #[derive(Debug, Default)]
 pub enum Routers {
     #[default]
-    LangChoose,
     Lock,
+    LangChoose,
     Start,
     Mnemonic,
     Login,

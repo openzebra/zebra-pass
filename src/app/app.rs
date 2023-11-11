@@ -4,6 +4,7 @@
 use super::router::Routers;
 use crate::core::core::Core;
 use crate::errors::ZebraErrors;
+use crate::settings::appearance::Themes;
 use iced::theme::Theme;
 use iced::widget::{button, column, text, Column};
 use iced::{executor, Alignment, Application, Color, Command, Element, Length, Sandbox, Settings};
@@ -25,8 +26,16 @@ impl Application for App {
 
     fn new(flags: Self::Flags) -> (Self, iced::Command<Self::Message>) {
         let core = flags;
-        let theme = Theme::Dark;
-        let router = Routers::default();
+        let theme = match core.state.borrow().payload.settings.appearance.theme {
+            Themes::Dark => Theme::Dark,
+            Themes::Light => Theme::Light,
+            Themes::Auto => Theme::default(), // TODO: make it depends of OS
+        };
+        let mut router = Routers::default();
+
+        if !core.state.borrow().payload.inited {
+            router = Routers::LangChoose;
+        }
 
         (
             Self {
