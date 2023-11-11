@@ -4,8 +4,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use serde::{Deserialize, Serialize};
-
+use crate::core::record::Element;
 use crate::{
     bip39::mnemonic::Mnemonic,
     config::app::{APPLICATION, ORGANIZATION, QUALIFIER},
@@ -15,17 +14,14 @@ use crate::{
     storage::db::LocalStorage,
 };
 
-pub struct Core<T> {
+pub struct Core {
     pub db: Rc<LocalStorage>,
     pub guard: ZebraGuard,
     pub state: Rc<RefCell<State>>,
-    pub data: Vec<T>,
+    pub data: Vec<Element>,
 }
 
-impl<T> Core<T>
-where
-    T: for<'c> Deserialize<'c> + Serialize,
-{
+impl Core {
     pub fn new() -> Result<Self, ZebraErrors> {
         Core::from(QUALIFIER, ORGANIZATION, APPLICATION)
     }
@@ -62,7 +58,7 @@ where
         words_salt: &str,
         m: &Mnemonic,
     ) -> Result<(), ZebraErrors> {
-        self.guard.bip39_cipher_from_password::<&[T]>(
+        self.guard.bip39_cipher_from_password::<&[Element]>(
             password.as_bytes(),
             m,
             &words_salt,
@@ -91,7 +87,7 @@ where
         Ok(())
     }
 
-    pub fn add_element(&mut self, elem: T) -> Result<(), ZebraErrors> {
+    pub fn add_element(&mut self, elem: Element) -> Result<(), ZebraErrors> {
         self.data.push(elem);
         self.guard.update(&self.data)?;
 
@@ -115,14 +111,10 @@ mod core_tests {
 
     use super::*;
     use rand;
-    use serde::Deserialize;
-
-    #[derive(Debug, Serialize, Deserialize)]
-    struct TEST {}
 
     #[test]
     fn test_init() {
-        let mut core_data: Core<TEST> = Core::from("tes0", "tes1", "test2").unwrap();
+        let mut core_data: Core = Core::from("tes0", "tes1", "test2").unwrap();
         core_data.sync().unwrap();
 
         let mut rng = rand::thread_rng();
@@ -134,7 +126,7 @@ mod core_tests {
         drop(core_data);
         drop(m);
 
-        let mut new_core_data: Core<TEST> = Core::from("tes0", "tes1", "test2").unwrap();
+        let mut new_core_data: Core = Core::from("tes0", "tes1", "test2").unwrap();
         new_core_data.sync().unwrap();
 
         assert!(new_core_data

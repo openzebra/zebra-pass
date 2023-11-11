@@ -1,6 +1,7 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use std::fmt;
 
 #[derive(Debug)]
 pub enum ZebraErrors {
@@ -45,4 +46,9 @@ pub enum ZebraErrors {
 
     // password gen
     PassGenInvalidRng,
+}
+impl fmt::Display for ZebraErrors {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
