@@ -72,8 +72,9 @@ impl ZebraGuard {
 
         let keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
         let json_bytes = keys.decrypt(&secure_data_store, &orders)?;
+
         let data: T =
-            serde_json::from_slice(&json_bytes).or(Err(ZebraErrors::KeyChainKeysDamaged))?;
+            serde_json::from_slice(&json_bytes).or(Err(ZebraErrors::StorageDataBroken))?;
 
         Ok(data)
     }
