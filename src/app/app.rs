@@ -5,11 +5,10 @@ use super::router::Routers;
 use crate::core::core::Core;
 use crate::settings::appearance::Themes;
 use iced::theme::Theme;
-use iced::widget::{button, column, row, text, text_input};
+use iced::widget::{column, row, text, text_input};
 use iced::{executor, Application, Command, Element};
 
 pub struct App {
-    theme: Theme,
     router: Routers,
     core: Core,
 }
@@ -25,25 +24,13 @@ impl Application for App {
 
     fn new(flags: Self::Flags) -> (Self, iced::Command<Self::Message>) {
         let core = flags;
-        let theme = match core.state.borrow().payload.settings.appearance.theme {
-            Themes::Dark => Theme::Dark,
-            Themes::Light => Theme::Light,
-            Themes::Auto => Theme::default(), // TODO: make it depends of OS
-        };
         let mut router = Routers::default();
 
         if !core.state.borrow().payload.inited {
             router = Routers::LangChoose;
         }
 
-        (
-            Self {
-                core,
-                theme,
-                router,
-            },
-            Command::none(),
-        )
+        (Self { core, router }, Command::none())
     }
 
     fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
@@ -66,6 +53,10 @@ impl Application for App {
     }
 
     fn theme(&self) -> Self::Theme {
-        self.theme.clone()
+        match self.core.state.borrow().payload.settings.appearance.theme {
+            Themes::Dark => Theme::Dark,
+            Themes::Light => Theme::Light,
+            Themes::Auto => Theme::default(), // TODO: make it depends of OS
+        }
     }
 }
