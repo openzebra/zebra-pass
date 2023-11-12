@@ -1,12 +1,13 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use super::pages::locale::LocalePage;
 use super::router::Routers;
 use crate::core::core::Core;
 use crate::settings::appearance::Themes;
 use iced::theme::Theme;
 use iced::widget::{column, row, text, text_input};
-use iced::{executor, Application, Command, Element};
+use iced::{executor, Application, Command, Element, Sandbox};
 
 pub struct App {
     router: Routers,
@@ -44,12 +45,17 @@ impl Application for App {
     }
 
     fn view(&self) -> Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
-        column![row![
-            text("test").size(50),
-            text_input("adsadsa", "").size(30),
-            // button("click").width(100).height(50).padding(5)
-        ],]
-        .into()
+        match self.router {
+            // Routers::Lock => Default::default(),
+            // Routers::Home => Default::default(),
+            // Routers::Start => Default::default(),
+            // Routers::Login => Default::default(),
+            // Routers::Privacy => Default::default(),
+            // Routers::Mnemonic => Default::default(),
+            // Routers::SetupAccount => Default::default(),
+            Routers::LangChoose => LocalePage::new(&self.core).into(),
+            _ => panic!("no implemented"),
+        }
     }
 
     fn theme(&self) -> Self::Theme {
