@@ -14,7 +14,7 @@ pub struct App {
     core: Core,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum RouteMessages {
     Next(Routers),
     Back,
@@ -48,18 +48,17 @@ impl Application for App {
     }
 
     fn view(&self) -> Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
-        LocalePage::from(&self.core).view().into()
-        // match self.router {
-        //     // Routers::Lock => Default::default(),
-        //     // Routers::Home => Default::default(),
-        //     // Routers::Start => Default::default(),
-        //     // Routers::Login => Default::default(),
-        //     // Routers::Privacy => Default::default(),
-        //     // Routers::Mnemonic => Default::default(),
-        //     // Routers::SetupAccount => Default::default(),
-        //     Routers::LangChoose => container(LocalePage::new(&self.core).view()).into(),
-        //     _ => panic!("no implemented"),
-        // }
+        match self.router {
+            // Routers::Lock => Default::default(),
+            // Routers::Home => Default::default(),
+            // Routers::Start => Default::default(),
+            // Routers::Login => Default::default(),
+            // Routers::Privacy => Default::default(),
+            // Routers::Mnemonic => Default::default(),
+            // Routers::SetupAccount => Default::default(),
+            Routers::LangChoose => LocalePage::from(&self.core).view().into(),
+            _ => panic!("no implemented"),
+        }
     }
 
     fn theme(&self) -> Self::Theme {
