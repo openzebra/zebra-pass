@@ -3,8 +3,9 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::{
     alignment::Horizontal,
-    widget::{button, container, radio, scrollable, text, Column, Container, Row},
-    Length,
+    theme::Scrollable,
+    widget::{button, container, radio, scrollable, text, Column, Container, Row, Space},
+    Length, Point, Rectangle, Size,
 };
 
 use crate::{
@@ -30,6 +31,10 @@ impl<'a> LocalePage<'a> {
             .size(60)
             .horizontal_alignment(Horizontal::Center);
 
+        let scroll = scrollable::Scrollable::new(Space::with_height(10000))
+            .width(Length::Fill)
+            .height(Length::Fill);
+
         let print_col = Column::new()
             .width(200)
             .height(Length::Fill)
@@ -38,7 +43,9 @@ impl<'a> LocalePage<'a> {
             .width(Length::Fill)
             .height(Length::Fill)
             .align_items(iced::Alignment::Center)
-            .push(title);
+            .push(title)
+            .push(scroll);
+
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)

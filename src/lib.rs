@@ -9,6 +9,7 @@ pub mod core;
 pub mod errors;
 pub mod guard;
 pub mod keychain;
+pub mod localize;
 pub mod records;
 pub mod settings;
 pub mod state;

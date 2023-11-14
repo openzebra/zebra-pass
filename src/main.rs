@@ -4,7 +4,7 @@ use iced::{window, Application, Settings};
 // -- Copyright (c) 2023 Rina Khasanshin
 // -- Email: hicarus@yandex.ru
 // -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use zebra_pass::{app::app::App, core::core::Core};
+use zebra_pass::{app::app::App, core::core::Core, localize::localize};
 
 pub fn main() -> iced::Result {
     let core = match Core::new() {
@@ -14,6 +14,9 @@ pub fn main() -> iced::Result {
             return iced::Result::Err(iced::Error::ExecutorCreationFailed(error));
         }
     };
+
+    // Prepare i18n
+    localize();
 
     // match core.sync() {
     //     Ok(_) => {}
