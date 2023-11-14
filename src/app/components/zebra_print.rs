@@ -8,7 +8,7 @@ use iced::{
 };
 
 pub fn zebra_print_view() -> Image<Handle> {
-    Image::new("src/app/images/zebra_print.png")
+    Image::new("Public/imgs/zebra_print.png")
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
         .width(Length::Fill)

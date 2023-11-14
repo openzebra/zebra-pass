@@ -1,11 +1,10 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use std::{cell::RefCell, rc::Rc};
-
 use iced::{
-    widget::{button, container, image, row, scrollable, text, Column, Container, Row, Text},
-    ContentFit, Element, Length,
+    alignment::Horizontal,
+    widget::{button, container, radio, scrollable, text, Column, Container, Row},
+    Length,
 };
 
 use crate::{
@@ -27,11 +26,9 @@ impl<'a> LocalePage<'a> {
 
     pub fn view<'b>(&self) -> Container<'b, RouteMessages> {
         let zebra_print = zebra_print_view();
-        let scrol = scrollable(
-            container(text("test").size(30))
-                .width(Length::Fill)
-                .center_x(),
-        );
+        let title = text("Choose language")
+            .size(60)
+            .horizontal_alignment(Horizontal::Center);
 
         let print_col = Column::new()
             .width(200)
@@ -41,7 +38,7 @@ impl<'a> LocalePage<'a> {
             .width(Length::Fill)
             .height(Length::Fill)
             .align_items(iced::Alignment::Center)
-            .push(scrol);
+            .push(title);
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)

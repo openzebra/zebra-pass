@@ -6,8 +6,7 @@ use super::router::Routers;
 use crate::core::core::Core;
 use crate::settings::appearance::Themes;
 use iced::theme::Theme;
-use iced::widget::{column, container, row, scrollable, text, text_input};
-use iced::{executor, Application, Command, Element, Length, Sandbox};
+use iced::{executor, Application, Command, Element};
 
 pub struct App {
     router: Routers,

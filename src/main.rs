@@ -15,13 +15,13 @@ pub fn main() -> iced::Result {
         }
     };
 
-    match core.sync() {
-        Ok(_) => {}
-        Err(e) => {
-            let error = Error::new(ErrorKind::Other, e.to_string());
-            return iced::Result::Err(iced::Error::ExecutorCreationFailed(error));
-        }
-    };
+    // match core.sync() {
+    //     Ok(_) => {}
+    //     Err(e) => {
+    //         let error = Error::new(ErrorKind::Other, e.to_string());
+    //         return iced::Result::Err(iced::Error::ExecutorCreationFailed(error));
+    //     }
+    // };
 
     App::run(Settings {
         window: window::Settings {
@@ -34,7 +34,7 @@ pub fn main() -> iced::Result {
         default_font: Default::default(),
         default_text_size: Default::default(),
         antialiasing: Default::default(),
-        exit_on_close_request: Default::default(),
+        exit_on_close_request: true,
     })
 }
 
