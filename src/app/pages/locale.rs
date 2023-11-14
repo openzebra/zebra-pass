@@ -1,9 +1,10 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use crate::_rust_i18n_translate;
+use crate::rust_i18n::t;
 use iced::{
     alignment::Horizontal,
-    theme::Scrollable,
     widget::{button, container, radio, scrollable, text, Column, Container, Row, Space},
     Length, Point, Rectangle, Size,
 };
@@ -27,7 +28,8 @@ impl<'a> LocalePage<'a> {
 
     pub fn view<'b>(&self) -> Container<'b, RouteMessages> {
         let zebra_print = zebra_print_view();
-        let title = text("Choose language")
+
+        let title = text(t!("welcome"))
             .size(60)
             .horizontal_alignment(Horizontal::Center);
 

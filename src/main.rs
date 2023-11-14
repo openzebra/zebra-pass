@@ -1,9 +1,10 @@
-use std::io::{Error, ErrorKind};
+//! -- Copyright (c) 2023 Rina Khasanshin
+//! -- Email: hicarus@yandex.ru
+//! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use iced::{window, Application, Settings};
-// -- Copyright (c) 2023 Rina Khasanshin
-// -- Email: hicarus@yandex.ru
-// -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use rust_i18n::t;
+use std::io::{Error, ErrorKind};
 use zebra_pass::{app::app::App, core::core::Core};
 
 pub fn main() -> iced::Result {
@@ -15,9 +16,6 @@ pub fn main() -> iced::Result {
         }
     };
 
-    // Prepare i18n
-    // localize();
-
     // match core.sync() {
     //     Ok(_) => {}
     //     Err(e) => {
@@ -25,6 +23,8 @@ pub fn main() -> iced::Result {
     //         return iced::Result::Err(iced::Error::ExecutorCreationFailed(error));
     //     }
     // };
+
+    rust_i18n::set_locale(&core.state.borrow().payload.settings.locale);
 
     App::run(Settings {
         window: window::Settings {

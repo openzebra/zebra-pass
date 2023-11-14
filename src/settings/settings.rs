@@ -10,4 +10,5 @@ use super::cipher::CipherSettings;
 pub struct SettingsPayload {
     pub appearance: AppearanceSettings,
     pub cipher: CipherSettings,
+    pub locale: String,
 }

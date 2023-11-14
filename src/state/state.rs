@@ -43,7 +43,12 @@ impl State {
     pub fn from(db: Rc<LocalStorage>) -> Self {
         let appearance = AppearanceSettings::new();
         let cipher = CipherSettings::new();
-        let settings = SettingsPayload { cipher, appearance };
+        let locale = "en".to_string();
+        let settings = SettingsPayload {
+            cipher,
+            appearance,
+            locale,
+        };
         let payload = StatePayload {
             settings,
             email: None,
