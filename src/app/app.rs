@@ -6,19 +6,22 @@ use super::router::Routers;
 use crate::core::core::Core;
 use crate::settings::appearance::Themes;
 use iced::theme::Theme;
-use iced::widget::{column, row, text, text_input};
-use iced::{executor, Application, Command, Element, Sandbox};
+use iced::widget::{column, container, row, scrollable, text, text_input};
+use iced::{executor, Application, Command, Element, Length, Sandbox};
 
 pub struct App {
     router: Routers,
     core: Core,
 }
 
-#[derive(Debug, Clone)]
-pub enum Messages {}
+#[derive(Debug)]
+pub enum RouteMessages {
+    Next(Routers),
+    Back,
+}
 
 impl Application for App {
-    type Message = Messages;
+    type Message = RouteMessages;
     type Theme = Theme;
     type Executor = executor::Default;
     type Flags = Core;
@@ -45,17 +48,18 @@ impl Application for App {
     }
 
     fn view(&self) -> Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
-        match self.router {
-            // Routers::Lock => Default::default(),
-            // Routers::Home => Default::default(),
-            // Routers::Start => Default::default(),
-            // Routers::Login => Default::default(),
-            // Routers::Privacy => Default::default(),
-            // Routers::Mnemonic => Default::default(),
-            // Routers::SetupAccount => Default::default(),
-            Routers::LangChoose => LocalePage::new(&self.core).into(),
-            _ => panic!("no implemented"),
-        }
+        LocalePage::from(&self.core).view().into()
+        // match self.router {
+        //     // Routers::Lock => Default::default(),
+        //     // Routers::Home => Default::default(),
+        //     // Routers::Start => Default::default(),
+        //     // Routers::Login => Default::default(),
+        //     // Routers::Privacy => Default::default(),
+        //     // Routers::Mnemonic => Default::default(),
+        //     // Routers::SetupAccount => Default::default(),
+        //     Routers::LangChoose => container(LocalePage::new(&self.core).view()).into(),
+        //     _ => panic!("no implemented"),
+        // }
     }
 
     fn theme(&self) -> Self::Theme {
