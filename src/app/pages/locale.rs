@@ -4,7 +4,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use iced::{
-    widget::{button, image, row, text, Column, Container, Row, Text},
+    widget::{button, container, image, row, scrollable, text, Column, Container, Row, Text},
     ContentFit, Element, Length,
 };
 
@@ -27,6 +27,12 @@ impl<'a> LocalePage<'a> {
 
     pub fn view<'b>(&self) -> Container<'b, RouteMessages> {
         let zebra_print = zebra_print_view();
+        let scrol = scrollable(
+            container(text("test").size(30))
+                .width(Length::Fill)
+                .center_x(),
+        );
+
         let print_col = Column::new()
             .width(200)
             .height(Length::Fill)
@@ -35,17 +41,12 @@ impl<'a> LocalePage<'a> {
             .width(Length::Fill)
             .height(Length::Fill)
             .align_items(iced::Alignment::Center)
-            .push(button(text("test").size(20)));
+            .push(scrol);
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)
             .push(payload_col);
 
         Container::new(row).height(Length::Fill).width(Length::Fill)
-
-        // Container::new(button(text("click").size(20)).on_press(RouteMessages::Back))
-        //     .width(Length::Fill)
-        //     .height(Length::Fill)
-        //     .center_x()
     }
 }
