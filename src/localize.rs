@@ -1,47 +1,37 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-
 use i18n_embed::{
     fluent::{fluent_language_loader, FluentLanguageLoader},
-    DefaultLocalizer, LanguageLoader, Localizer,
+    LanguageLoader,
 };
-use once_cell::sync::Lazy;
+use i18n_embed_fl::fl;
 use rust_embed::RustEmbed;
 
 #[derive(RustEmbed)]
-#[folder = "i18n/"]
+#[folder = "i18n"] // path to the compiled localization resources
 struct Localizations;
 
-pub static LANGUAGE_LOADER: Lazy<FluentLanguageLoader> = Lazy::new(|| {
+// #[macro_export]
+// macro_rules! fl {
+//     ($message_id:literal) => {{
+//         i18n_embed_fl::fl!($crate::YOUR_STATIC_LOADER, $message_id)
+//     }};
+//
+//     ($message_id:literal, $($args:expr),*) => {{
+//         i18n_embed_fl::fl!($crate::YOUR_STATIC_LOADER, $message_id, $($args), *)
+//     }};
+// }
+
+#[test]
+fn test_i18n() {
     let loader: FluentLanguageLoader = fluent_language_loader!();
 
-    loader.load_fallback_language(&Localizations).unwrap();
-
     loader
-});
+        .load_languages(&Localizations, &[loader.fallback_language()])
+        .unwrap();
 
-#[macro_export]
-macro_rules! fl {
-    ($message_id:literal) => {{
-        i18n_embed_fl::fl!($crate::localize::LANGUAGE_LOADER, $message_id)
-    }};
+    let value = fl!(loader, "network");
 
-    ($message_id:literal, $($args:expr),*) => {{
-        i18n_embed_fl::fl!($crate::localize::LANGUAGE_LOADER, $message_id, $($args), *)
-    }};
-}
-
-// Get the `Localizer` to be used for localizing this library.
-pub fn localizer() -> Box<dyn Localizer> {
-    Box::from(DefaultLocalizer::new(&*LANGUAGE_LOADER, &Localizations))
-}
-
-pub fn localize() {
-    let localizer = localizer();
-    let requested_languages = i18n_embed::DesktopLanguageRequester::requested_languages();
-
-    if let Err(error) = localizer.select(&requested_languages) {
-        eprintln!("Error while loading language for App List {error}");
-    }
+    assert_eq!(value, "Network");
 }
