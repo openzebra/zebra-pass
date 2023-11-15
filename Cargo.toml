@@ -22,3 +22,4 @@ rand_chacha = "0.3.1"
 chrono = "0.4.31"
 iced = { version = "0.10.0", features = ["tokio", "image"] }
 rust-i18n = "2.3.0"
+dark-light = "1.0.0"

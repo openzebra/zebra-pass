@@ -1,8 +1,8 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use crate::_rust_i18n_translate;
 use crate::rust_i18n::t;
+use crate::{_rust_i18n_translate, app::components::zbutton::ZButton};
 use iced::{
     alignment::Horizontal,
     widget::{button, container, radio, scrollable, text, Column, Container, Row, Space},
@@ -19,7 +19,9 @@ pub struct LocalePage<'a> {
 }
 
 #[derive(Debug)]
-pub enum LocaleMessage {}
+pub enum LocaleMessage {
+    Test,
+}
 
 impl<'a> LocalePage<'a> {
     pub fn from(core: &'a Core) -> Self {
@@ -33,9 +35,13 @@ impl<'a> LocalePage<'a> {
             .size(60)
             .horizontal_alignment(Horizontal::Center);
 
-        let scroll = scrollable::Scrollable::new(Space::with_height(10000))
-            .width(Length::Fill)
-            .height(Length::Fill);
+        let btn = button(text("test").size(20))
+            .style(ZButton::new().into())
+            .on_press(RouteMessages::Back)
+            .width(iced::Length::Fill);
+
+        let scroll = scrollable::Scrollable::new(Space::with_height(200)).width(Length::Fill);
+        // .height(Length::Fill);
 
         let print_col = Column::new()
             .width(200)
@@ -46,7 +52,8 @@ impl<'a> LocalePage<'a> {
             .height(Length::Fill)
             .align_items(iced::Alignment::Center)
             .push(title)
-            .push(scroll);
+            .push(scroll)
+            .push(btn);
 
         let row = Row::new()
             .width(Length::Fill)
