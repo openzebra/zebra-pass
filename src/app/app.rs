@@ -1,11 +1,11 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use super::pages::locale::LocalePage;
-use super::router::Routers;
+use super::theme::ZebraPalette;
+use super::{pages::locale::LocalePage, router::Routers};
 use crate::core::core::Core;
 use crate::settings::appearance::Themes;
-use iced::theme::Theme;
+use iced::theme::{Palette, Theme};
 use iced::{executor, Application, Command, Element};
 
 pub struct App {
@@ -61,10 +61,29 @@ impl Application for App {
     }
 
     fn theme(&self) -> Self::Theme {
+        let dark = Theme::custom(Palette {
+            background: ZebraPalette::DARK.window_background,
+            text: ZebraPalette::DARK.window_background_inverse,
+            primary: ZebraPalette::DARK.primary,
+            success: ZebraPalette::DARK.success,
+            danger: ZebraPalette::DARK.danger,
+        });
+        let light = Theme::custom(Palette {
+            background: ZebraPalette::LIGHT.window_background,
+            text: ZebraPalette::LIGHT.window_background_inverse,
+            primary: ZebraPalette::LIGHT.primary,
+            success: ZebraPalette::LIGHT.success,
+            danger: ZebraPalette::LIGHT.danger,
+        });
+
         match self.core.state.borrow().payload.settings.appearance.theme {
-            Themes::Dark => Theme::Dark,
-            Themes::Light => Theme::Light,
-            Themes::Auto => Theme::default(), // TODO: make it depends of OS
+            Themes::Dark => dark,
+            Themes::Light => light,
+            Themes::Auto => match dark_light::detect() {
+                dark_light::Mode::Dark => dark,
+                dark_light::Mode::Light => light,
+                dark_light::Mode::Default => light,
+            },
         }
     }
 }

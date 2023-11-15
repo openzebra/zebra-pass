@@ -19,9 +19,7 @@ pub struct LocalePage<'a> {
 }
 
 #[derive(Debug)]
-pub enum LocaleMessage {
-    Test,
-}
+pub enum LocaleMessage {}
 
 impl<'a> LocalePage<'a> {
     pub fn from(core: &'a Core) -> Self {
@@ -40,8 +38,9 @@ impl<'a> LocalePage<'a> {
             .on_press(RouteMessages::Back)
             .width(iced::Length::Fill);
 
-        let scroll = scrollable::Scrollable::new(Space::with_height(200)).width(Length::Fill);
-        // .height(Length::Fill);
+        let scroll = scrollable::Scrollable::new(Space::with_height(200))
+            .width(Length::Fill)
+            .height(Length::Fill);
 
         let print_col = Column::new()
             .width(200)
