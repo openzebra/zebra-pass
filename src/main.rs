@@ -3,7 +3,6 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use iced::{window, Application, Settings};
-use rust_i18n::t;
 use std::io::{Error, ErrorKind};
 use zebra_pass::{app::app::App, core::core::Core};
 

@@ -7,8 +7,12 @@ use iced::{
     ContentFit, Length,
 };
 
+const PRINT: &[u8] = include_bytes!("../../../public/imgs/zebra_print.png");
+
 pub fn zebra_print_view() -> Image<Handle> {
-    Image::new("Public/imgs/zebra_print.png")
+    let h = Handle::from_memory(PRINT);
+
+    Image::<Handle>::new(h)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
         .width(Length::Fill)
