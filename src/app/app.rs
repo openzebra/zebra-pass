@@ -82,7 +82,7 @@ impl Application for App {
             Themes::Auto => match dark_light::detect() {
                 dark_light::Mode::Dark => dark,
                 dark_light::Mode::Light => light,
-                dark_light::Mode::Default => light,
+                dark_light::Mode::Default => dark,
             },
         }
     }
