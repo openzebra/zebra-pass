@@ -34,9 +34,9 @@ impl<'a> LocalePage<'a> {
             .horizontal_alignment(Horizontal::Center);
 
         let btn = button(text("test").size(20))
-            .style(ZButton::new().into())
+            .style(ZButton::outline_primary().into())
             .on_press(RouteMessages::Back)
-            .width(iced::Length::Fill);
+            .width(120);
 
         let scroll = scrollable::Scrollable::new(Space::with_height(200))
             .width(Length::Fill)
@@ -50,6 +50,7 @@ impl<'a> LocalePage<'a> {
             .width(Length::Fill)
             .height(Length::Fill)
             .align_items(iced::Alignment::Center)
+            .padding(50)
             .push(title)
             .push(scroll)
             .push(btn);
