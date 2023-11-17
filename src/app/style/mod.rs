@@ -2,7 +2,5 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-pub mod appearance;
-pub mod cipher;
-pub mod language;
-pub mod settings;
+pub mod button;
+pub mod list_group;

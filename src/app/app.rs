@@ -1,6 +1,7 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use super::message::GlobalMessages;
 use super::theme::ZebraPalette;
 use super::{pages::locale::LocalePage, router::Routers};
 use crate::core::core::Core;
@@ -13,14 +14,8 @@ pub struct App {
     core: Core,
 }
 
-#[derive(Debug, Clone)]
-pub enum RouteMessages {
-    Next(Routers),
-    Back,
-}
-
 impl Application for App {
-    type Message = RouteMessages;
+    type Message = GlobalMessages;
     type Theme = Theme;
     type Executor = executor::Default;
     type Flags = Core;

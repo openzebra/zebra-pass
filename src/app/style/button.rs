@@ -2,13 +2,12 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use iced::Color;
-
 #[derive(Default)]
 pub enum ZButtonStyle {
     #[default]
     Primary,
     OutlinePrimary,
+    ListItem,
 }
 
 pub struct ZButton(ZButtonStyle);
@@ -32,18 +31,22 @@ impl iced::widget::button::StyleSheet for ZButton {
         let background_color = match self.0 {
             ZButtonStyle::Primary => style.palette().primary,
             ZButtonStyle::OutlinePrimary => iced::Color::TRANSPARENT,
+            ZButtonStyle::ListItem => iced::Color::TRANSPARENT,
         };
         let border_color = match self.0 {
             ZButtonStyle::Primary => iced::Color::TRANSPARENT,
             ZButtonStyle::OutlinePrimary => style.palette().primary,
+            ZButtonStyle::ListItem => iced::Color::TRANSPARENT,
         };
         let border_width = match self.0 {
-            ZButtonStyle::Primary => 0.0,
+            ZButtonStyle::Primary => 1.0,
             ZButtonStyle::OutlinePrimary => 1.0,
+            ZButtonStyle::ListItem => 0.0,
         };
         let text_color = match self.0 {
             ZButtonStyle::Primary => style.palette().text,
             ZButtonStyle::OutlinePrimary => style.palette().primary,
+            ZButtonStyle::ListItem => style.palette().text,
         };
 
         iced::widget::button::Appearance {
@@ -60,18 +63,22 @@ impl iced::widget::button::StyleSheet for ZButton {
         let background_color = match self.0 {
             ZButtonStyle::Primary => iced::Color::TRANSPARENT,
             ZButtonStyle::OutlinePrimary => style.palette().primary,
+            ZButtonStyle::ListItem => iced::Color::TRANSPARENT,
         };
         let border_color = match self.0 {
             ZButtonStyle::Primary => style.palette().primary,
             ZButtonStyle::OutlinePrimary => style.palette().primary,
+            ZButtonStyle::ListItem => iced::Color::TRANSPARENT,
         };
         let border_width = match self.0 {
             ZButtonStyle::Primary => 1.0,
             ZButtonStyle::OutlinePrimary => 1.0,
+            ZButtonStyle::ListItem => 0.0,
         };
         let text_color = match self.0 {
             ZButtonStyle::Primary => style.palette().primary,
             ZButtonStyle::OutlinePrimary => style.palette().text,
+            ZButtonStyle::ListItem => style.palette().text,
         };
 
         iced::widget::button::Appearance {
@@ -92,5 +99,9 @@ impl ZButton {
 
     pub fn outline_primary() -> Self {
         Self(ZButtonStyle::OutlinePrimary)
+    }
+
+    pub fn list_item() -> Self {
+        Self(ZButtonStyle::ListItem)
     }
 }

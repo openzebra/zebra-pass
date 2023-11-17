@@ -1,24 +1,25 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use crate::app::message::{GlobalMessages, RouteMessages};
 use crate::rust_i18n::t;
-use crate::{_rust_i18n_translate, app::components::zbutton::ZButton};
+use crate::settings::language::Language;
+use crate::{_rust_i18n_translate, app::style::button::ZButton};
+use iced::widget::button::StyleSheet;
+use iced::Alignment;
 use iced::{
     alignment::Horizontal,
     widget::{button, container, radio, scrollable, text, Column, Container, Row, Space},
     Length, Point, Rectangle, Size,
 };
 
-use crate::{
-    app::{app::RouteMessages, components::zebra_print::zebra_print_view},
-    core::core::Core,
-};
+use crate::{app::components::zebra_print::zebra_print_view, core::core::Core};
 
 pub struct LocalePage<'a> {
     core: &'a Core,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum LocaleMessage {}
 
 impl<'a> LocalePage<'a> {
@@ -26,22 +27,82 @@ impl<'a> LocalePage<'a> {
         Self { core }
     }
 
-    pub fn view<'b>(&self) -> Container<'b, RouteMessages> {
+    pub fn view<'b>(&self) -> Container<'b, GlobalMessages> {
         let zebra_print = zebra_print_view();
 
         let title = text(t!("welcome"))
             .size(60)
             .horizontal_alignment(Horizontal::Center);
 
-        let btn = button(text("test").size(20))
-            .style(ZButton::outline_primary().into())
-            .on_press(RouteMessages::Back)
-            .width(120);
+        let btn = button(
+            text("Next")
+                .size(20)
+                .horizontal_alignment(Horizontal::Center),
+        )
+        .style(ZButton::outline_primary().into())
+        .on_press(GlobalMessages::Route(RouteMessages::Back))
+        .width(120);
 
-        let scroll = scrollable::Scrollable::new(Space::with_height(200))
+        let scrollable_col = Column::new()
             .width(Length::Fill)
-            .height(Length::Fill);
+            .height(Length::Fill)
+            .spacing(2)
+            .push(
+                button(
+                    text(Language::Russian.to_string())
+                        .size(15)
+                        .horizontal_alignment(iced::alignment::Horizontal::Center),
+                )
+                .style(ZButton::list_item().into())
+                .width(Length::Fill),
+            )
+            .push(
+                button(
+                    text(Language::Danish.to_string())
+                        .size(15)
+                        .horizontal_alignment(iced::alignment::Horizontal::Center),
+                )
+                .style(ZButton::list_item().into())
+                .width(Length::Fill),
+            )
+            .push(
+                button(
+                    text(Language::French.to_string())
+                        .size(15)
+                        .horizontal_alignment(iced::alignment::Horizontal::Center),
+                )
+                .style(ZButton::list_item().into())
+                .width(Length::Fill),
+            )
+            .push(
+                button(
+                    text(Language::German.to_string())
+                        .size(15)
+                        .horizontal_alignment(iced::alignment::Horizontal::Center),
+                )
+                .style(ZButton::list_item().into())
+                .width(Length::Fill),
+            )
+            .push(
+                button(
+                    text(Language::English.to_string())
+                        .size(15)
+                        .horizontal_alignment(iced::alignment::Horizontal::Center),
+                )
+                .style(ZButton::list_item().into())
+                .width(Length::Fill),
+            )
+            .push(
+                button(
+                    text(Language::Italian.to_string())
+                        .size(15)
+                        .horizontal_alignment(iced::alignment::Horizontal::Center),
+                )
+                .style(ZButton::list_item().into())
+                .width(Length::Fill),
+            );
 
+        let scroll = scrollable(scrollable_col).height(Length::Fill);
         let print_col = Column::new()
             .width(200)
             .height(Length::Fill)

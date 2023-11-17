@@ -5,6 +5,8 @@
 pub mod app;
 
 mod components;
+mod message;
 mod pages;
 mod router;
+mod style;
 mod theme;
