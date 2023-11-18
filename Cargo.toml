@@ -12,6 +12,11 @@ resolver = "2"
 [workspace]
 members = [
     "zebra-lib",
+    "zebra-gui"
 ]
+
+[[bin]]
+name = "zebra-gui"
+path = "src/main.rs"
 
 [dependencies]
