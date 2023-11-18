@@ -4,10 +4,34 @@
 extern crate rust_i18n;
 
 use rust_i18n::i18n;
-use zebra_ui::theme;
+// use zebra_ui::theme;
 
 i18n!("locales", fallback = "en");
 
+// enum State {
+//     Loader(Box<Loader>),
+//     App(App),
+// }
+//
+// pub struct GUI {
+//     state: State,
+// }
+//
+// pub enum Message {
+//     CtrlC,
+//     Load(Box<loader::Message>),
+//     Run(Box<app::Message>),
+//     Event(iced_native::Event),
+// }
+//
+// async fn ctrl_c() -> Result<(), ()> {
+//     if let Err(e) = tokio::signal::ctrl_c().await {
+//         error!("{}", e);
+//     };
+//     info!("Signal received, exiting");
+//     Ok(())
+// }
+
 fn main() {
-    println!("Hello, world!");
+    println!("Helloiiiii world!");
 }

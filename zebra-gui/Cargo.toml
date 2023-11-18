@@ -10,6 +10,5 @@ resolver = "2"
 
 [dependencies]
 chrono = "0.4.31"
-rust-i18n = "2.3.0"
 dark-light = "1.0.0"
 zebra_ui = { path = "../zebra-ui" }

@@ -18,6 +18,8 @@ members = [
 
 [[bin]]
 name = "zebra-gui"
-path = "src/main.rs"
+path = "zebra-gui/src/main.rs"
 
 [dependencies]
+iced = { version = "0.9", default-features= false, features = ["tokio", "glow", "svg", "image"] }
+rust-i18n = "2.3.0"
