@@ -4,7 +4,7 @@
 extern crate rust_i18n;
 
 use rust_i18n::i18n;
-use zebra_lib;
+
 // use zebra_ui::theme;
 
 i18n!("locales", fallback = "en");

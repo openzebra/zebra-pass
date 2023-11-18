@@ -28,3 +28,6 @@ rust-i18n = "2.3.0"
 chrono = "0.4.31"
 dark-light = "1.0.0"
 
+zebra_ui = { path = "zebra_ui" }
+zebra_lib = { path = "zebra_lib" }
+

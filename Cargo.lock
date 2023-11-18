@@ -4783,6 +4783,8 @@ dependencies = [
  "iced_lazy",
  "iced_native",
  "rust-i18n",
+ "zebra_lib",
+ "zebra_ui",
 ]
 
 [[package]]
