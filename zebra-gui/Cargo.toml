@@ -8,12 +8,8 @@ resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[workspace]
-members = ["ui"]
-
 [dependencies]
 chrono = "0.4.31"
 rust-i18n = "2.3.0"
 dark-light = "1.0.0"
 zebra_ui = { path = "ui" }
-
