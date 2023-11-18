@@ -12,7 +12,8 @@ resolver = "2"
 [workspace]
 members = [
     "zebra-lib",
-    "zebra-gui"
+    "zebra-gui",
+    "zebra-ui"
 ]
 
 [[bin]]
