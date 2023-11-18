@@ -1,12 +1,13 @@
 [package]
-name = "zebra_ui"
+name = "zebra_gui"
 version = "0.1.0"
 edition = "2021"
+license = "GPL-3"
+authors = ["Rinat.H <hicc0rus@gmail.com>"]
 resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = { version = "0.9", default_features = false, features = ["svg", "image", "glow"] }
-iced_native = "0.10.3"
-iced_lazy = { version = "0.6"}
+zebra_ui = { path = "../zebra_ui" }
+zebra_lib = { path = "../zebra_lib" }

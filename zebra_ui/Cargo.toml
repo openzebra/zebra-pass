@@ -1,14 +1,9 @@
 [package]
-name = "zebra-gui"
+name = "zebra_ui"
 version = "0.1.0"
 edition = "2021"
-license = "GPL-3"
-authors = ["Rinat.H <hicc0rus@gmail.com>"]
 resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-chrono = "0.4.31"
-dark-light = "1.0.0"
-zebra_ui = { path = "../zebra-ui" }

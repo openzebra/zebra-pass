@@ -11,15 +11,20 @@ resolver = "2"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [workspace]
 members = [
-    "zebra-lib",
-    "zebra-gui",
-    "zebra-ui"
+    "zebra_lib",
+    "zebra_gui",
+    "zebra_ui"
 ]
 
 [[bin]]
-name = "zebra-gui"
-path = "zebra-gui/src/main.rs"
+name = "zebra_gui"
+path = "zebra_gui/src/main.rs"
 
 [dependencies]
 iced = { version = "0.9", default-features= false, features = ["tokio", "glow", "svg", "image"] }
+iced_native = "0.10.3"
+iced_lazy = "0.6"
 rust-i18n = "2.3.0"
+chrono = "0.4.31"
+dark-light = "1.0.0"
+

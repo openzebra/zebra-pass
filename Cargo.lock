@@ -4774,16 +4774,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "zebra-gui"
-version = "0.1.0"
+name = "zebra-pass"
+version = "0.0.1"
 dependencies = [
  "chrono",
  "dark-light",
+ "iced",
+ "iced_lazy",
+ "iced_native",
+ "rust-i18n",
+]
+
+[[package]]
+name = "zebra_gui"
+version = "0.1.0"
+dependencies = [
+ "zebra_lib",
  "zebra_ui",
 ]
 
 [[package]]
-name = "zebra-lib"
+name = "zebra_lib"
 version = "0.1.0"
 dependencies = [
  "aes",
@@ -4802,21 +4813,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "zebra-pass"
-version = "0.0.1"
-dependencies = [
- "iced",
- "rust-i18n",
-]
-
-[[package]]
 name = "zebra_ui"
 version = "0.1.0"
-dependencies = [
- "iced",
- "iced_lazy",
- "iced_native",
-]
 
 [[package]]
 name = "zerocopy"
