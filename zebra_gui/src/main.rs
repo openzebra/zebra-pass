@@ -19,17 +19,7 @@ pub struct GUI {
 
 #[derive(Debug)]
 pub enum Message {
-    CtrlC,
-    Run,
     Event(iced_native::Event),
-}
-
-async fn ctrl_c() -> Result<(), ()> {
-    if let Err(e) = tokio::signal::ctrl_c().await {
-        dbg!("{}", e);
-    };
-    dbg!("Signal received, exiting");
-    Ok(())
 }
 
 impl Application for GUI {
