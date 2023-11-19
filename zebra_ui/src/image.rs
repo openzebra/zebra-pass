@@ -1,9 +1,9 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use iced::{theme, ContentFit, Length};
+use iced::{ContentFit, Length};
 
-use crate::widget::Svg;
+use crate::{theme, widget::Svg};
 use iced::{widget::svg::Handle, window::icon};
 
 const PRINT: &[u8] = include_bytes!("../static/imgs/zebra_print.svg");
@@ -15,10 +15,7 @@ pub fn zebra_print_view() -> Svg {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // TODO: make it auto palitre
-    // .style(theme::Svg::custom_fn(|theme| Svg::Appearance {
-    //     color: Some(theme.palette().text),
-    // }))
+        .style(theme::Svg::Inverse)
 }
 
 pub fn liana_app_icon() -> icon::Icon {

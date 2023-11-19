@@ -3,7 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::Color;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ZebraPalette {
     pub light: Color,
     pub dark: Color,
@@ -21,6 +21,12 @@ pub struct ZebraPalette {
     pub font_size_regular: u8,
     pub font_size_medium: u8,
     pub font_size_big: u8,
+}
+
+impl Default for ZebraPalette {
+    fn default() -> Self {
+        ZebraPalette::LIGHT
+    }
 }
 
 impl ZebraPalette {
