@@ -3789,8 +3789,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0c014766411e834f7af5b8f4cf46257aab4036ca95e9d2c144a10f59ad6f5b9"
 dependencies = [
  "backtrace",
+ "libc",
+ "mio",
  "num_cpus",
  "pin-project-lite",
+ "signal-hook-registry",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -4783,6 +4787,7 @@ dependencies = [
  "iced_lazy",
  "iced_native",
  "rust-i18n",
+ "tokio",
  "zebra_lib",
  "zebra_ui",
 ]
@@ -4791,6 +4796,11 @@ dependencies = [
 name = "zebra_gui"
 version = "0.1.0"
 dependencies = [
+ "dark-light",
+ "iced",
+ "iced_native",
+ "rust-i18n",
+ "tokio",
  "zebra_lib",
  "zebra_ui",
 ]

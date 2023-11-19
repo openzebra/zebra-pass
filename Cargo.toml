@@ -30,4 +30,5 @@ dark-light = "1.0.0"
 
 zebra_ui = { path = "zebra_ui" }
 zebra_lib = { path = "zebra_lib" }
+tokio = {version = "1.34.0", features = ["signal"]}
 

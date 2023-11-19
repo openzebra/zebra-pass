@@ -14,7 +14,9 @@ pub const MEDIUM: Font = Font::External {
     bytes: include_bytes!("../static/fonts/OpenSans-SemiBold.ttf"),
 };
 
+pub const REGULAR_BYTES: &[u8] = include_bytes!("../static/fonts/OpenSans-Regular.ttf");
+
 pub const REGULAR: Font = Font::External {
     name: "Regular",
-    bytes: include_bytes!("../static/fonts/OpenSans-Regular.ttf"),
+    bytes: REGULAR_BYTES,
 };
