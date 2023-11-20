@@ -82,6 +82,7 @@ fn main() -> iced::Result {
     // };
 
     rust_i18n::set_locale(&core.state.borrow().payload.settings.locale);
+    // let fonts = ;
 
     GUI::run(Settings {
         window: window::Settings {
@@ -91,13 +92,10 @@ fn main() -> iced::Result {
             ..Default::default()
         },
         flags: core,
-
         id: Some("ZebraPass".to_string()),
-        default_font: Some(zebra_ui::fonts::REGULAR_BYTES),
+        default_font: Default::default(),
         default_text_size: 14.0,
         antialiasing: Default::default(),
         exit_on_close_request: true,
-        text_multithreading: true,
-        try_opengles_first: true,
     })
 }
