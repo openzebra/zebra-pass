@@ -37,7 +37,7 @@ impl Application for GUIError {
             theme::Theme::Dark(p) => p,
             theme::Theme::Light(p) => p,
         };
-        let message = Text::new(t!("gui_error_message", error = &self.error))
+        let message = Text::new(t!("error.message", error = &self.error))
             .size(20)
             .style(theme::Text::Color(palette.danger))
             .horizontal_alignment(iced::alignment::Horizontal::Center);
