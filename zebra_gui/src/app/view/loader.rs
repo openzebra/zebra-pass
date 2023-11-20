@@ -2,19 +2,16 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use iced::{
-    widget::{button, text},
-    Alignment, Command, Length, Subscription,
-};
+use iced::{widget::text, Alignment, Command, Length, Subscription};
 use zebra_ui::widget::*;
 
 pub struct Loader {
     error: Option<String>,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum LoadMessage {
-    Test,
+    Synced(),
 }
 
 impl Loader {
@@ -25,15 +22,11 @@ impl Loader {
     pub fn stop(&self) {}
 
     pub fn subscription(&self) -> Subscription<LoadMessage> {
-        // Subscription::none()
-        Subscription::batch([])
+        Subscription::none()
     }
 
-    pub fn update(&mut self, message: LoadMessage) -> Command<LoadMessage> {
-        dbg!("updated");
-        match message {
-            _ => Command::none(),
-        }
+    pub fn update<M>(&mut self, _message: LoadMessage) -> Command<M> {
+        Command::none()
     }
 
     pub fn view(&self) -> Element<LoadMessage> {
@@ -46,7 +39,6 @@ impl Loader {
         let row = Row::new()
             .height(Length::Fill)
             .align_items(Alignment::Center)
-            .push(button(text("test").size(14)).on_press(LoadMessage::Test))
             .push(message);
 
         Column::new()
