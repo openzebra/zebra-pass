@@ -11,6 +11,8 @@ use zebra_lib::{core::core, settings::appearance::Themes};
 
 use zebra_ui::{color::ZebraPalette, theme};
 
+mod app;
+
 i18n!("locales", fallback = "en");
 
 pub struct GUI {
