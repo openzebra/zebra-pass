@@ -5,6 +5,7 @@ extern crate rust_i18n;
 
 use std::io::{Error, ErrorKind};
 
+use app::view::loader::Loader;
 use iced::{executor, window, Application, Command, Element, Settings};
 use rust_i18n::i18n;
 use zebra_lib::{core::core, settings::appearance::Themes};
@@ -15,18 +16,24 @@ mod app;
 
 i18n!("locales", fallback = "en");
 
+pub enum Routers {
+    Loading(Loader),
+    Locale,
+}
+
 pub struct GUI {
     core: core::Core,
+    route: Routers,
 }
 
 #[derive(Debug)]
-pub enum Message {
+pub enum GlobalMessage {
     Event(iced_native::Event),
 }
 
 impl Application for GUI {
     type Executor = executor::Default;
-    type Message = Message;
+    type Message = GlobalMessage;
     type Flags = zebra_lib::core::core::Core;
     type Theme = theme::Theme;
 
@@ -35,16 +42,19 @@ impl Application for GUI {
     }
 
     fn new(core: Self::Flags) -> (GUI, Command<Self::Message>) {
-        (Self { core }, Command::none())
+        let route = Routers::Loading(Loader::new());
+        (Self { core, route }, Command::none())
     }
 
-    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
-        dbg!("updated");
+    fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
         Command::none()
     }
 
     fn view(&self) -> Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
-        iced::widget::text("works").into()
+        match &self.route {
+            Routers::Locale => panic!("not impl yet"),
+            Routers::Loading(l) => l.view().into(),
+        }
     }
 
     fn scale_factor(&self) -> f64 {
@@ -73,16 +83,15 @@ fn main() -> iced::Result {
         }
     };
 
-    // match core.sync() {
-    //     Ok(_) => {}
-    //     Err(e) => {
-    //         let error = Error::new(ErrorKind::Other, e.to_string());
-    //         return iced::Result::Err(iced::Error::ExecutorCreationFailed(error));
-    //     }
-    // };
+    match core.sync() {
+        Ok(_) => {}
+        Err(e) => {
+            let error = Error::new(ErrorKind::Other, e.to_string());
+            return iced::Result::Err(iced::Error::ExecutorCreationFailed(error));
+        }
+    };
 
     rust_i18n::set_locale(&core.state.borrow().payload.settings.locale);
-    // let fonts = ;
 
     GUI::run(Settings {
         window: window::Settings {
