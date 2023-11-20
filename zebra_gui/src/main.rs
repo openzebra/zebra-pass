@@ -5,7 +5,7 @@ extern crate rust_i18n;
 
 use std::io::{Error, ErrorKind};
 
-use app::view::loader::Loader;
+use app::view::loader::{LoadMessage, Loader};
 use iced::{executor, window, Application, Command, Element, Settings};
 use rust_i18n::i18n;
 use zebra_lib::{core::core, settings::appearance::Themes};
@@ -13,13 +13,12 @@ use zebra_lib::{core::core, settings::appearance::Themes};
 use zebra_ui::{color::ZebraPalette, theme};
 
 mod app;
-mod launch;
 
 i18n!("locales", fallback = "en");
 
 pub enum Routers {
     Loading(Loader),
-    Locale,
+    // Locale,
 }
 
 pub struct GUI {
@@ -29,6 +28,7 @@ pub struct GUI {
 
 #[derive(Debug)]
 pub enum GlobalMessage {
+    LoadMessage(LoadMessage),
     Event(iced::Event),
 }
 
@@ -52,20 +52,33 @@ impl Application for GUI {
             GlobalMessage::Event(e) => match e {
                 _ => {
                     // TODO: native events...
+                    Command::none()
                 }
             },
+            GlobalMessage::LoadMessage(msg) => {
+                match &mut self.route {
+                    Routers::Loading(view) => {
+                        let _ = view.update(*msg);
+                    }
+                };
+                Command::none()
+            }
         }
-        Command::none()
     }
 
     fn subscription(&self) -> iced::Subscription<Self::Message> {
-        iced::Subscription::batch([iced::subscription::events().map(Self::Message::Event)])
+        iced::Subscription::batch([
+            match &self.route {
+                Routers::Loading(v) => v.subscription().map(|msg| GlobalMessage::LoadMessage(msg)),
+            },
+            iced::subscription::events().map(Self::Message::Event),
+        ])
     }
 
     fn view(&self) -> Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
         match &self.route {
-            Routers::Locale => panic!("not impl yet"),
-            Routers::Loading(l) => l.view().into(),
+            // Routers::Locale => panic!("not impl yet"),
+            Routers::Loading(l) => l.view().map(|msg| GlobalMessage::LoadMessage(msg)),
         }
     }
 
