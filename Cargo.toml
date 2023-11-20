@@ -21,7 +21,7 @@ name = "zebra_gui"
 path = "zebra_gui/src/main.rs"
 
 [dependencies]
-iced = { version = "0.9", default-features= false, features = ["tokio", "glow", "svg", "image"] }
+iced = { version = "0.10.0", default-features= false, features = ["svg", "image", "lazy"] }
 iced_native = "0.10.3"
 iced_lazy = "0.6"
 rust-i18n = "2.3.0"

@@ -14,5 +14,5 @@ zebra_lib = { path = "../zebra_lib" }
 tokio = {version = "1.34.0", features = ["signal"]}
 rust-i18n = "2.3.0"
 iced_native = "0.10.3"
-iced = { version = "0.9", default-features= false, features = ["tokio", "glow", "svg", "image"] }
+iced = { version = "0.10.0", default-features= false, features = ["svg", "image", "lazy"] }
 dark-light = "1.0.0"

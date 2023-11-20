@@ -7,6 +7,7 @@ use iced::{
     widget::{
         button, checkbox, container, pick_list, radio, scrollable, slider, svg, text, text_input,
     },
+    BorderRadius, Color,
 };
 
 use super::color::ZebraPalette;
@@ -57,7 +58,7 @@ impl iced::overlay::menu::StyleSheet for Theme {
             text_color: palette.window_background_inverse,
             background: palette.window_background.into(),
             border_width: 0.0,
-            border_radius: 8.0,
+            border_radius: BorderRadius::from(8.0),
             border_color: palette.primary,
             selected_text_color: palette.secondary,
             selected_background: palette.info.into(),
@@ -108,29 +109,29 @@ impl container::StyleSheet for Theme {
         match self {
             Theme::Light(p) => match style {
                 Container::Transparent => container::Appearance {
-                    background: iced::Color::TRANSPARENT.into(),
+                    background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     ..container::Appearance::default()
                 },
                 Container::Background => container::Appearance {
-                    background: p.secondary.into(),
+                    background: Some(iced::Background::Color(p.secondary)),
                     ..container::Appearance::default()
                 },
                 Container::Custom(c) => container::Appearance {
-                    background: (*c).into(),
+                    background: Some(iced::Background::Color(*c)),
                     ..container::Appearance::default()
                 },
             },
             Theme::Dark(p) => match style {
                 Container::Transparent => container::Appearance {
-                    background: iced::Color::TRANSPARENT.into(),
+                    background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     ..container::Appearance::default()
                 },
                 Container::Background => container::Appearance {
-                    background: p.secondary.into(),
+                    background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     ..container::Appearance::default()
                 },
                 Container::Custom(c) => container::Appearance {
-                    background: (*c).into(),
+                    background: Some(iced::Background::Color(*c)),
                     ..container::Appearance::default()
                 },
             },
@@ -187,10 +188,10 @@ impl scrollable::StyleSheet for Theme {
             background: None,
             border_width: 0.0,
             border_color: palette.primary,
-            border_radius: 10.0,
+            border_radius: BorderRadius::from(10.0),
             scroller: scrollable::Scroller {
                 color: palette.secondary,
-                border_radius: 10.0,
+                border_radius: BorderRadius::from(10.0),
                 border_width: 0.0,
                 border_color: iced::Color::TRANSPARENT,
             },
@@ -223,7 +224,7 @@ impl pick_list::StyleSheet for Theme {
                 background: palette.primary.into(),
                 border_width: 1.0,
                 border_color: palette.danger,
-                border_radius: 8.0,
+                border_radius: BorderRadius::from(10.0),
                 text_color: iced::Color::BLACK,
             },
         }
@@ -253,7 +254,7 @@ impl checkbox::StyleSheet for Theme {
                 border_color: iced::Color::TRANSPARENT,
                 icon_color: palette.secondary,
                 text_color: None,
-                border_radius: 4.0,
+                border_radius: BorderRadius::from(4.0),
             }
         } else {
             checkbox::Appearance {
@@ -262,7 +263,7 @@ impl checkbox::StyleSheet for Theme {
                 border_color: iced::Color::TRANSPARENT,
                 icon_color: palette.info,
                 text_color: None,
-                border_radius: 4.0,
+                border_radius: BorderRadius::from(4.0),
             }
         }
     }
@@ -361,7 +362,7 @@ impl text_input::StyleSheet for Theme {
             Theme::Dark(p) => p,
             Theme::Light(p) => p,
         };
-        let border_radius = 18.0;
+        let border_radius = BorderRadius::from(18.0);
         let border_width = 1.0;
         match style {
             Form::Simple => text_input::Appearance {
@@ -446,7 +447,7 @@ impl slider::StyleSheet for Theme {
         let handle = slider::Handle {
             shape: slider::HandleShape::Rectangle {
                 width: 8,
-                border_radius: 4.0,
+                border_radius: BorderRadius::from(4.0),
             },
             color: palette.window_background_inverse,
             border_color: palette.window_background_inverse,
@@ -458,6 +459,7 @@ impl slider::StyleSheet for Theme {
                 rail: slider::Rail {
                     colors: (palette.primary, iced::Color::TRANSPARENT),
                     width: 2.0,
+                    border_radius: BorderRadius::from(19.0),
                 },
                 handle,
             },
@@ -471,7 +473,7 @@ impl slider::StyleSheet for Theme {
         let handle = slider::Handle {
             shape: slider::HandleShape::Rectangle {
                 width: 8,
-                border_radius: 4.0,
+                border_radius: BorderRadius::from(4.0),
             },
             color: palette.primary,
             border_color: palette.window_background_inverse,
@@ -483,6 +485,7 @@ impl slider::StyleSheet for Theme {
                 rail: slider::Rail {
                     colors: (palette.primary, iced::Color::TRANSPARENT),
                     width: 2.0,
+                    border_radius: BorderRadius::from(19.0),
                 },
                 handle,
             },
@@ -496,7 +499,7 @@ impl slider::StyleSheet for Theme {
         let handle = slider::Handle {
             shape: slider::HandleShape::Rectangle {
                 width: 8,
-                border_radius: 4.0,
+                border_radius: BorderRadius::from(4.0),
             },
             color: palette.primary,
             border_color: palette.secondary,
@@ -508,6 +511,7 @@ impl slider::StyleSheet for Theme {
                 rail: slider::Rail {
                     colors: (palette.primary, iced::Color::TRANSPARENT),
                     width: 2.0,
+                    border_radius: BorderRadius::from(4.0),
                 },
                 handle,
             },
