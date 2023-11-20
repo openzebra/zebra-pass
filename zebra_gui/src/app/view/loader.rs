@@ -23,6 +23,7 @@ impl Loader {
     }
 
     pub fn update(&mut self, message: GlobalMessage) -> Command<GlobalMessage> {
+        dbg!("updated");
         match message {
             _ => Command::none(),
         }

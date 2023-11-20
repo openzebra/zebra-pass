@@ -13,6 +13,7 @@ use zebra_lib::{core::core, settings::appearance::Themes};
 use zebra_ui::{color::ZebraPalette, theme};
 
 mod app;
+mod launch;
 
 i18n!("locales", fallback = "en");
 
@@ -28,7 +29,7 @@ pub struct GUI {
 
 #[derive(Debug)]
 pub enum GlobalMessage {
-    Event(iced_native::Event),
+    Event(iced::Event),
 }
 
 impl Application for GUI {
@@ -46,8 +47,19 @@ impl Application for GUI {
         (Self { core, route }, Command::none())
     }
 
-    fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+        match &message {
+            GlobalMessage::Event(e) => match e {
+                _ => {
+                    // TODO: native events...
+                }
+            },
+        }
         Command::none()
+    }
+
+    fn subscription(&self) -> iced::Subscription<Self::Message> {
+        iced::Subscription::batch([iced::subscription::events().map(Self::Message::Event)])
     }
 
     fn view(&self) -> Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
