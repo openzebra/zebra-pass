@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use super::pages;
-use iced::{executor, window::Action, Application, Command, Element};
+use iced::{executor, Application, Command, Element};
 use zebra_lib::{core::core, settings::appearance::Themes};
 
 use zebra_ui::{color::ZebraPalette, theme};
@@ -27,7 +27,7 @@ pub enum GlobalMessage {
 }
 
 async fn load() -> Result<(), ()> {
-    std::thread::sleep(std::time::Duration::from_millis(500));
+    std::thread::sleep(std::time::Duration::from_millis(100));
     // TODO: make it load when server sync added.
     Ok(())
 }

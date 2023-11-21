@@ -18,6 +18,6 @@ pub fn zebra_print_view() -> Svg {
         .style(theme::Svg::Inverse)
 }
 
-pub fn liana_app_icon() -> icon::Icon {
+pub fn zebra_app_icon() -> icon::Icon {
     icon::from_file_data(APP_ICON, None).unwrap()
 }

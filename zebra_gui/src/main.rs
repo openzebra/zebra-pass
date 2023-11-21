@@ -19,7 +19,7 @@ fn main() -> iced::Result {
     let window = window::Settings {
         size: (750, 450),
         resizable: false,
-        icon: Some(zebra_ui::image::liana_app_icon()),
+        icon: Some(zebra_ui::image::zebra_app_icon()),
         ..Default::default()
     };
     let core = match Core::new() {
