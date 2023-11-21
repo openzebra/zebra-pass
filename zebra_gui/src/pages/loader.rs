@@ -5,13 +5,18 @@
 use iced::{widget::text, Alignment, Command, Length, Subscription};
 use zebra_ui::widget::*;
 
+use crate::gui::{GlobalMessage, Routers};
+
+use super::locale::Locale;
+
+#[derive(Debug)]
 pub struct Loader {
     error: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum LoadMessage {
-    Synced(),
+    Synced,
 }
 
 impl Loader {
@@ -25,8 +30,13 @@ impl Loader {
         Subscription::none()
     }
 
-    pub fn update<M>(&mut self, _message: LoadMessage) -> Command<M> {
-        Command::none()
+    pub fn update(&self, message: LoadMessage) -> Command<GlobalMessage> {
+        match message {
+            LoadMessage::Synced => {
+                let route = Routers::Locale(Locale::new());
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+            }
+        }
     }
 
     pub fn view(&self) -> Element<LoadMessage> {

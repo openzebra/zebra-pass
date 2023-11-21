@@ -9,9 +9,9 @@ use iced::{window, Application, Settings};
 use rust_i18n::i18n;
 use zebra_lib::core::core::Core;
 
-mod app;
 mod error;
 mod gui;
+mod pages;
 
 i18n!("zebra_gui/locales", fallback = "en");
 
