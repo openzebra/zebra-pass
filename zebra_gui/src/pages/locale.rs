@@ -4,7 +4,7 @@
 use crate::rust_i18n::t;
 use iced::{
     alignment::Horizontal,
-    widget::{combo_box, pick_list, ComboBox},
+    widget::{combo_box, pick_list, ComboBox, Space},
     Alignment, Command, Length, Subscription,
 };
 use zebra_lib::core::core::Core;
@@ -24,7 +24,6 @@ pub struct Locale {
 
 #[derive(Debug, Clone)]
 pub enum LocaleMessage {
-    Chose,
     Next,
     Selected(Language),
 }
@@ -47,7 +46,6 @@ impl Locale {
     pub fn update<M>(&mut self, message: LocaleMessage, core: &mut Core) -> Command<M> {
         match message {
             LocaleMessage::Next => Command::none(),
-            LocaleMessage::Chose => Command::none(),
             LocaleMessage::Selected(lang) => {
                 self.selected = Some(lang.clone());
                 let s = lang.symbol();
@@ -75,7 +73,7 @@ impl Locale {
 
         let zebra_print = zebra_ui::image::zebra_print_view();
         let title = Text::new(t!("welcome"))
-            .size(24)
+            .size(34)
             .horizontal_alignment(Horizontal::Center);
         let btn = Button::new(
             Text::new(t!("next"))
@@ -96,7 +94,9 @@ impl Locale {
             .align_items(iced::Alignment::Center)
             .padding(50)
             .push(title)
+            .push(Space::new(0, 20))
             .push(locale_pick_list)
+            .push(Space::new(0, 200))
             .push(btn);
         let row = Row::new()
             .width(Length::Fill)
