@@ -50,15 +50,11 @@ impl Locale {
             LocaleMessage::Chose => Command::none(),
             LocaleMessage::Selected(lang) => {
                 self.selected = Some(lang.clone());
+                let s = lang.symbol();
 
-                match lang {
-                    Language::Russian(s) => core.state.borrow_mut().payload.settings.locale = s,
-                    Language::English(s) => core.state.borrow_mut().payload.settings.locale = s,
-                }
-
-                rust_i18n::set_locale(&core.state.borrow().payload.settings.locale);
-                // TODO: Remove unwrap!
-                core.state.borrow_mut().update().unwrap();
+                rust_i18n::set_locale(&s);
+                core.state.borrow_mut().payload.settings.locale = s;
+                core.state.borrow_mut().update().unwrap(); // TODO: Remove unwrap!
 
                 Command::none()
             }
@@ -124,5 +120,14 @@ impl std::fmt::Display for Language {
                 Language::English(s) => t!(&format!("locale.{s}")),
             }
         )
+    }
+}
+
+impl Language {
+    pub fn symbol(&self) -> String {
+        match self {
+            Language::Russian(s) => s.to_owned(),
+            Language::English(s) => s.to_owned(),
+        }
     }
 }
