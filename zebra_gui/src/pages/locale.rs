@@ -7,46 +7,75 @@ use iced::{
     widget::{combo_box, pick_list, ComboBox},
     Alignment, Command, Length, Subscription,
 };
+use zebra_lib::core::core::Core;
 use zebra_ui::widget::*;
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum Language {
+    Russian(String),
+    English(String),
+}
 
 #[derive(Debug)]
 pub struct Locale {
-    locales: Vec<String>,
+    locales: [Language; 2],
+    selected: Option<Language>,
 }
 
 #[derive(Debug, Clone)]
 pub enum LocaleMessage {
     Chose,
     Next,
-    Selected(String),
+    Selected(Language),
 }
 
 impl Locale {
     pub fn new() -> Self {
-        let locales = rust_i18n::available_locales!()
-            .iter()
-            .map(|s| String::from(*s))
-            .collect::<Vec<String>>();
+        let locales = [
+            Language::Russian("ru".to_string()),
+            Language::English("en".to_string()),
+        ];
+        let selected = Some(locales[0].clone());
 
-        Self { locales }
+        Self { locales, selected }
     }
 
     pub fn subscription(&self) -> Subscription<LocaleMessage> {
         Subscription::none()
     }
 
-    pub fn update<M>(&mut self, _message: LocaleMessage) -> Command<M> {
-        Command::none()
+    pub fn update<M>(&mut self, message: LocaleMessage, core: &mut Core) -> Command<M> {
+        match message {
+            LocaleMessage::Next => Command::none(),
+            LocaleMessage::Chose => Command::none(),
+            LocaleMessage::Selected(lang) => {
+                self.selected = Some(lang.clone());
+
+                match lang {
+                    Language::Russian(s) => core.state.borrow_mut().payload.settings.locale = s,
+                    Language::English(s) => core.state.borrow_mut().payload.settings.locale = s,
+                }
+
+                rust_i18n::set_locale(&core.state.borrow().payload.settings.locale);
+                // TODO: Remove unwrap!
+                core.state.borrow_mut().update().unwrap();
+
+                Command::none()
+            }
+        }
     }
 
     pub fn view(&self) -> Element<LocaleMessage> {
-        let locale_pick_list: iced::widget::PickList<'_, String, LocaleMessage, Renderer> =
+        let locale_pick_list: iced::widget::PickList<'_, Language, LocaleMessage, Renderer> =
             pick_list(
-                &self.locales,
-                Some("en".to_string()),
+                self.locales.as_slice(),
+                self.selected.clone(),
                 LocaleMessage::Selected,
             )
-            .style(zebra_ui::theme::PickList::Primary);
+            .text_size(20)
+            .padding(5)
+            .width(220)
+            .style(zebra_ui::theme::PickList::OutlineLight);
 
         let zebra_print = zebra_ui::image::zebra_print_view();
         let title = Text::new(t!("welcome"))
@@ -82,5 +111,18 @@ impl Locale {
             .height(Length::Fill)
             .width(Length::Fill)
             .into()
+    }
+}
+
+impl std::fmt::Display for Language {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Language::Russian(s) => t!(&format!("locale.{s}")),
+                Language::English(s) => t!(&format!("locale.{s}")),
+            }
+        )
     }
 }

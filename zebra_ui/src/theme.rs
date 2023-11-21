@@ -5,7 +5,8 @@
 use iced::{
     application,
     widget::{
-        button, checkbox, container, pick_list, radio, scrollable, slider, svg, text, text_input,
+        button, checkbox, combo_box, container, pick_list, radio, scrollable, slider, svg, text,
+        text_input,
     },
     BorderRadius, Color,
 };
@@ -38,36 +39,6 @@ impl application::StyleSheet for Theme {
                 text_color: palette.window_background_inverse,
             },
         }
-    }
-}
-
-#[derive(Clone, Copy, Default)]
-pub enum Overlay {
-    #[default]
-    Default,
-}
-impl iced::overlay::menu::StyleSheet for Theme {
-    type Style = Overlay;
-
-    fn appearance(&self, _style: &Self::Style) -> iced::overlay::menu::Appearance {
-        let palette = match self {
-            Theme::Dark(p) => p,
-            Theme::Light(p) => p,
-        };
-        iced::overlay::menu::Appearance {
-            text_color: palette.window_background_inverse,
-            background: palette.window_background.into(),
-            border_width: 0.0,
-            border_radius: BorderRadius::from(8.0),
-            border_color: palette.primary,
-            selected_text_color: palette.secondary,
-            selected_background: palette.info.into(),
-        }
-    }
-}
-impl From<PickList> for Overlay {
-    fn from(_p: PickList) -> Overlay {
-        Overlay::Default
     }
 }
 
@@ -113,7 +84,7 @@ impl container::StyleSheet for Theme {
                     ..container::Appearance::default()
                 },
                 Container::Background => container::Appearance {
-                    background: Some(iced::Background::Color(p.secondary)),
+                    background: Some(iced::Background::Color(p.danger)),
                     ..container::Appearance::default()
                 },
                 Container::Custom(c) => container::Appearance {
@@ -121,7 +92,7 @@ impl container::StyleSheet for Theme {
                     ..container::Appearance::default()
                 },
             },
-            Theme::Dark(p) => match style {
+            Theme::Dark(_p) => match style {
                 Container::Transparent => container::Appearance {
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     ..container::Appearance::default()
@@ -188,10 +159,10 @@ impl scrollable::StyleSheet for Theme {
             background: None,
             border_width: 0.0,
             border_color: palette.primary,
-            border_radius: BorderRadius::from(10.0),
+            border_radius: BorderRadius::from(palette.radius),
             scroller: scrollable::Scroller {
                 color: palette.secondary,
-                border_radius: BorderRadius::from(10.0),
+                border_radius: BorderRadius::from(palette.radius),
                 border_width: 0.0,
                 border_color: iced::Color::TRANSPARENT,
             },
@@ -208,6 +179,7 @@ impl scrollable::StyleSheet for Theme {
 pub enum PickList {
     #[default]
     Primary,
+    OutlineLight,
 }
 impl pick_list::StyleSheet for Theme {
     type Style = PickList;
@@ -219,20 +191,70 @@ impl pick_list::StyleSheet for Theme {
         };
         match style {
             PickList::Primary => pick_list::Appearance {
-                placeholder_color: palette.info,
+                placeholder_color: Default::default(),
                 handle_color: palette.warn,
                 background: palette.primary.into(),
                 border_width: 1.0,
                 border_color: palette.danger,
-                border_radius: BorderRadius::from(10.0),
+                border_radius: BorderRadius::from(palette.radius),
                 text_color: iced::Color::BLACK,
+            },
+            PickList::OutlineLight => pick_list::Appearance {
+                placeholder_color: palette.primary,
+                handle_color: palette.window_background_inverse,
+                background: iced::Color::TRANSPARENT.into(),
+                border_width: 1.0,
+                border_color: palette.window_background_inverse,
+                border_radius: BorderRadius::from(palette.radius),
+                text_color: palette.window_background_inverse,
             },
         }
     }
 
     fn hovered(&self, style: &Self::Style) -> pick_list::Appearance {
+        let _palette = match self {
+            Theme::Dark(p) => p,
+            Theme::Light(p) => p,
+        };
         let active = self.active(style);
-        pick_list::Appearance { ..active }
+        match style {
+            PickList::Primary => pick_list::Appearance { ..active },
+            PickList::OutlineLight => pick_list::Appearance {
+                // border_radius: [0., 0., 0., 0.].into(),
+                ..active
+            },
+        }
+    }
+}
+
+#[derive(Clone, Copy, Default)]
+pub enum Overlay {
+    #[default]
+    Default,
+}
+impl iced::overlay::menu::StyleSheet for Theme {
+    type Style = Overlay;
+
+    fn appearance(&self, _style: &Self::Style) -> iced::overlay::menu::Appearance {
+        let palette = match self {
+            Theme::Dark(p) => p,
+            Theme::Light(p) => p,
+        };
+        iced::overlay::menu::Appearance {
+            text_color: palette.window_background_inverse,
+            background: palette.window_background.into(),
+            border_width: 0.0,
+            border_radius: [0., 0., 0., 0.].into(),
+            border_color: palette.window_background_inverse,
+            selected_text_color: palette.window_background_inverse,
+            selected_background: palette.secondary.into(),
+        }
+    }
+}
+
+impl From<PickList> for Overlay {
+    fn from(_p: PickList) -> Overlay {
+        Overlay::Default
     }
 }
 
@@ -252,18 +274,18 @@ impl checkbox::StyleSheet for Theme {
                 background: palette.window_background_inverse.into(),
                 border_width: 0.0,
                 border_color: iced::Color::TRANSPARENT,
-                icon_color: palette.secondary,
+                icon_color: palette.window_background_inverse,
                 text_color: None,
-                border_radius: BorderRadius::from(4.0),
+                border_radius: BorderRadius::from(palette.radius),
             }
         } else {
             checkbox::Appearance {
                 background: palette.danger.into(),
                 border_width: 0.0,
                 border_color: iced::Color::TRANSPARENT,
-                icon_color: palette.info,
+                icon_color: palette.window_background_inverse,
                 text_color: None,
-                border_radius: BorderRadius::from(4.0),
+                border_radius: BorderRadius::from(palette.radius),
             }
         }
     }

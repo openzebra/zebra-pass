@@ -66,7 +66,7 @@ impl Application for GUI {
                 _ => Command::none(),
             },
             GlobalMessage::LocaleMessage(msg) => match &mut self.route {
-                Routers::Locale(view) => view.update::<GlobalMessage>(msg),
+                Routers::Locale(view) => view.update::<GlobalMessage>(msg, &mut self.core),
                 _ => Command::none(),
             },
             GlobalMessage::Route(route) => {

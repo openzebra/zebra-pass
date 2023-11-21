@@ -1,4 +1,6 @@
 
 _version: 1
-welcome: 'Welcome'
+welcome: 'Привет'
 gui_error_message: 'Что то не так, Ошибка: %{error}'
+locale.en: 'English'
+locale.ru: 'Русский'
