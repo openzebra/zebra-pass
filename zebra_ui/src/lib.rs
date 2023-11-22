@@ -5,11 +5,11 @@
 pub mod color;
 pub mod components;
 pub mod image;
-pub mod theme;
+pub mod style;
 
 pub mod widget {
     #![allow(dead_code)]
-    use crate::theme::Theme;
+    use crate::style::Theme;
 
     pub type Renderer = iced::Renderer<Theme>;
     pub type Element<'a, Message> = iced::Element<'a, Message, Renderer>;

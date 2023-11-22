@@ -4,8 +4,8 @@
 use crate::rust_i18n::t;
 use iced::{
     alignment::Horizontal,
-    widget::{combo_box, pick_list, ComboBox, Space},
-    Alignment, Command, Length, Subscription,
+    widget::{pick_list, Space},
+    Command, Length, Subscription,
 };
 use zebra_lib::core::core::Core;
 use zebra_ui::widget::*;
@@ -69,7 +69,7 @@ impl Locale {
             .text_size(20)
             .padding(5)
             .width(220)
-            .style(zebra_ui::theme::PickList::OutlineLight);
+            .style(zebra_ui::style::pick_list::PickList::OutlineLight);
 
         let zebra_print = zebra_ui::image::zebra_print_view();
         let title = Text::new(t!("welcome"))
@@ -80,7 +80,7 @@ impl Locale {
                 .size(20)
                 .horizontal_alignment(Horizontal::Center),
         )
-        .style(zebra_ui::theme::Button::OutlinePrimary.into())
+        .style(zebra_ui::style::button::Button::OutlinePrimary)
         .on_press(LocaleMessage::Next)
         .width(120);
 

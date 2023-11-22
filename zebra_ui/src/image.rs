@@ -3,7 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::{ContentFit, Length};
 
-use crate::{theme, widget::Svg};
+use crate::{style::svg, widget::Svg};
 use iced::{widget::svg::Handle, window::icon};
 
 const PRINT: &[u8] = include_bytes!("../static/imgs/zebra_print.svg");
@@ -15,7 +15,7 @@ pub fn zebra_print_view() -> Svg {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(theme::Svg::Inverse)
+        .style(svg::Svg::Inverse)
 }
 
 pub fn zebra_app_icon() -> icon::Icon {

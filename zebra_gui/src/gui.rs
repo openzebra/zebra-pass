@@ -5,7 +5,7 @@ use super::pages;
 use iced::{executor, Application, Command, Element};
 use zebra_lib::{core::core, settings::appearance::Themes};
 
-use zebra_ui::{color::ZebraPalette, theme};
+use zebra_ui::{color::ZebraPalette, style};
 
 #[derive(Debug)]
 pub enum Routers {
@@ -36,7 +36,7 @@ impl Application for GUI {
     type Executor = executor::Default;
     type Message = GlobalMessage;
     type Flags = zebra_lib::core::core::Core;
-    type Theme = theme::Theme;
+    type Theme = style::Theme;
 
     fn title(&self) -> String {
         "Zebrapass".into()
@@ -101,12 +101,12 @@ impl Application for GUI {
 
     fn theme(&self) -> Self::Theme {
         match self.core.state.borrow().payload.settings.appearance.theme {
-            Themes::Dark => theme::Theme::Dark(ZebraPalette::DARK),
-            Themes::Light => theme::Theme::Light(ZebraPalette::LIGHT),
+            Themes::Dark => style::Theme::Dark(ZebraPalette::DARK),
+            Themes::Light => style::Theme::Light(ZebraPalette::LIGHT),
             Themes::Auto => match dark_light::detect() {
-                dark_light::Mode::Dark => theme::Theme::Dark(ZebraPalette::DARK),
-                dark_light::Mode::Light => theme::Theme::Light(ZebraPalette::LIGHT),
-                dark_light::Mode::Default => theme::Theme::Dark(ZebraPalette::DARK),
+                dark_light::Mode::Dark => style::Theme::Dark(ZebraPalette::DARK),
+                dark_light::Mode::Light => style::Theme::Light(ZebraPalette::LIGHT),
+                dark_light::Mode::Default => style::Theme::Dark(ZebraPalette::DARK),
             },
         }
     }
