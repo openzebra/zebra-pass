@@ -13,6 +13,7 @@ use zebra_ui::{color::ZebraPalette, style};
 pub enum Routers {
     Loading(pages::loader::Loader),
     Locale(pages::locale::Locale),
+    Interview(pages::inverview::Interview),
 }
 
 pub struct GUI {
@@ -24,6 +25,7 @@ pub struct GUI {
 pub enum GlobalMessage {
     LoadMessage(pages::loader::LoadMessage),
     LocaleMessage(pages::locale::LocaleMessage),
+    InterviewMessage(pages::inverview::InterviewMessage),
     Event(iced::Event),
     Route(Routers),
 }
@@ -63,15 +65,19 @@ impl Application for GUI {
                     Command::none()
                 }
             },
-            GlobalMessage::LoadMessage(msg) => match &self.route {
-                Routers::Loading(view) => {
+            GlobalMessage::LoadMessage(_msg) => match &self.route {
+                Routers::Loading(_view) => {
                     let route = Routers::Locale(Locale::new(&self.core));
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
                 _ => Command::none(),
             },
             GlobalMessage::LocaleMessage(msg) => match &mut self.route {
-                Routers::Locale(view) => view.update::<GlobalMessage>(msg, &mut self.core),
+                Routers::Locale(view) => view.update(msg, &mut self.core),
+                _ => Command::none(),
+            },
+            GlobalMessage::InterviewMessage(msg) => match &mut self.route {
+                Routers::Interview(view) => view.update::<GlobalMessage>(msg),
                 _ => Command::none(),
             },
             GlobalMessage::Route(route) => {
@@ -85,6 +91,9 @@ impl Application for GUI {
         iced::Subscription::batch([
             match &self.route {
                 Routers::Loading(v) => v.subscription().map(|msg| GlobalMessage::LoadMessage(msg)),
+                Routers::Interview(v) => v
+                    .subscription()
+                    .map(|msg| GlobalMessage::InterviewMessage(msg)),
                 Routers::Locale(v) => v
                     .subscription()
                     .map(|msg| GlobalMessage::LocaleMessage(msg)),
@@ -97,6 +106,7 @@ impl Application for GUI {
         match &self.route {
             Routers::Loading(l) => l.view().map(|msg| GlobalMessage::LoadMessage(msg)),
             Routers::Locale(l) => l.view().map(|msg| GlobalMessage::LocaleMessage(msg)),
+            Routers::Interview(l) => l.view().map(|msg| GlobalMessage::InterviewMessage(msg)),
         }
     }
 

@@ -1,7 +1,10 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use crate::rust_i18n::t;
+use crate::{
+    gui::{GlobalMessage, Routers},
+    rust_i18n::t,
+};
 use iced::{
     alignment::Horizontal,
     widget::{pick_list, Space},
@@ -10,6 +13,8 @@ use iced::{
 use zebra_lib::core::core::Core;
 use zebra_lib::settings::language::Language;
 use zebra_ui::widget::*;
+
+use super::inverview::Interview;
 
 #[derive(Debug)]
 pub struct Locale {
@@ -35,12 +40,14 @@ impl Locale {
         Subscription::none()
     }
 
-    pub fn update<M>(&mut self, message: LocaleMessage, core: &mut Core) -> Command<M> {
+    pub fn update(&mut self, message: LocaleMessage, core: &mut Core) -> Command<GlobalMessage> {
         match message {
-            LocaleMessage::Next => Command::none(),
+            LocaleMessage::Next => {
+                let route = Routers::Interview(Interview::new());
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+            }
             LocaleMessage::Selected(lang) => {
                 self.selected = Some(lang.clone());
-                // let s = lang.symbol();
 
                 rust_i18n::set_locale(&lang.symbol());
                 core.state.borrow_mut().payload.settings.locale = lang;
@@ -72,6 +79,7 @@ impl Locale {
                 .size(20)
                 .horizontal_alignment(Horizontal::Center),
         )
+        .padding(8)
         .style(zebra_ui::style::button::Button::OutlinePrimary)
         .on_press(LocaleMessage::Next)
         .width(120);
