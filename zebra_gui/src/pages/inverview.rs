@@ -1,11 +1,8 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use iced::{
-    alignment::Horizontal,
-    widget::{pick_list, text, Space},
-    Command, Length, Subscription,
-};
+use crate::rust_i18n::t;
+use iced::{alignment::Horizontal, Command, Length, Subscription};
 use zebra_ui::widget::*;
 
 #[derive(Debug, Default)]
@@ -61,9 +58,15 @@ impl Interview {
     }
 
     fn start_slide<'a>(&self) -> Column<'a, InterviewMessage> {
-        let col = Column::new();
+        let description = Text::new(t!("start.description"))
+            .size(20)
+            .horizontal_alignment(Horizontal::Center);
 
-        col
+        Column::new()
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Center)
+            .push(description)
     }
 
     fn rust_slide<'a>(&self) -> Column<'a, InterviewMessage> {
