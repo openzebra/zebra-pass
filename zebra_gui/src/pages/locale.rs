@@ -8,33 +8,25 @@ use iced::{
     Command, Length, Subscription,
 };
 use zebra_lib::core::core::Core;
+use zebra_lib::settings::language::Language;
 use zebra_ui::widget::*;
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub enum Language {
-    Russian(String),
-    English(String),
-}
 
 #[derive(Debug)]
 pub struct Locale {
-    locales: [Language; 2],
+    locales: [Language; 8],
     selected: Option<Language>,
 }
 
 #[derive(Debug, Clone)]
 pub enum LocaleMessage {
     Next,
-    Selected(Language),
+    Selected(zebra_lib::settings::language::Language),
 }
 
 impl Locale {
-    pub fn new() -> Self {
-        let locales = [
-            Language::Russian("ru".to_string()),
-            Language::English("en".to_string()),
-        ];
-        let selected = Some(locales[0].clone());
+    pub fn new(core: &Core) -> Self {
+        let locales = Language::ALL;
+        let selected = Some(core.state.borrow().payload.settings.locale);
 
         Self { locales, selected }
     }
@@ -48,10 +40,10 @@ impl Locale {
             LocaleMessage::Next => Command::none(),
             LocaleMessage::Selected(lang) => {
                 self.selected = Some(lang.clone());
-                let s = lang.symbol();
+                // let s = lang.symbol();
 
-                rust_i18n::set_locale(&s);
-                core.state.borrow_mut().payload.settings.locale = s;
+                rust_i18n::set_locale(&lang.symbol());
+                core.state.borrow_mut().payload.settings.locale = lang;
                 core.state.borrow_mut().update().unwrap(); // TODO: Remove unwrap!
 
                 Command::none()
@@ -107,27 +99,5 @@ impl Locale {
             .height(Length::Fill)
             .width(Length::Fill)
             .into()
-    }
-}
-
-impl std::fmt::Display for Language {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Language::Russian(s) => t!(&format!("locale.{s}")),
-                Language::English(s) => t!(&format!("locale.{s}")),
-            }
-        )
-    }
-}
-
-impl Language {
-    pub fn symbol(&self) -> String {
-        match self {
-            Language::Russian(s) => s.to_owned(),
-            Language::English(s) => s.to_owned(),
-        }
     }
 }

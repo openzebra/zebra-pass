@@ -6,7 +6,10 @@ use std::rc::Rc;
 
 use crate::{
     errors::ZebraErrors,
-    settings::{appearance::AppearanceSettings, cipher::CipherSettings, settings::SettingsPayload},
+    settings::{
+        appearance::AppearanceSettings, cipher::CipherSettings, language::Language,
+        settings::SettingsPayload,
+    },
     storage::{db::LocalStorage, keys::SLED_STATE_KEY},
 };
 use serde::{Deserialize, Serialize};
@@ -43,7 +46,7 @@ impl State {
     pub fn from(db: Rc<LocalStorage>) -> Self {
         let appearance = AppearanceSettings::new();
         let cipher = CipherSettings::new();
-        let locale = "en".to_string();
+        let locale = Language::English;
         let settings = SettingsPayload {
             cipher,
             appearance,

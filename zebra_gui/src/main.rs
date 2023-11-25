@@ -44,7 +44,7 @@ fn main() -> iced::Result {
         }
     };
 
-    rust_i18n::set_locale(&core.state.borrow().payload.settings.locale);
+    rust_i18n::set_locale(&core.state.borrow().payload.settings.locale.symbol());
 
     GUI::run(Settings {
         window,

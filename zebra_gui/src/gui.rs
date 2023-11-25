@@ -1,6 +1,8 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use crate::pages::locale::Locale;
+
 use super::pages;
 use iced::{executor, Application, Command, Element};
 use zebra_lib::{core::core, settings::appearance::Themes};
@@ -62,7 +64,10 @@ impl Application for GUI {
                 }
             },
             GlobalMessage::LoadMessage(msg) => match &self.route {
-                Routers::Loading(view) => view.update(msg),
+                Routers::Loading(view) => {
+                    let route = Routers::Locale(Locale::new(&self.core));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
                 _ => Command::none(),
             },
             GlobalMessage::LocaleMessage(msg) => match &mut self.route {

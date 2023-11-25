@@ -1,8 +1,9 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum Language {
     #[default]
     English,
@@ -26,6 +27,19 @@ impl Language {
         Language::Portuguese,
         Language::Spanish,
     ];
+
+    pub fn symbol(&self) -> &str {
+        match self {
+            Language::Russian => "ru",
+            Language::Danish => "da",
+            Language::English => "en",
+            Language::French => "fr",
+            Language::German => "gr",
+            Language::Italian => "it",
+            Language::Portuguese => "pr",
+            Language::Spanish => "sp",
+        }
+    }
 }
 
 impl std::fmt::Display for Language {
