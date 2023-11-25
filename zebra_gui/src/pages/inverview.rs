@@ -40,6 +40,41 @@ impl Interview {
     }
 
     pub fn view(&self) -> Element<InterviewMessage> {
-        text("tes").size(20).into()
+        let zebra_print = zebra_ui::image::zebra_print_view();
+        let print_col = Column::new()
+            .width(220)
+            .height(Length::Fill)
+            .push(zebra_print);
+        let row = Row::new()
+            .width(Length::Fill)
+            .push(print_col)
+            .push(match &self.step {
+                SlideStep::ZebraView => self.start_slide(),
+                SlideStep::Rust => self.rust_slide(),
+                SlideStep::Quantom => self.quantom_slide(),
+            });
+
+        Container::new(row)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .into()
+    }
+
+    fn start_slide<'a>(&self) -> Column<'a, InterviewMessage> {
+        let col = Column::new();
+
+        col
+    }
+
+    fn rust_slide<'a>(&self) -> Column<'a, InterviewMessage> {
+        let col = Column::new();
+
+        col
+    }
+
+    fn quantom_slide<'a>(&self) -> Column<'a, InterviewMessage> {
+        let col = Column::new();
+
+        col
     }
 }
