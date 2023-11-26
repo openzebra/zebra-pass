@@ -10,6 +10,8 @@ const PRINT: &[u8] = include_bytes!("../static/imgs/zebra_print.svg");
 const ZEBRAS_HEAT: &[u8] = include_bytes!("../static/imgs/zebra.svg");
 const ATOM: &[u8] = include_bytes!("../static/imgs/atom.svg");
 const APP_ICON: &[u8] = include_bytes!("../static/imgs/logo.webp");
+const BACK_ICON: &[u8] = include_bytes!("../static/icons/back.svg");
+const FORWARD_ICON: &[u8] = include_bytes!("../static/icons/forward.svg");
 
 pub fn zebra_print_view() -> Svg {
     let h = Handle::from_memory(PRINT);
@@ -40,4 +42,22 @@ pub fn atom() -> Svg {
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
         .style(svg::Svg::Inverse)
+}
+
+pub fn back_icon() -> Svg {
+    let h = Handle::from_memory(BACK_ICON);
+    Svg::new(h)
+        .height(Length::Fill)
+        .height(Length::Fill)
+        .content_fit(ContentFit::Cover)
+        .style(svg::Svg::Inverse)
+}
+
+pub fn forward_icon() -> Svg {
+    let h = Handle::from_memory(FORWARD_ICON);
+    Svg::new(h)
+        .height(Length::Fill)
+        .height(Length::Fill)
+        .content_fit(ContentFit::Cover)
+        .style(svg::Svg::Primary)
 }

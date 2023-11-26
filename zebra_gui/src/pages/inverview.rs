@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::rust_i18n::t;
-use iced::{alignment::Horizontal, Command, Length, Subscription};
+use iced::{alignment::Horizontal, widget::Space, Command, Length, Subscription};
 use zebra_ui::widget::*;
 
 #[derive(Debug, Default)]
@@ -18,7 +18,7 @@ pub struct Interview {
     step: SlideStep,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum InterviewMessage {}
 
 impl Interview {
@@ -32,7 +32,7 @@ impl Interview {
         Subscription::none()
     }
 
-    pub fn update<M>(&mut self, message: InterviewMessage) -> Command<M> {
+    pub fn update<M>(&mut self, _message: InterviewMessage) -> Command<M> {
         Command::none()
     }
 
@@ -59,20 +59,28 @@ impl Interview {
 
     fn start_slide<'a>(&self) -> Column<'a, InterviewMessage> {
         let description = Text::new(t!("start.description"))
-            .size(20)
-            .horizontal_alignment(Horizontal::Center);
+            .size(18)
+            .horizontal_alignment(Horizontal::Right)
+            .vertical_alignment(iced::alignment::Vertical::Bottom);
+        let zebra_img = zebra_ui::image::zebra_heat().height(250).width(250);
+        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(40).width(40));
 
         Column::new()
+            .padding(20)
             .height(Length::Fill)
             .width(Length::Fill)
             .align_items(iced::Alignment::Center)
+            .push(zebra_img)
             .push(description)
+            .push(Space::with_height(50))
+            .push(forward_btn)
     }
 
     fn rust_slide<'a>(&self) -> Column<'a, InterviewMessage> {
         let col = Column::new();
+        let zebra_img = zebra_ui::image::zebra_heat().height(200).width(200);
 
-        col
+        col.push(zebra_img)
     }
 
     fn quantom_slide<'a>(&self) -> Column<'a, InterviewMessage> {
