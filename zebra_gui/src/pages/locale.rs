@@ -74,15 +74,10 @@ impl Locale {
         let title = Text::new(t!("welcome"))
             .size(34)
             .horizontal_alignment(Horizontal::Center);
-        let btn = Button::new(
-            Text::new(t!("next"))
-                .size(20)
-                .horizontal_alignment(Horizontal::Center),
-        )
-        .padding(8)
-        .style(zebra_ui::style::button::Button::OutlinePrimary)
-        .on_press(LocaleMessage::Next)
-        .width(120);
+        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(LocaleMessage::Next);
 
         let print_col = Column::new()
             .width(220)
@@ -97,7 +92,7 @@ impl Locale {
             .push(Space::new(0, 20))
             .push(locale_pick_list)
             .push(Space::new(0, 200))
-            .push(btn);
+            .push(forward_btn);
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)

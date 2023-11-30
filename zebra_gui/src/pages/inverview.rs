@@ -34,7 +34,8 @@ impl Interview {
         Subscription::none()
     }
 
-    pub fn update<M>(&mut self, _message: InterviewMessage) -> Command<M> {
+    pub fn update<M>(&mut self, message: InterviewMessage) -> Command<M> {
+        dbg!(message);
         Command::none()
     }
 
@@ -65,7 +66,7 @@ impl Interview {
             .horizontal_alignment(Horizontal::Right)
             .vertical_alignment(iced::alignment::Vertical::Bottom);
         let zebra_img = zebra_ui::image::zebra_heat().height(250).width(250);
-        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(40).width(40))
+        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press(InterviewMessage::Next);
@@ -77,7 +78,7 @@ impl Interview {
             .align_items(iced::Alignment::Center)
             .push(zebra_img)
             .push(description)
-            .push(Space::with_height(50))
+            .push(Space::with_height(60))
             .push(forward_btn)
     }
 
