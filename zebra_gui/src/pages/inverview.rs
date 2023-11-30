@@ -19,7 +19,9 @@ pub struct Interview {
 }
 
 #[derive(Debug, Clone)]
-pub enum InterviewMessage {}
+pub enum InterviewMessage {
+    Next,
+}
 
 impl Interview {
     pub fn new() -> Self {
@@ -63,7 +65,10 @@ impl Interview {
             .horizontal_alignment(Horizontal::Right)
             .vertical_alignment(iced::alignment::Vertical::Bottom);
         let zebra_img = zebra_ui::image::zebra_heat().height(250).width(250);
-        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(40).width(40));
+        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(40).width(40))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(InterviewMessage::Next);
 
         Column::new()
             .padding(20)

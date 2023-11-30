@@ -9,6 +9,7 @@ pub enum Svg {
     #[default]
     Primary,
     Inverse,
+    Normal,
 }
 
 impl svg::StyleSheet for Theme {
@@ -20,8 +21,25 @@ impl svg::StyleSheet for Theme {
             Theme::Light(p) => p,
         };
         match style {
+            Svg::Normal => svg::Appearance::default(),
             Svg::Primary => svg::Appearance {
                 color: Some(palette.primary),
+            },
+            Svg::Inverse => svg::Appearance {
+                color: Some(palette.window_background_inverse),
+            },
+        }
+    }
+
+    fn hovered(&self, style: &Self::Style) -> svg::Appearance {
+        let palette = match self {
+            Theme::Dark(p) => p,
+            Theme::Light(p) => p,
+        };
+        match style {
+            Svg::Normal => svg::Appearance::default(),
+            Svg::Primary => svg::Appearance {
+                color: Some(palette.secondary),
             },
             Svg::Inverse => svg::Appearance {
                 color: Some(palette.window_background_inverse),

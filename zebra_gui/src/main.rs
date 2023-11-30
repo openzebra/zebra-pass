@@ -48,10 +48,11 @@ fn main() -> iced::Result {
 
     GUI::run(Settings {
         window,
+        fonts: [].into(),
         flags: core,
         id: Some("ZebraPass".to_string()),
         default_font: Default::default(),
-        default_text_size: 14.0,
+        default_text_size: 14.0.into(),
         antialiasing: Default::default(),
         exit_on_close_request: true,
     })

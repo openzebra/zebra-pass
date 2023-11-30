@@ -9,6 +9,7 @@ pub enum Button {
     #[default]
     Primary,
     OutlinePrimary,
+    Transparent,
 }
 
 impl button::StyleSheet for Theme {
@@ -22,18 +23,22 @@ impl button::StyleSheet for Theme {
         let background_color = match style {
             Button::Primary => palette.primary,
             Button::OutlinePrimary => iced::Color::TRANSPARENT,
+            Button::Transparent => iced::Color::TRANSPARENT,
         };
         let border_color = match style {
             Button::Primary => iced::Color::TRANSPARENT,
             Button::OutlinePrimary => palette.primary,
+            Button::Transparent => iced::Color::TRANSPARENT,
         };
         let border_width = match style {
             Button::Primary => 1.0,
             Button::OutlinePrimary => 1.0,
+            Button::Transparent => 0.0,
         };
         let text_color = match style {
             Button::Primary => palette.window_background_inverse,
             Button::OutlinePrimary => palette.primary,
+            Button::Transparent => iced::Color::TRANSPARENT,
         };
 
         iced::widget::button::Appearance {
@@ -54,18 +59,22 @@ impl button::StyleSheet for Theme {
         let background_color = match style {
             Button::Primary => iced::Color::TRANSPARENT,
             Button::OutlinePrimary => palette.primary,
+            Button::Transparent => iced::Color::TRANSPARENT,
         };
         let border_color = match style {
             Button::Primary => palette.primary,
             Button::OutlinePrimary => palette.primary,
+            Button::Transparent => iced::Color::TRANSPARENT,
         };
         let border_width = match style {
             Button::Primary => 1.0,
             Button::OutlinePrimary => 1.0,
+            Button::Transparent => 0.0,
         };
         let text_color = match style {
             Button::Primary => palette.primary,
             Button::OutlinePrimary => palette.window_background_inverse,
+            Button::Transparent => iced::Color::TRANSPARENT,
         };
 
         iced::widget::button::Appearance {

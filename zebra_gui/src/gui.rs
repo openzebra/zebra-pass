@@ -98,7 +98,7 @@ impl Application for GUI {
                     .subscription()
                     .map(|msg| GlobalMessage::LocaleMessage(msg)),
             },
-            iced::subscription::events().map(Self::Message::Event),
+            // iced::subscription::Subscription::map(Self::Message::Event),
         ])
     }
 
