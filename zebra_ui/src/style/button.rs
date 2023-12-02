@@ -33,7 +33,12 @@ impl button::StyleSheet for Theme {
         let border_width = match style {
             Button::Primary => 1.0,
             Button::OutlinePrimary => 1.0,
-            Button::Transparent => 0.0,
+            Button::Transparent => 1.0,
+        };
+        let border_radius = match style {
+            Button::Primary => 6.0.into(),
+            Button::OutlinePrimary => 6.0.into(),
+            Button::Transparent => 100.0.into(),
         };
         let text_color = match style {
             Button::Primary => palette.window_background_inverse,
@@ -43,10 +48,10 @@ impl button::StyleSheet for Theme {
 
         iced::widget::button::Appearance {
             text_color,
-            background: Some(background_color.into()),
             border_color,
             border_width,
-            border_radius: 6.0.into(),
+            border_radius,
+            background: Some(background_color.into()),
             ..Default::default()
         }
     }
@@ -69,7 +74,12 @@ impl button::StyleSheet for Theme {
         let border_width = match style {
             Button::Primary => 1.0,
             Button::OutlinePrimary => 1.0,
-            Button::Transparent => 0.0,
+            Button::Transparent => 1.0,
+        };
+        let border_radius = match style {
+            Button::Primary => 6.0.into(),
+            Button::OutlinePrimary => 6.0.into(),
+            Button::Transparent => 100.0.into(),
         };
         let text_color = match style {
             Button::Primary => palette.primary,
@@ -79,10 +89,10 @@ impl button::StyleSheet for Theme {
 
         iced::widget::button::Appearance {
             text_color,
-            background: Some(background_color.into()),
             border_color,
             border_width,
-            border_radius: 6.0.into(),
+            border_radius,
+            background: Some(background_color.into()),
             ..Default::default()
         }
     }

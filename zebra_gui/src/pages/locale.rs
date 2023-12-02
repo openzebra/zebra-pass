@@ -22,9 +22,11 @@ pub struct Locale {
     selected: Option<Language>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum LocaleMessage {
     Next,
+    Openned,
+    Closed,
     Selected(zebra_lib::settings::language::Language),
 }
 
@@ -55,6 +57,14 @@ impl Locale {
 
                 Command::none()
             }
+            LocaleMessage::Openned => {
+                dbg!("just opened");
+                Command::none()
+            }
+            LocaleMessage::Closed => {
+                dbg!("just closed");
+                Command::none()
+            }
         }
     }
 
@@ -68,6 +78,8 @@ impl Locale {
             .text_size(20)
             .padding(5)
             .width(220)
+            .on_opened(LocaleMessage::Openned)
+            .on_closed(LocaleMessage::Closed)
             .style(zebra_ui::style::pick_list::PickList::OutlineLight);
 
         let zebra_print = zebra_ui::image::zebra_print_view();
