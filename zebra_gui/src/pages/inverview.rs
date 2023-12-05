@@ -1,9 +1,14 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use crate::rust_i18n::t;
+use crate::{
+    gui::{GlobalMessage, Routers},
+    rust_i18n::t,
+};
 use iced::{alignment::Horizontal, widget::Space, Command, Length, Subscription};
 use zebra_ui::widget::*;
+
+use super::locale::Locale;
 
 #[derive(Debug, Default)]
 enum SlideStep {
@@ -21,6 +26,7 @@ pub struct Interview {
 #[derive(Debug, Clone)]
 pub enum InterviewMessage {
     Next,
+    Back,
 }
 
 impl Interview {
@@ -34,9 +40,18 @@ impl Interview {
         Subscription::none()
     }
 
-    pub fn update<M>(&mut self, message: InterviewMessage) -> Command<M> {
-        dbg!(message);
-        Command::none()
+    pub fn update(&mut self, message: InterviewMessage) -> Command<GlobalMessage> {
+        match message {
+            InterviewMessage::Next => Command::none(),
+            InterviewMessage::Back => match &self.step {
+                SlideStep::ZebraView => {
+                    let route = Routers::Locale(Locale::new(&self.core));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                SlideStep::Rust => Command::none(),
+                SlideStep::Quantom => Command::none(),
+            },
+        }
     }
 
     pub fn view(&self) -> Element<InterviewMessage> {
@@ -70,6 +85,11 @@ impl Interview {
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press(InterviewMessage::Next);
+        let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(InterviewMessage::Back);
+        let btns_row = Row::new().push(back_btn).push(forward_btn);
 
         Column::new()
             .padding(20)
@@ -79,7 +99,7 @@ impl Interview {
             .push(zebra_img)
             .push(description)
             .push(Space::with_height(60))
-            .push(forward_btn)
+            .push(btns_row)
     }
 
     fn rust_slide<'a>(&self) -> Column<'a, InterviewMessage> {

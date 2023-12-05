@@ -50,7 +50,7 @@ pub fn back_icon() -> Svg {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+        .style(svg::Svg::Primary)
 }
 
 pub fn forward_icon() -> Svg {
