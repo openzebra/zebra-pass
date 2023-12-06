@@ -1,6 +1,8 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use std::sync::{Arc, Mutex};
+
 use crate::pages::{locale::Locale, Page};
 
 use super::pages;
@@ -17,7 +19,7 @@ pub enum Routers {
 }
 
 pub struct GUI {
-    core: core::Core,
+    core: Arc<Mutex<core::Core>>,
     route: Routers,
 }
 
@@ -67,13 +69,13 @@ impl Application for GUI {
             },
             GlobalMessage::LoadMessage(_msg) => match &self.route {
                 Routers::Loading(_view) => {
-                    let route = Routers::Locale(Locale::new(&self.core));
+                    let route = Routers::Locale(Locale::new(Arc::clone(&self.core)));
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
                 _ => Command::none(),
             },
             GlobalMessage::LocaleMessage(msg) => match &mut self.route {
-                Routers::Locale(view) => view.update(msg, &mut self.core),
+                Routers::Locale(view) => view.update(msg),
                 _ => Command::none(),
             },
             GlobalMessage::InterviewMessage(msg) => match &mut self.route {
@@ -116,16 +118,7 @@ impl Application for GUI {
 
     fn theme(&self) -> Self::Theme {
         // TODO: Remove unwrap.
-        match self
-            .core
-            .state
-            .lock()
-            .unwrap()
-            .payload
-            .settings
-            .appearance
-            .theme
-        {
+        match self.core.lock().unwrap().state.settings.appearance.theme {
             Themes::Dark => style::Theme::Dark(ZebraPalette::DARK),
             Themes::Light => style::Theme::Light(ZebraPalette::LIGHT),
             Themes::Auto => match dark_light::detect() {

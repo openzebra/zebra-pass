@@ -1,14 +1,17 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use std::sync::Arc;
+
 use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
 use iced::{alignment::Horizontal, widget::Space, Command, Length, Subscription};
+use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
-use super::locale::Locale;
+use super::{locale::Locale, Page};
 
 #[derive(Debug, Default)]
 enum SlideStep {
@@ -29,18 +32,20 @@ pub enum InterviewMessage {
     Back,
 }
 
-impl Interview {
-    pub fn new() -> Self {
-        Self {
+impl Page for Interview {
+    type Message = InterviewMessage;
+
+    fn new(_core: Arc<Core>) -> Result<Self, ZebraErrors> {
+        Ok(Self {
             step: SlideStep::ZebraView,
-        }
+        })
     }
 
-    pub fn subscription(&self) -> Subscription<InterviewMessage> {
+    fn subscription(&self) -> Subscription<Self::Message> {
         Subscription::none()
     }
 
-    pub fn update(&mut self, message: InterviewMessage) -> Command<GlobalMessage> {
+    fn update(&mut self, message: InterviewMessage) -> Command<GlobalMessage> {
         match message {
             InterviewMessage::Next => Command::none(),
             InterviewMessage::Back => match &self.step {
@@ -55,7 +60,7 @@ impl Interview {
         }
     }
 
-    pub fn view(&self) -> Element<InterviewMessage> {
+    fn view(&self) -> iced::Element<Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
             .width(220)
@@ -75,7 +80,9 @@ impl Interview {
             .width(Length::Fill)
             .into()
     }
+}
 
+impl Interview {
     fn start_slide<'a>(&self) -> Column<'a, InterviewMessage> {
         let description = Text::new(t!("start.description"))
             .size(18)

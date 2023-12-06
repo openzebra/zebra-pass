@@ -18,7 +18,6 @@ use zebra_ui::widget::*;
 
 use super::{inverview::Interview, Page};
 
-#[derive(Debug)]
 pub struct Locale {
     locales: [Language; 8],
     selected: Option<Language>,

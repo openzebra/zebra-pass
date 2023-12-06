@@ -2,7 +2,10 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::sync::Arc;
+use std::{
+    fmt::Debug,
+    sync::{Arc, Mutex},
+};
 
 use crate::gui::GlobalMessage;
 use iced::{Command, Element, Subscription};
@@ -13,10 +16,15 @@ pub mod loader;
 pub mod locale;
 
 pub trait Page {
-    type Message: std::fmt::Debug + Send;
+    type Message: Debug + Send;
 
-    fn new(core: Arc<Core>) -> Result<Self, ZebraErrors>;
+    fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors>
+    where
+        Self: Sized + Send + Debug;
+
     fn subscription(&self) -> Subscription<Self::Message>;
+
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage>;
+
     fn view(&self) -> Element<Self::Message>;
 }
