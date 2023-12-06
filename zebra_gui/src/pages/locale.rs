@@ -1,6 +1,8 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use std::sync::Arc;
+
 use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
@@ -10,16 +12,17 @@ use iced::{
     widget::{pick_list, Space},
     Command, Length, Subscription,
 };
-use zebra_lib::core::core::Core;
 use zebra_lib::settings::language::Language;
+use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
-use super::inverview::Interview;
+use super::{inverview::Interview, Page};
 
 #[derive(Debug)]
 pub struct Locale {
     locales: [Language; 8],
     selected: Option<Language>,
+    core: Arc<Core>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -30,30 +33,46 @@ pub enum LocaleMessage {
     Selected(zebra_lib::settings::language::Language),
 }
 
-impl Locale {
-    pub fn new(core: &Core) -> Self {
-        let locales = Language::ALL;
-        let selected = Some(core.state.borrow().payload.settings.locale);
+impl Page for Locale {
+    type Message = LocaleMessage;
 
-        Self { locales, selected }
+    fn new(core: Arc<Core>) -> Result<Self, ZebraErrors> {
+        let locales = Language::ALL;
+        let selected = Some(
+            core.state
+                .lock()
+                .or(Err(ZebraErrors::SyncStateLock))?
+                .payload
+                .settings
+                .locale,
+        );
+
+        Ok(Self {
+            locales,
+            selected,
+            core,
+        })
     }
 
-    pub fn subscription(&self) -> Subscription<LocaleMessage> {
+    fn subscription(&self) -> Subscription<Self::Message> {
         Subscription::none()
     }
 
-    pub fn update(&mut self, message: LocaleMessage, core: &mut Core) -> Command<GlobalMessage> {
+    fn update(&mut self, message: LocaleMessage) -> Command<GlobalMessage> {
         match message {
             LocaleMessage::Next => {
                 let route = Routers::Interview(Interview::new());
                 Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             LocaleMessage::Selected(lang) => {
+                // TODO: remove unwrap.
+                let mut state = self.core.state.lock().unwrap();
+
                 self.selected = Some(lang.clone());
 
                 rust_i18n::set_locale(&lang.symbol());
-                core.state.borrow_mut().payload.settings.locale = lang;
-                core.state.borrow_mut().update().unwrap(); // TODO: Remove unwrap!
+                state.payload.settings.locale = lang;
+                state.update().unwrap();
 
                 Command::none()
             }
@@ -68,7 +87,7 @@ impl Locale {
         }
     }
 
-    pub fn view(&self) -> Element<LocaleMessage> {
+    fn view(&self) -> Element<LocaleMessage> {
         let locale_pick_list: iced::widget::PickList<'_, Language, LocaleMessage, Renderer> =
             pick_list(
                 self.locales.as_slice(),

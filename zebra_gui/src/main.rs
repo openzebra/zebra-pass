@@ -47,7 +47,18 @@ fn main() -> iced::Result {
         }
     };
 
-    rust_i18n::set_locale(&core.state.borrow().payload.settings.locale.symbol());
+    match core.state.lock() {
+        Ok(state) => {
+            rust_i18n::set_locale(state.payload.settings.locale.symbol());
+        }
+        Err(e) => {
+            return GUIError::run(Settings {
+                window,
+                flags: e.to_string(),
+                ..Default::default()
+            });
+        }
+    }
 
     GUI::run(Settings {
         window,
