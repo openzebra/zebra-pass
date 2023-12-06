@@ -46,6 +46,8 @@ pub enum ZebraErrors {
 
     // password gen
     PassGenInvalidRng,
+
+    SyncStateLock,
 }
 impl fmt::Display for ZebraErrors {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

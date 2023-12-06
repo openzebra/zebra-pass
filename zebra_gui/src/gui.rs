@@ -115,7 +115,17 @@ impl Application for GUI {
     }
 
     fn theme(&self) -> Self::Theme {
-        match self.core.state.borrow().payload.settings.appearance.theme {
+        // TODO: Remove unwrap.
+        match self
+            .core
+            .state
+            .lock()
+            .unwrap()
+            .payload
+            .settings
+            .appearance
+            .theme
+        {
             Themes::Dark => style::Theme::Dark(ZebraPalette::DARK),
             Themes::Light => style::Theme::Light(ZebraPalette::LIGHT),
             Themes::Auto => match dark_light::detect() {

@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::rc::Rc;
+use std::{rc::Rc, sync::Arc};
 
 use crate::{
     errors::ZebraErrors,
@@ -39,11 +39,11 @@ pub struct StatePayload {
 pub struct State {
     pub payload: StatePayload,
     pub ready: bool,
-    db: Rc<LocalStorage>,
+    db: Arc<LocalStorage>,
 }
 
 impl State {
-    pub fn from(db: Rc<LocalStorage>) -> Self {
+    pub fn from(db: Arc<LocalStorage>) -> Self {
         let appearance = AppearanceSettings::new();
         let cipher = CipherSettings::new();
         let locale = Language::English;
@@ -101,7 +101,7 @@ mod settings_tests {
 
     #[test]
     fn test_zebra_state() {
-        let db = Rc::new(
+        let db = Arc::new(
             LocalStorage::new("com.test_state", "test-state Corp", "test_state App").unwrap(),
         );
         let mut state = State::from(db.clone());

@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::{cell::RefCell, rc::Rc};
+use std::sync::{Arc, Mutex};
 
 use crate::core::record::Element;
 use crate::{
@@ -15,9 +15,9 @@ use crate::{
 };
 
 pub struct Core {
-    pub db: Rc<LocalStorage>,
+    pub db: Arc<LocalStorage>,
     pub guard: ZebraGuard,
-    pub state: Rc<RefCell<State>>,
+    pub state: Arc<Mutex<State>>,
     pub data: Vec<Element>,
 }
 
@@ -31,8 +31,8 @@ impl Core {
         organization: &str,
         application: &str,
     ) -> Result<Self, ZebraErrors> {
-        let db = Rc::new(LocalStorage::new(qualifier, organization, application)?);
-        let state = Rc::new(RefCell::new(State::from(db.clone())));
+        let db = Arc::new(LocalStorage::new(qualifier, organization, application)?);
+        let state = Arc::new(Mutex::new(State::from(Arc::clone(&db))));
         let guard = ZebraGuard::from(state.clone());
         let data = Vec::default();
 
@@ -45,7 +45,10 @@ impl Core {
     }
 
     pub fn sync(&self) -> Result<(), ZebraErrors> {
-        self.state.borrow_mut().sync()?;
+        self.state
+            .lock()
+            .or(Err(ZebraErrors::SyncStateLock))?
+            .sync()?;
 
         Ok(())
     }
@@ -65,7 +68,7 @@ impl Core {
             &self.data,
         )?;
 
-        let mut state = self.state.borrow_mut();
+        let mut state = self.state.lock().or(Err(ZebraErrors::SyncStateLock))?;
         let restoreble = email.is_empty();
 
         if restoreble {

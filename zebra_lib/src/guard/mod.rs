@@ -5,7 +5,7 @@
 extern crate hex;
 extern crate serde_json;
 
-use std::{cell::RefCell, rc::Rc};
+use std::sync::{Arc, Mutex};
 
 use crate::{
     bip39::mnemonic::Mnemonic,
@@ -19,11 +19,11 @@ use serde::{Deserialize, Serialize};
 // TODO: add time before lock session.
 pub struct ZebraGuard {
     keys: Option<KeyChain>,
-    state: Rc<RefCell<State>>,
+    state: Arc<Mutex<State>>,
 }
 
 impl ZebraGuard {
-    pub fn from(state: Rc<RefCell<State>>) -> Self {
+    pub fn from(state: Arc<Mutex<State>>) -> Self {
         Self { state, keys: None }
     }
 
@@ -31,7 +31,7 @@ impl ZebraGuard {
     // -> decrypt keys_session(bip39)
     // -> decrypt secure_data via (bip39) keys
     pub fn try_unlock(&mut self, password: &[u8]) -> Result<(), ZebraErrors> {
-        let state = &self.state.borrow();
+        let state = &self.state.lock().or(Err(ZebraErrors::SyncStateLock))?;
         let orders = &state.payload.settings.cipher.cipher_orders;
         let difficulty = state.payload.settings.cipher.difficulty;
         let secure_key_store = &state.payload.secure_key_store;
@@ -66,9 +66,9 @@ impl ZebraGuard {
     where
         T: for<'c> Deserialize<'c> + Serialize,
     {
-        let state = &self.state.borrow().payload;
-        let orders = &state.settings.cipher.cipher_orders;
-        let secure_data_store = &state.secure_data_store;
+        let state = &self.state.lock().or(Err(ZebraErrors::SyncStateLock))?;
+        let orders = &state.payload.settings.cipher.cipher_orders;
+        let secure_data_store = &state.payload.secure_data_store;
 
         let keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
         let json_bytes = keys.decrypt(&secure_data_store, &orders)?;
@@ -89,7 +89,7 @@ impl ZebraGuard {
     where
         T: Serialize,
     {
-        let state = &mut self.state.borrow_mut();
+        let mut state = self.state.lock().or(Err(ZebraErrors::SyncStateLock))?;
         let orders = &state.payload.settings.cipher.cipher_orders;
         let difficulty = state.payload.settings.cipher.difficulty;
 
@@ -115,7 +115,7 @@ impl ZebraGuard {
     where
         T: Serialize,
     {
-        let state = &mut self.state.borrow_mut();
+        let mut state = self.state.lock().or(Err(ZebraErrors::SyncStateLock))?;
         let orders = &state.payload.settings.cipher.cipher_orders;
 
         let bip39_keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
@@ -137,6 +137,8 @@ impl ZebraGuard {
 
 #[cfg(test)]
 mod guard_tests {
+    use std::sync::Arc;
+
     use rand::RngCore;
 
     use super::*;
@@ -150,10 +152,10 @@ mod guard_tests {
         let mut rng = rand::thread_rng();
 
         let m = Mnemonic::gen(&mut rng, 12, Language::English).unwrap();
-        let db = Rc::new(
+        let db = Arc::new(
             LocalStorage::new("com.guardtest", "TestGuard Corp", "TesingGuard App").unwrap(),
         );
-        let state = Rc::new(RefCell::new(State::from(db.clone())));
+        let state = Arc::new(Mutex::new(State::from(db.clone())));
         let mut guard = ZebraGuard::from(state.clone());
 
         let mut password = [0u8; 1245];
@@ -167,29 +169,29 @@ mod guard_tests {
         rng.fill_bytes(&mut password);
 
         assert!(guard.keys.is_none());
-        assert!(!state.borrow().ready);
+        assert!(!state.lock().unwrap().ready);
 
         assert!(guard.try_unlock(&password).is_err());
 
         // testing init
-        state.borrow_mut().sync().unwrap();
+        state.lock().unwrap().sync().unwrap();
         guard
             .bip39_cipher_from_password::<Vec<String>>(&password, &m, words_password, data.clone())
             .unwrap();
 
         assert!(guard.keys.is_some());
-        assert!(state.borrow().ready);
+        assert!(state.lock().unwrap().ready);
 
         // testing unlock
-        let new_state = Rc::new(RefCell::new(State::from(db.clone())));
+        let new_state = Arc::new(Mutex::new(State::from(db.clone())));
         let mut new_guard = ZebraGuard::from(new_state.clone());
 
         assert!(new_guard.keys.is_none());
-        assert!(!new_state.borrow().ready);
+        assert!(!new_state.lock().unwrap().ready);
 
-        new_state.borrow_mut().sync().unwrap();
+        new_state.lock().unwrap().sync().unwrap();
 
-        assert!(new_state.borrow().ready);
+        assert!(new_state.lock().unwrap().ready);
 
         new_guard.try_unlock(&password).unwrap();
 
@@ -202,8 +204,8 @@ mod guard_tests {
             guard.keys.as_ref().unwrap().as_bytes()
         );
         assert_eq!(
-            state.borrow().payload.secure_data_store,
-            new_state.borrow().payload.secure_data_store
+            state.lock().unwrap().payload.secure_data_store,
+            new_state.lock().unwrap().payload.secure_data_store
         );
         assert_eq!(&data, &decrypted_data);
 
@@ -212,17 +214,17 @@ mod guard_tests {
         guard.update::<&[u8]>(&new_data).unwrap();
 
         assert_ne!(
-            state.borrow().payload.secure_data_store,
-            new_state.borrow().payload.secure_data_store
+            state.lock().unwrap().payload.secure_data_store,
+            new_state.lock().unwrap().payload.secure_data_store
         );
 
         assert_eq!(&data, &decrypted_data);
 
-        new_state.borrow_mut().sync().unwrap();
+        new_state.lock().unwrap().sync().unwrap();
 
         assert_eq!(
-            state.borrow().payload.secure_data_store,
-            new_state.borrow().payload.secure_data_store
+            state.lock().unwrap().payload.secure_data_store,
+            new_state.lock().unwrap().payload.secure_data_store
         );
     }
 }
