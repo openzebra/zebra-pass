@@ -3,29 +3,29 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Default, Clone)]
 pub enum ElementType {
     #[default]
     Login,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Item {
-    title: String,
-    value: String,
-    hide: bool,
-    copy: bool,
+    pub title: String,
+    pub value: String,
+    pub hide: bool,
+    pub copy: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct Element {
-    name: String,
-    website: String,
-    icon: String,
-    element_type: ElementType,
-    created: String,
-    updated: String,
-    favourite: bool,
-    fields: Vec<Item>,
-    extra_fields: Vec<Item>,
+    pub name: String,
+    pub website: String,
+    pub icon: String,
+    pub element_type: ElementType,
+    pub created: String,
+    pub updated: String,
+    pub favourite: bool,
+    pub fields: Vec<Item>,
+    pub extra_fields: Vec<Item>,
 }

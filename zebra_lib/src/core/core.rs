@@ -1,24 +1,22 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-
-use std::sync::{Arc, Mutex};
-
 use crate::core::record::Element;
+use crate::keychain::keys::{KeyChain, AES_KEY_SIZE};
 use crate::{
     bip39::mnemonic::Mnemonic,
     config::app::{APPLICATION, ORGANIZATION, QUALIFIER},
     errors::ZebraErrors,
-    guard::ZebraGuard,
     state::state::State,
     storage::db::LocalStorage,
 };
+use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
 
 pub struct Core {
-    pub db: Arc<LocalStorage>,
-    pub guard: ZebraGuard,
-    pub state: Arc<Mutex<State>>,
+    pub state: State,
     pub data: Vec<Element>,
+    keys: Option<KeyChain>,
+    db: LocalStorage,
 }
 
 impl Core {
@@ -31,24 +29,21 @@ impl Core {
         organization: &str,
         application: &str,
     ) -> Result<Self, ZebraErrors> {
-        let db = Arc::new(LocalStorage::new(qualifier, organization, application)?);
-        let state = Arc::new(Mutex::new(State::from(Arc::clone(&db))));
-        let guard = ZebraGuard::from(state.clone());
+        let db = LocalStorage::new(qualifier, organization, application)?;
+        let state = State::new();
         let data = Vec::default();
+        let keys = None;
 
         Ok(Self {
             db,
-            guard,
             state,
             data,
+            keys,
         })
     }
 
-    pub fn sync(&self) -> Result<(), ZebraErrors> {
-        self.state
-            .lock()
-            .or(Err(ZebraErrors::SyncStateLock))?
-            .sync()?;
+    pub fn sync(&mut self) -> Result<(), ZebraErrors> {
+        self.state.sync(&self.db)?;
 
         Ok(())
     }
@@ -61,38 +56,32 @@ impl Core {
         words_salt: &str,
         m: &Mnemonic,
     ) -> Result<(), ZebraErrors> {
-        self.guard.bip39_cipher_from_password::<&[Element]>(
-            password.as_bytes(),
-            m,
-            &words_salt,
-            &self.data,
-        )?;
+        self.bip39_cipher_from_password(password.as_bytes(), m, &words_salt)?;
 
-        let mut state = self.state.lock().or(Err(ZebraErrors::SyncStateLock))?;
         let restoreble = email.is_empty();
 
         if restoreble {
-            state.payload.email = Some(email.to_string());
+            self.state.email = Some(email.to_string());
         }
 
-        state.payload.restoreble = restoreble;
-        state.payload.server_sync = server_sync;
-        state.payload.address = self.guard.get_address()?;
-        state.payload.inited = true;
+        self.state.restoreble = restoreble;
+        self.state.server_sync = server_sync;
+        self.state.address = self.get_address()?;
+        self.state.inited = true;
 
         Ok(())
     }
 
     pub fn unlock(&mut self, password: &str) -> Result<(), ZebraErrors> {
-        self.guard.try_unlock(&password.as_bytes())?;
-        self.data = self.guard.get_data()?;
+        self.try_unlock(&password.as_bytes())?;
+        self.data = self.get_data()?;
 
         Ok(())
     }
 
     pub fn add_element(&mut self, elem: Element) -> Result<(), ZebraErrors> {
         self.data.push(elem);
-        self.guard.update(&self.data)?;
+        self.update()?;
 
         // TODO: add email validator.
         // TODO: add created, updated time.
@@ -102,9 +91,101 @@ impl Core {
 
     pub fn remove_element(&mut self, index: usize) -> Result<(), ZebraErrors> {
         self.data.remove(index);
-        self.guard.update(&self.data)?;
+        self.update()?;
 
         Ok(())
+    }
+
+    // gen_keys from password
+    // -> decrypt keys_session(bip39)
+    // -> decrypt secure_data via (bip39) keys
+    fn try_unlock(&mut self, password: &[u8]) -> Result<(), ZebraErrors> {
+        let orders = &self.state.settings.cipher.cipher_orders;
+        let difficulty = self.state.settings.cipher.difficulty;
+        let secure_key_store = &self.state.secure_key_store;
+
+        if !self.state.inited {
+            return Err(ZebraErrors::StateNotInited);
+        }
+        if !self.state.ready {
+            return Err(ZebraErrors::StateNotRead);
+        }
+
+        let pass_keys = KeyChain::from_pass(&password, difficulty)
+            .or(Err(ZebraErrors::GuardInvalidPassword))?;
+        let session = pass_keys.decrypt(&secure_key_store, &orders)?;
+        let aes_key: [u8; AES_KEY_SIZE] = session[..AES_KEY_SIZE]
+            .try_into()
+            .or(Err(ZebraErrors::KeyChainKeysDamaged))?;
+        let pq_pk: [u8; PUBLICKEYS_BYTES] = session[AES_KEY_SIZE..PUBLICKEYS_BYTES + AES_KEY_SIZE]
+            .try_into()
+            .or(Err(ZebraErrors::KeyChainKeysDamaged))?;
+        let pq_sk: [u8; SECRETKEYS_BYTES] = session[AES_KEY_SIZE + PUBLICKEYS_BYTES..]
+            .try_into()
+            .or(Err(ZebraErrors::KeyChainKeysDamaged))?;
+        let bip39_keys = KeyChain::from_keys(aes_key, pq_sk, pq_pk)?;
+
+        self.keys = Some(bip39_keys);
+
+        Ok(())
+    }
+
+    fn get_data(&self) -> Result<Vec<Element>, ZebraErrors> {
+        let orders = &self.state.settings.cipher.cipher_orders;
+        let secure_data_store = &self.state.secure_data_store;
+
+        let keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
+        let json_bytes = keys.decrypt(&secure_data_store, &orders)?;
+
+        let data = serde_json::from_slice(&json_bytes).or(Err(ZebraErrors::StorageDataBroken))?;
+
+        Ok(data)
+    }
+
+    fn bip39_cipher_from_password(
+        &mut self,
+        password: &[u8],
+        m: &Mnemonic,
+        words_password: &str,
+    ) -> Result<(), ZebraErrors> {
+        let orders = &self.state.settings.cipher.cipher_orders;
+        let difficulty = self.state.settings.cipher.difficulty;
+
+        let pwd_keys = KeyChain::from_pass(password, difficulty)?;
+        let bip39_keys = KeyChain::from_bip39(m, words_password)?;
+        let bip39_keys_bytes = bip39_keys.as_bytes().to_vec();
+        let keys_cipher = pwd_keys.encrypt(bip39_keys_bytes, &orders)?;
+
+        let json = serde_json::to_string(&self.data).or(Err(ZebraErrors::GuardBrokenData))?;
+        let data_cipher = bip39_keys.encrypt(json.as_bytes().to_vec(), &orders)?;
+
+        self.keys = Some(bip39_keys);
+        self.state.secure_data_store = data_cipher;
+        self.state.secure_key_store = keys_cipher;
+        self.state.address = self.get_address()?;
+        self.state.inited = true;
+        self.state.update(&self.db)?;
+
+        Ok(())
+    }
+
+    fn update(&mut self) -> Result<(), ZebraErrors> {
+        let orders = &self.state.settings.cipher.cipher_orders;
+
+        let bip39_keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
+        let json = serde_json::to_string(&self.data).or(Err(ZebraErrors::GuardBrokenData))?;
+        let data_cipher = bip39_keys.encrypt(json.as_bytes().to_vec(), &orders)?;
+
+        self.state.secure_data_store = data_cipher;
+        self.state.update(&self.db)?;
+
+        Ok(())
+    }
+
+    fn get_address(&self) -> Result<String, ZebraErrors> {
+        let keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
+
+        Ok(hex::encode(keys.get_address()))
     }
 }
 
@@ -113,7 +194,11 @@ mod core_tests {
     use crate::bip39::mnemonic::Language;
 
     use super::*;
+    use crate::core::record::ElementType;
     use rand;
+    use rand::RngCore;
+
+    use crate::bip39::mnemonic::Mnemonic;
 
     #[test]
     fn test_init() {
@@ -133,10 +218,75 @@ mod core_tests {
         new_core_data.sync().unwrap();
 
         assert!(new_core_data
-            .guard
             .try_unlock("invalid password".as_bytes())
             .is_err());
 
-        assert!(new_core_data.guard.try_unlock(password.as_bytes()).is_ok());
+        assert!(new_core_data.try_unlock(password.as_bytes()).is_ok());
+    }
+
+    #[test]
+    fn test_init_unlock() {
+        let mut rng = rand::thread_rng();
+
+        let m = Mnemonic::gen(&mut rng, 12, Language::English).unwrap();
+        let mut core: Core = Core::from("tes03242", "tes12323", "test299").unwrap();
+
+        let mut password = [0u8; 1245];
+        let words_password = "test";
+        let data = vec![Element {
+            name: "test_name".to_string(),
+            website: "test_domain".to_string(),
+            icon: "test_icon_url".to_string(),
+            element_type: ElementType::Login,
+            created: "".to_string(),
+            updated: "".to_string(),
+            favourite: false,
+            fields: vec![],
+            extra_fields: vec![],
+        }];
+
+        rng.fill_bytes(&mut password);
+
+        assert!(core.keys.is_none());
+        assert!(!core.state.ready);
+
+        assert!(core.try_unlock(&password).is_err());
+
+        // testing init
+        core.sync().unwrap();
+        core.data = data.clone();
+        core.bip39_cipher_from_password(&password, &m, words_password)
+            .unwrap();
+
+        assert!(core.keys.is_some());
+        assert!(core.state.ready);
+
+        let secure_data_store = core.state.secure_data_store.clone();
+        let core_keys = core.keys.clone();
+        drop(core);
+
+        // testing unlock
+        let mut new_core: Core = Core::from("tes03242", "tes12323", "test299").unwrap();
+
+        assert!(new_core.keys.is_none());
+        assert!(!new_core.state.ready);
+
+        new_core.sync().unwrap();
+
+        assert!(new_core.state.ready);
+
+        new_core.try_unlock(&password).unwrap();
+
+        assert!(new_core.keys.is_some());
+        assert!(new_core.state.inited);
+
+        let decrypted_data = new_core.get_data().unwrap();
+
+        assert_eq!(
+            new_core.keys.as_ref().unwrap().as_bytes(),
+            core_keys.as_ref().unwrap().as_bytes()
+        );
+        assert_eq!(secure_data_store, new_core.state.secure_data_store);
+        assert_eq!(&data, &decrypted_data);
     }
 }

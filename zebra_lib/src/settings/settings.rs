@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::appearance::AppearanceSettings;
 use super::cipher::CipherSettings;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SettingsPayload {
     pub appearance: AppearanceSettings,
     pub cipher: CipherSettings,

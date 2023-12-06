@@ -7,7 +7,7 @@ use crate::keychain::keys::CipherOrders;
 
 pub const DIFFICULTY: u32 = 2048;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CipherSettings {
     // difficulty for password PBKDF2
     pub difficulty: u32,

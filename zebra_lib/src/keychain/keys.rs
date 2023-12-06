@@ -37,6 +37,7 @@ pub enum CipherOrders {
     NTRUP1277,
 }
 
+#[derive(Clone)]
 pub struct KeyChain {
     pub ntrup_keys: (Arc<PrivKey>, Arc<PubKey>),
     // TODO: Remake it to TwoFish

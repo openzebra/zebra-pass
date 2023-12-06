@@ -3,14 +3,14 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Themes {
     Dark,
     Light,
     Auto,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppearanceSettings {
     pub theme: Themes,
 }

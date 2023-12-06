@@ -2,8 +2,6 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::{rc::Rc, sync::Arc};
-
 use crate::{
     errors::ZebraErrors,
     settings::{
@@ -14,8 +12,8 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct StatePayload {
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct State {
     // Email for possible send emails or server iteraction
     pub email: Option<String>,
     // Server sync, for online mode, maybe more then one device sync.
@@ -34,16 +32,13 @@ pub struct StatePayload {
 
     // settings.
     pub settings: SettingsPayload,
-}
 
-pub struct State {
-    pub payload: StatePayload,
+    // if we ready to work with storage
     pub ready: bool,
-    db: Arc<LocalStorage>,
 }
 
 impl State {
-    pub fn from(db: Arc<LocalStorage>) -> Self {
+    pub fn new() -> Self {
         let appearance = AppearanceSettings::new();
         let cipher = CipherSettings::new();
         let locale = Language::English;
@@ -52,7 +47,7 @@ impl State {
             appearance,
             locale,
         };
-        let payload = StatePayload {
+        State {
             settings,
             email: None,
             server_sync: false,
@@ -61,32 +56,28 @@ impl State {
             address: String::default(),
             secure_key_store: String::default(),
             secure_data_store: String::default(),
-        };
-        let ready = false;
-
-        Self { db, payload, ready }
+            ready: false,
+        }
     }
 
-    pub fn update(&self) -> Result<(), ZebraErrors> {
+    pub fn update(&self, db: &LocalStorage) -> Result<(), ZebraErrors> {
         // TODO: here will be options for sync with server!
         if !self.ready {
             return Err(ZebraErrors::StateNotRead);
         }
 
-        self.db
-            .set::<&StatePayload>(SLED_STATE_KEY, &self.payload)?;
+        db.set::<&Self>(SLED_STATE_KEY, &self)?;
 
         Ok(())
     }
 
-    pub fn sync(&mut self) -> Result<(), ZebraErrors> {
-        match self.db.get::<StatePayload>(SLED_STATE_KEY) {
+    pub fn sync(&mut self, db: &LocalStorage) -> Result<(), ZebraErrors> {
+        match db.get::<Self>(SLED_STATE_KEY) {
             Ok(payload_store) => {
-                self.payload = payload_store;
+                *self = payload_store;
             }
             Err(_) => {
-                self.db
-                    .set::<&StatePayload>(SLED_STATE_KEY, &self.payload)?;
+                db.set::<&Self>(SLED_STATE_KEY, &self)?;
             }
         };
         self.ready = true;
@@ -97,38 +88,33 @@ impl State {
 
 #[cfg(test)]
 mod settings_tests {
+    use crate::storage::db::LocalStorage;
+
     use super::*;
 
     #[test]
     fn test_zebra_state() {
-        let db = Arc::new(
-            LocalStorage::new("com.test_state", "test-state Corp", "test_state App").unwrap(),
-        );
-        let mut state = State::from(db.clone());
+        let db = LocalStorage::new("com.test_state", "test-state Corp", "test_state App").unwrap();
 
-        state.sync().unwrap();
+        let mut state = State::new();
 
-        state.payload.settings.cipher.difficulty = 123;
-        state.payload.secure_key_store = String::from("test keys");
-        state.payload.secure_data_store = String::from("test data");
+        state.sync(&db).unwrap();
 
-        state.update().unwrap();
+        state.settings.cipher.difficulty = 123;
+        state.secure_key_store = String::from("test keys");
+        state.secure_data_store = String::from("test data");
 
-        let mut new_state = State::from(db.clone());
+        state.update(&db).unwrap();
 
-        new_state.sync().unwrap();
+        let mut new_state = State::new();
+
+        new_state.sync(&db).unwrap();
 
         assert_eq!(
-            state.payload.settings.cipher.difficulty,
-            new_state.payload.settings.cipher.difficulty
+            state.settings.cipher.difficulty,
+            new_state.settings.cipher.difficulty
         );
-        assert_eq!(
-            state.payload.secure_data_store,
-            new_state.payload.secure_data_store
-        );
-        assert_eq!(
-            state.payload.secure_key_store,
-            new_state.payload.secure_key_store
-        );
+        assert_eq!(state.secure_data_store, new_state.secure_data_store);
+        assert_eq!(state.secure_key_store, new_state.secure_key_store);
     }
 }
