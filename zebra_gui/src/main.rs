@@ -5,7 +5,7 @@ extern crate rust_i18n;
 
 use error::GUIError;
 use gui::GUI;
-use iced::{window, Application, Settings};
+use iced::{window, Application, Settings, Size};
 use rust_i18n::i18n;
 use zebra_lib::core::core::Core;
 
@@ -17,7 +17,10 @@ i18n!("zebra_gui/locales", fallback = "en");
 
 fn main() -> iced::Result {
     let window = window::Settings {
-        size: (750, 450),
+        size: Size {
+            width: 750.0,
+            height: 450.0,
+        },
         resizable: false,
         icon: Some(zebra_ui::image::zebra_app_icon()),
         ..Default::default()
@@ -54,6 +57,5 @@ fn main() -> iced::Result {
         default_font: Default::default(),
         default_text_size: 14.0.into(),
         antialiasing: Default::default(),
-        exit_on_close_request: true,
     })
 }

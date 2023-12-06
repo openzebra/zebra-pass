@@ -1635,6 +1635,7 @@ dependencies = [
  "log",
  "num-traits",
  "palette 0.7.3",
+ "raw-window-handle",
  "thiserror",
  "xxhash-rust",
 ]
@@ -1807,7 +1808,6 @@ dependencies = [
  "iced_runtime",
  "iced_style 0.12.0",
  "log",
- "raw-window-handle",
  "thiserror",
  "tracing",
  "web-sys",

@@ -77,7 +77,7 @@ impl Application for GUI {
                 _ => Command::none(),
             },
             GlobalMessage::InterviewMessage(msg) => match &mut self.route {
-                Routers::Interview(view) => view.update::<GlobalMessage>(msg),
+                Routers::Interview(view) => view.update(msg),
                 _ => Command::none(),
             },
             GlobalMessage::Route(route) => {

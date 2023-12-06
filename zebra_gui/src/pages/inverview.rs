@@ -45,8 +45,9 @@ impl Interview {
             InterviewMessage::Next => Command::none(),
             InterviewMessage::Back => match &self.step {
                 SlideStep::ZebraView => {
-                    let route = Routers::Locale(Locale::new(&self.core));
-                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    Command::none()
+                    // let route = Routers::Locale(Locale::new(&self.core));
+                    // Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
                 SlideStep::Rust => Command::none(),
                 SlideStep::Quantom => Command::none(),
