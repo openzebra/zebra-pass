@@ -2,19 +2,20 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use iced::{widget::text, Alignment, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
-use crate::gui::GlobalMessage;
+use crate::gui::{GlobalMessage, Routers};
 
-use super::Page;
+use super::{locale::Locale, Page};
 
 #[derive(Debug)]
 pub struct Loader {
     error: Option<String>,
+    core: Arc<Mutex<Core>>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -25,16 +26,22 @@ pub enum LoadMessage {
 impl Page for Loader {
     type Message = LoadMessage;
 
-    fn new(_core: Arc<Core>) -> Result<Self, ZebraErrors> {
-        Ok(Self { error: None })
+    fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
+        Ok(Self { error: None, core })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
         Subscription::none()
     }
 
-    fn update(&self, _message: LoadMessage) -> Command<GlobalMessage> {
-        Command::none()
+    fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
+        match message {
+            LoadMessage::Synced => {
+                let locale = Locale::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::Locale(locale);
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+            }
+        }
     }
 
     fn view(&self) -> Element<Self::Message> {

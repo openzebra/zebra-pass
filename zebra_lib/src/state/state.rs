@@ -60,7 +60,7 @@ impl State {
         }
     }
 
-    pub fn update(&self, db: &LocalStorage) -> Result<(), ZebraErrors> {
+    pub fn state_update(&self, db: &LocalStorage) -> Result<(), ZebraErrors> {
         // TODO: here will be options for sync with server!
         if !self.ready {
             return Err(ZebraErrors::StateNotRead);

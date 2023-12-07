@@ -1,4 +1,4 @@
-//! -- Copyright (c) 2023 Rina Khasanshin
+//! -- Copyright (c) 2023Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::core::record::Element;
@@ -11,12 +11,22 @@ use crate::{
     storage::db::LocalStorage,
 };
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
+use std::fmt;
 
 pub struct Core {
     pub state: State,
     pub data: Vec<Element>,
     keys: Option<KeyChain>,
     db: LocalStorage,
+}
+
+impl fmt::Debug for Core {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("")
+            .field(&self.state)
+            .field(&self.data)
+            .finish()
+    }
 }
 
 impl Core {
@@ -46,6 +56,10 @@ impl Core {
         self.state.sync(&self.db)?;
 
         Ok(())
+    }
+
+    pub fn state_update(&self) -> Result<(), ZebraErrors> {
+        self.state.state_update(&self.db)
     }
 
     pub fn init_data(
@@ -164,7 +178,7 @@ impl Core {
         self.state.secure_key_store = keys_cipher;
         self.state.address = self.get_address()?;
         self.state.inited = true;
-        self.state.update(&self.db)?;
+        self.state.state_update(&self.db)?;
 
         Ok(())
     }
@@ -177,7 +191,7 @@ impl Core {
         let data_cipher = bip39_keys.encrypt(json.as_bytes().to_vec(), &orders)?;
 
         self.state.secure_data_store = data_cipher;
-        self.state.update(&self.db)?;
+        self.state_update()?;
 
         Ok(())
     }

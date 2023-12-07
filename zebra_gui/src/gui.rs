@@ -3,7 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use std::sync::{Arc, Mutex};
 
-use crate::pages::{locale::Locale, Page};
+use crate::pages::Page;
 
 use super::pages;
 use iced::{executor, Application, Command, Element};
@@ -48,8 +48,10 @@ impl Application for GUI {
         "Zebrapass".into()
     }
 
-    fn new(core: Self::Flags) -> (GUI, Command<Self::Message>) {
-        let route = Routers::Loading(pages::loader::Loader::new());
+    fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
+        let core = Arc::new(Mutex::new(arg));
+        let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let route = Routers::Loading(loader);
 
         (
             Self { core, route },
@@ -67,11 +69,8 @@ impl Application for GUI {
                     Command::none()
                 }
             },
-            GlobalMessage::LoadMessage(_msg) => match &self.route {
-                Routers::Loading(_view) => {
-                    let route = Routers::Locale(Locale::new(Arc::clone(&self.core)));
-                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-                }
+            GlobalMessage::LoadMessage(msg) => match &mut self.route {
+                Routers::Loading(view) => view.update(msg),
                 _ => Command::none(),
             },
             GlobalMessage::LocaleMessage(msg) => match &mut self.route {
@@ -90,18 +89,15 @@ impl Application for GUI {
     }
 
     fn subscription(&self) -> iced::Subscription<Self::Message> {
-        iced::Subscription::batch([
-            match &self.route {
-                Routers::Loading(v) => v.subscription().map(|msg| GlobalMessage::LoadMessage(msg)),
-                Routers::Interview(v) => v
-                    .subscription()
-                    .map(|msg| GlobalMessage::InterviewMessage(msg)),
-                Routers::Locale(v) => v
-                    .subscription()
-                    .map(|msg| GlobalMessage::LocaleMessage(msg)),
-            },
-            // iced::subscription::Subscription::map(Self::Message::Event),
-        ])
+        iced::Subscription::batch([match &self.route {
+            Routers::Loading(v) => v.subscription().map(|msg| GlobalMessage::LoadMessage(msg)),
+            Routers::Interview(v) => v
+                .subscription()
+                .map(|msg| GlobalMessage::InterviewMessage(msg)),
+            Routers::Locale(v) => v
+                .subscription()
+                .map(|msg| GlobalMessage::LocaleMessage(msg)),
+        }])
     }
 
     fn view(&self) -> Element<'_, Self::Message, iced::Renderer<Self::Theme>> {

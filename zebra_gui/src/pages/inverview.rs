@@ -1,7 +1,7 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use crate::{
     gui::{GlobalMessage, Routers},
@@ -35,7 +35,7 @@ pub enum InterviewMessage {
 impl Page for Interview {
     type Message = InterviewMessage;
 
-    fn new(_core: Arc<Core>) -> Result<Self, ZebraErrors> {
+    fn new(_core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         Ok(Self {
             step: SlideStep::ZebraView,
         })
@@ -60,7 +60,7 @@ impl Page for Interview {
         }
     }
 
-    fn view(&self) -> iced::Element<Self::Message> {
+    fn view(&self) -> Element<Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
             .width(220)

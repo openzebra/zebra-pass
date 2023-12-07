@@ -25,7 +25,7 @@ fn main() -> iced::Result {
         icon: Some(zebra_ui::image::zebra_app_icon()),
         ..Default::default()
     };
-    let core = match Core::new() {
+    let mut core = match Core::new() {
         Ok(core) => core,
         Err(e) => {
             return GUIError::run(Settings {
@@ -47,18 +47,7 @@ fn main() -> iced::Result {
         }
     };
 
-    match core.state.lock() {
-        Ok(state) => {
-            rust_i18n::set_locale(state.payload.settings.locale.symbol());
-        }
-        Err(e) => {
-            return GUIError::run(Settings {
-                window,
-                flags: e.to_string(),
-                ..Default::default()
-            });
-        }
-    }
+    rust_i18n::set_locale(core.state.settings.locale.symbol());
 
     GUI::run(Settings {
         window,

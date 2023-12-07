@@ -1,7 +1,7 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use crate::{
     gui::{GlobalMessage, Routers},
@@ -18,10 +18,11 @@ use zebra_ui::widget::*;
 
 use super::{inverview::Interview, Page};
 
+#[derive(Debug)]
 pub struct Locale {
     locales: [Language; 8],
     selected: Option<Language>,
-    core: Arc<Core>,
+    core: Arc<Mutex<Core>>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -35,13 +36,12 @@ pub enum LocaleMessage {
 impl Page for Locale {
     type Message = LocaleMessage;
 
-    fn new(core: Arc<Core>) -> Result<Self, ZebraErrors> {
+    fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let locales = Language::ALL;
         let selected = Some(
-            core.state
-                .lock()
+            core.lock()
                 .or(Err(ZebraErrors::SyncStateLock))?
-                .payload
+                .state
                 .settings
                 .locale,
         );
@@ -60,18 +60,19 @@ impl Page for Locale {
     fn update(&mut self, message: LocaleMessage) -> Command<GlobalMessage> {
         match message {
             LocaleMessage::Next => {
-                let route = Routers::Interview(Interview::new());
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                Command::none()
+                // let route = Routers::Interview(Interview::new(Arc::clone(&self.core)));
+                // Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             LocaleMessage::Selected(lang) => {
                 // TODO: remove unwrap.
-                let mut state = self.core.state.lock().unwrap();
+                let mut core = self.core.lock().unwrap();
 
                 self.selected = Some(lang.clone());
 
                 rust_i18n::set_locale(&lang.symbol());
-                state.payload.settings.locale = lang;
-                state.update().unwrap();
+                core.state.settings.locale = lang;
+                core.state_update().unwrap();
 
                 Command::none()
             }
@@ -86,7 +87,7 @@ impl Page for Locale {
         }
     }
 
-    fn view(&self) -> Element<LocaleMessage> {
+    fn view(&self) -> Element<Self::Message> {
         let locale_pick_list: iced::widget::PickList<'_, Language, LocaleMessage, Renderer> =
             pick_list(
                 self.locales.as_slice(),
