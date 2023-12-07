@@ -24,6 +24,7 @@ enum SlideStep {
 #[derive(Debug)]
 pub struct Interview {
     step: SlideStep,
+    core: Arc<Mutex<Core>>,
 }
 
 #[derive(Debug, Clone)]
@@ -35,8 +36,9 @@ pub enum InterviewMessage {
 impl Page for Interview {
     type Message = InterviewMessage;
 
-    fn new(_core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
+    fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         Ok(Self {
+            core,
             step: SlideStep::ZebraView,
         })
     }
@@ -50,9 +52,9 @@ impl Page for Interview {
             InterviewMessage::Next => Command::none(),
             InterviewMessage::Back => match &self.step {
                 SlideStep::ZebraView => {
-                    Command::none()
-                    // let route = Routers::Locale(Locale::new(&self.core));
-                    // Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    let locale = Locale::new(Arc::clone(&self.core)).unwrap();
+                    let route = Routers::Locale(locale);
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
                 SlideStep::Rust => Command::none(),
                 SlideStep::Quantom => Command::none(),

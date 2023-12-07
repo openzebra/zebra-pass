@@ -60,9 +60,9 @@ impl Page for Locale {
     fn update(&mut self, message: LocaleMessage) -> Command<GlobalMessage> {
         match message {
             LocaleMessage::Next => {
-                Command::none()
-                // let route = Routers::Interview(Interview::new(Arc::clone(&self.core)));
-                // Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                let locale = Interview::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::Interview(locale);
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             LocaleMessage::Selected(lang) => {
                 // TODO: remove unwrap.
