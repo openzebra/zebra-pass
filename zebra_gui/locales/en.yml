@@ -4,4 +4,7 @@ welcome: 'Welcome'
 error.message: 'Something wrong, error message is: %{error}'
 locale.en: 'English'
 locale.ru: 'Русский'
-start.description: 'Quantum-Resistant Password Management!'
+zebra.description: 'Quantum-Resistant Password Management!'
+rust.description: 'Rust guarantee memory safety!'
+quantom.description: 'NTRU Prime Quantum-Resistant Algorithm'
+

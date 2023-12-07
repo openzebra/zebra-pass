@@ -4,3 +4,7 @@ welcome: 'Привет'
 gui_error_message: 'Что то не так, Ошибка: %{error}'
 locale.en: 'English'
 locale.ru: 'Русский'
+zebra.description: 'Квантовая защита ваших паролей'
+rust.description: 'Гарантировая безопасность памяти от Rust!'
+quantom.description: 'Квантовый алгоритм шифрования NTRU Prime'
+

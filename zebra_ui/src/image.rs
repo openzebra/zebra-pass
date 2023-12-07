@@ -12,6 +12,7 @@ const ATOM: &[u8] = include_bytes!("../static/imgs/atom.svg");
 const APP_ICON: &[u8] = include_bytes!("../static/imgs/logo.webp");
 const BACK_ICON: &[u8] = include_bytes!("../static/icons/back.svg");
 const FORWARD_ICON: &[u8] = include_bytes!("../static/icons/forward.svg");
+const RUST_ICON: &[u8] = include_bytes!("../static/imgs/rust.svg");
 
 pub fn zebra_print_view() -> Svg {
     let h = Handle::from_memory(PRINT);
@@ -28,6 +29,15 @@ pub fn zebra_app_icon() -> icon::Icon {
 
 pub fn zebra_heat() -> Svg {
     let h = Handle::from_memory(ZEBRAS_HEAT);
+    Svg::new(h)
+        .height(Length::Fill)
+        .height(Length::Fill)
+        .content_fit(ContentFit::Cover)
+        .style(svg::Svg::Inverse)
+}
+
+pub fn rust_logo() -> Svg {
+    let h = Handle::from_memory(RUST_ICON);
     Svg::new(h)
         .height(Length::Fill)
         .height(Length::Fill)

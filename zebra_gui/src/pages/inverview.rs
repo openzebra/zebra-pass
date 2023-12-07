@@ -49,15 +49,31 @@ impl Page for Interview {
 
     fn update(&mut self, message: InterviewMessage) -> Command<GlobalMessage> {
         match message {
-            InterviewMessage::Next => Command::none(),
-            InterviewMessage::Back => match &self.step {
+            InterviewMessage::Next => match self.step {
+                SlideStep::ZebraView => {
+                    self.step = SlideStep::Rust;
+                    Command::none()
+                }
+                SlideStep::Rust => {
+                    self.step = SlideStep::Quantom;
+                    Command::none()
+                }
+                SlideStep::Quantom => Command::none(),
+            },
+            InterviewMessage::Back => match self.step {
                 SlideStep::ZebraView => {
                     let locale = Locale::new(Arc::clone(&self.core)).unwrap();
                     let route = Routers::Locale(locale);
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
-                SlideStep::Rust => Command::none(),
-                SlideStep::Quantom => Command::none(),
+                SlideStep::Rust => {
+                    self.step = SlideStep::ZebraView;
+                    Command::none()
+                }
+                SlideStep::Quantom => {
+                    self.step = SlideStep::Rust;
+                    Command::none()
+                }
             },
         }
     }
@@ -86,7 +102,7 @@ impl Page for Interview {
 
 impl Interview {
     fn start_slide<'a>(&self) -> Column<'a, InterviewMessage> {
-        let description = Text::new(t!("start.description"))
+        let description = Text::new(t!("zebra.description"))
             .size(18)
             .horizontal_alignment(Horizontal::Right)
             .vertical_alignment(iced::alignment::Vertical::Bottom);
@@ -113,15 +129,56 @@ impl Interview {
     }
 
     fn rust_slide<'a>(&self) -> Column<'a, InterviewMessage> {
-        let col = Column::new();
-        let zebra_img = zebra_ui::image::zebra_heat().height(200).width(200);
+        let description = Text::new(t!("rust.description"))
+            .size(18)
+            .horizontal_alignment(Horizontal::Right)
+            .vertical_alignment(iced::alignment::Vertical::Bottom);
+        let zebra_img = zebra_ui::image::rust_logo().height(250).width(250);
+        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(InterviewMessage::Next);
+        let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(InterviewMessage::Back);
+        let btns_row = Row::new().push(back_btn).push(forward_btn);
 
-        col.push(zebra_img)
+        Column::new()
+            .padding(20)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Center)
+            .push(zebra_img)
+            .push(description)
+            .push(Space::with_height(60))
+            .push(btns_row)
     }
 
     fn quantom_slide<'a>(&self) -> Column<'a, InterviewMessage> {
-        let col = Column::new();
+        let description = Text::new(t!("quantom.description"))
+            .size(18)
+            .horizontal_alignment(Horizontal::Right)
+            .vertical_alignment(iced::alignment::Vertical::Bottom);
+        let zebra_img = zebra_ui::image::atom().height(250).width(250);
+        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(InterviewMessage::Next);
+        let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(InterviewMessage::Back);
+        let btns_row = Row::new().push(back_btn).push(forward_btn);
 
-        col
+        Column::new()
+            .padding(20)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Center)
+            .push(zebra_img)
+            .push(description)
+            .push(Space::with_height(60))
+            .push(btns_row)
     }
 }

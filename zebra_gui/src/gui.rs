@@ -28,7 +28,6 @@ pub enum GlobalMessage {
     LoadMessage(pages::loader::LoadMessage),
     LocaleMessage(pages::locale::LocaleMessage),
     InterviewMessage(pages::inverview::InterviewMessage),
-    Event(iced::Event),
     Route(Routers),
 }
 
@@ -63,12 +62,6 @@ impl Application for GUI {
 
     fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
         match message {
-            GlobalMessage::Event(e) => match e {
-                _ => {
-                    // TODO: native events...
-                    Command::none()
-                }
-            },
             GlobalMessage::LoadMessage(msg) => match &mut self.route {
                 Routers::Loading(view) => view.update(msg),
                 _ => Command::none(),
