@@ -7,4 +7,5 @@ locale.ru: 'Русский'
 zebra.description: 'Quantum-Resistant Password Management!'
 rust.description: 'Rust guarantee memory safety!'
 quantom.description: 'NTRU Prime Quantum-Resistant Algorithm'
+zebra_name: 'Zebra Password Manager'
 

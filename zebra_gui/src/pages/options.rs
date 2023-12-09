@@ -51,12 +51,14 @@ impl Page for Options {
             .width(220)
             .height(Length::Fill)
             .push(zebra_print);
-        let title = Text::new(t!("welcome"))
+        let title = Text::new(t!("zebra_name"))
             .size(34)
             .horizontal_alignment(Horizontal::Center);
         let col = Column::new()
             .height(Length::Fill)
             .width(Length::Fill)
+            .padding(15)
+            .align_items(iced::Alignment::Center)
             .push(title);
         let row = Row::new().width(Length::Fill).push(print_col).push(col);
 

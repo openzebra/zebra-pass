@@ -7,4 +7,4 @@ locale.ru: 'Русский'
 zebra.description: 'Квантовая защита ваших паролей'
 rust.description: 'Гарантировая безопасность памяти от Rust!'
 quantom.description: 'Квантовый алгоритм шифрования NTRU Prime'
-
+zebra_name: 'Зебра менеджер паролей'
