@@ -12,24 +12,34 @@ use iced::{widget::Column, Command, Subscription};
 use zebra_ui::widget::*;
 
 #[derive(Debug)]
-pub struct Options {}
+pub struct Options {
+    core: Arc<Mutex<Core>>,
+}
 
 #[derive(Debug)]
-pub enum OptionsMessage {}
+pub enum OptionsMessage {
+    Back,
+    Restore,
+    Create,
+}
 
 impl Page for Options {
     type Message = OptionsMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        Ok(Self {})
+        Ok(Self { core })
     }
 
-    fn subscription(&self) -> iced::Subscription<Self::Message> {
+    fn subscription(&self) -> Subscription<Self::Message> {
         Subscription::none()
     }
 
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
-        Command::none()
+        match message {
+            OptionsMessage::Back => Command::none(),
+            OptionsMessage::Create => Command::none(),
+            OptionsMessage::Restore => Command::none(),
+        }
     }
 
     fn view(&self) -> Element<Self::Message> {
