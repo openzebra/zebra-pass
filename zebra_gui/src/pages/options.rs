@@ -5,10 +5,13 @@
 use std::sync::{Arc, Mutex};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
-use crate::gui::GlobalMessage;
+use crate::{
+    gui::{GlobalMessage, Routers},
+    rust_i18n::t,
+};
 
 use super::Page;
-use iced::{widget::Column, Command, Subscription};
+use iced::{alignment::Horizontal, Command, Length, Subscription};
 use zebra_ui::widget::*;
 
 #[derive(Debug)]
@@ -43,6 +46,23 @@ impl Page for Options {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        Column::new().into()
+        let zebra_print = zebra_ui::image::zebra_print_view();
+        let print_col = Column::new()
+            .width(220)
+            .height(Length::Fill)
+            .push(zebra_print);
+        let title = Text::new(t!("welcome"))
+            .size(34)
+            .horizontal_alignment(Horizontal::Center);
+        let col = Column::new()
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .push(title);
+        let row = Row::new().width(Length::Fill).push(print_col).push(col);
+
+        Container::new(row)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .into()
     }
 }
