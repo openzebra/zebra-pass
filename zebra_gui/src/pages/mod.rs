@@ -11,6 +11,7 @@ use crate::gui::GlobalMessage;
 use iced::{Command, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
+pub mod gen_phrase;
 pub mod inverview;
 pub mod loader;
 pub mod locale;

@@ -95,9 +95,9 @@ impl Options {
                 .size(16),
         )
         .padding(8)
-        .width(Length::Fill)
+        .width(200)
         .on_press(OptionsMessage::Create)
-        .style(zebra_ui::style::button::Button::Primary);
+        .style(zebra_ui::style::button::Button::OutlinePrimary);
         let restore_btn = Button::new(
             Text::new(t!("restore_btn"))
                 .horizontal_alignment(Horizontal::Center)
@@ -105,7 +105,7 @@ impl Options {
                 .size(16),
         )
         .padding(8)
-        .width(Length::Fill)
+        .width(200)
         .on_press(OptionsMessage::Restore)
         .style(zebra_ui::style::button::Button::OutlinePrimary);
         let zebra_hooves = zebra_ui::image::zebra_hooves()
