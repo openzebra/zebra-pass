@@ -13,7 +13,7 @@ use sha2::{Digest, Sha256, Sha512};
 use std::borrow::Cow;
 use unicode_normalization::UnicodeNormalization;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Language {
     English,
 }
