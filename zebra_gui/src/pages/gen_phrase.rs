@@ -27,7 +27,6 @@ pub struct GenPhrase {
 #[derive(Debug, Clone, Copy)]
 pub enum GenPhraseMessage {
     ReGenerate,
-    SetDict,
     CountSelected(usize),
     LanguageSelected(zebra_lib::bip39::mnemonic::Language),
 }
@@ -69,7 +68,6 @@ impl Page for GenPhrase {
                 self.re_generate();
                 Command::none()
             }
-            GenPhraseMessage::SetDict => Command::none(),
             GenPhraseMessage::CountSelected(count) => {
                 self.count = count;
                 self.re_generate();
@@ -144,7 +142,13 @@ impl GenPhrase {
         .padding(5)
         .width(150)
         .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        let reload_btn = Button::new(zebra_ui::image::reload_icon().height(35).width(35))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(GenPhraseMessage::ReGenerate);
         let header_row = Row::new()
+            .push(reload_btn)
+            .push(Space::new(10, 0))
             .push(count_pick_list)
             .push(Space::new(10, 0))
             .push(language_pick_list);

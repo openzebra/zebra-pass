@@ -39,7 +39,7 @@ impl svg::StyleSheet for Theme {
         match style {
             Svg::Normal => svg::Appearance::default(),
             Svg::Primary => svg::Appearance {
-                color: Some(palette.secondary),
+                color: Some(palette.window_background_inverse),
             },
             Svg::Inverse => svg::Appearance {
                 color: Some(palette.window_background_inverse),
