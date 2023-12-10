@@ -14,7 +14,7 @@ use zebra_ui::widget::*;
 use super::{locale::Locale, options::Options, Page};
 
 #[derive(Debug, Default)]
-enum SlideStep {
+pub enum SlideStep {
     #[default]
     ZebraView,
     Rust,
@@ -23,7 +23,7 @@ enum SlideStep {
 
 #[derive(Debug)]
 pub struct Interview {
-    step: SlideStep,
+    pub step: SlideStep,
     core: Arc<Mutex<Core>>,
 }
 
