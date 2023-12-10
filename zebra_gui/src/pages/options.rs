@@ -11,6 +11,7 @@ use crate::{
 };
 
 use super::{
+    gen_phrase::GenPhrase,
     inverview::{Interview, SlideStep},
     Page,
 };
@@ -48,7 +49,11 @@ impl Page for Options {
                 let route = Routers::Interview(inverview);
                 Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
-            OptionsMessage::Create => Command::none(),
+            OptionsMessage::Create => {
+                let gen_phrase = GenPhrase::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::GenPhrase(gen_phrase);
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+            }
             OptionsMessage::Restore => Command::none(),
         }
     }

@@ -17,6 +17,7 @@ pub enum Routers {
     Locale(pages::locale::Locale),
     Interview(pages::inverview::Interview),
     Options(pages::options::Options),
+    GenPhrase(pages::gen_phrase::GenPhrase),
 }
 
 pub struct GUI {
@@ -30,6 +31,7 @@ pub enum GlobalMessage {
     LocaleMessage(pages::locale::LocaleMessage),
     InterviewMessage(pages::inverview::InterviewMessage),
     OptionsMessage(pages::options::OptionsMessage),
+    GenPhraseMessage(pages::gen_phrase::GenPhraseMessage),
     Route(Routers),
 }
 
@@ -80,6 +82,10 @@ impl Application for GUI {
                 Routers::Options(view) => view.update(msg),
                 _ => Command::none(),
             },
+            GlobalMessage::GenPhraseMessage(msg) => match &mut self.route {
+                Routers::GenPhrase(view) => view.update(msg),
+                _ => Command::none(),
+            },
             GlobalMessage::Route(route) => {
                 self.route = route;
                 Command::none()
@@ -96,10 +102,12 @@ impl Application for GUI {
             Routers::Locale(v) => v
                 .subscription()
                 .map(|msg| GlobalMessage::LocaleMessage(msg)),
-
             Routers::Options(v) => v
                 .subscription()
                 .map(|msg| GlobalMessage::OptionsMessage(msg)),
+            Routers::GenPhrase(v) => v
+                .subscription()
+                .map(|msg| GlobalMessage::GenPhraseMessage(msg)),
         }])
     }
 
@@ -109,6 +117,7 @@ impl Application for GUI {
             Routers::Locale(l) => l.view().map(|msg| GlobalMessage::LocaleMessage(msg)),
             Routers::Interview(l) => l.view().map(|msg| GlobalMessage::InterviewMessage(msg)),
             Routers::Options(l) => l.view().map(|msg| GlobalMessage::OptionsMessage(msg)),
+            Routers::GenPhrase(l) => l.view().map(|msg| GlobalMessage::GenPhraseMessage(msg)),
         }
     }
 
