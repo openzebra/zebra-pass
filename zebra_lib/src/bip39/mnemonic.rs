@@ -13,7 +13,7 @@ use sha2::{Digest, Sha256, Sha512};
 use std::borrow::Cow;
 use unicode_normalization::UnicodeNormalization;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Language {
     English,
 }
@@ -34,6 +34,18 @@ fn normalize_utf8_cow<'a>(cow: &mut Cow<'a, str>) {
 
 fn is_invalid_word_count(word_count: usize) -> bool {
     word_count < MIN_NB_WORDS || word_count % 3 != 0 || word_count > MAX_NB_WORDS
+}
+
+impl std::fmt::Display for Language {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Language::English => "English",
+            }
+        )
+    }
 }
 
 impl Mnemonic {
