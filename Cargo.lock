@@ -4856,6 +4856,7 @@ dependencies = [
  "dark-light",
  "iced",
  "iced_lazy",
+ "rand",
  "rust-i18n",
  "tokio",
  "zebra_lib",
@@ -4868,6 +4869,7 @@ version = "0.1.0"
 dependencies = [
  "dark-light",
  "iced",
+ "rand",
  "rust-i18n",
  "tokio",
  "zebra_lib",
