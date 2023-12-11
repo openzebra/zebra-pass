@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::widget::{pick_list, Space};
-use iced::{Command, Length, Subscription};
+use iced::{alignment::Horizontal, Alignment, Command, Length, Subscription};
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
 
@@ -29,6 +29,8 @@ pub enum GenPhraseMessage {
     ReGenerate,
     CountSelected(usize),
     LanguageSelected(zebra_lib::bip39::mnemonic::Language),
+    Back,
+    Next,
 }
 
 impl Page for GenPhrase {
@@ -78,6 +80,8 @@ impl Page for GenPhrase {
                 self.re_generate();
                 Command::none()
             }
+            GenPhraseMessage::Back => Command::none(),
+            GenPhraseMessage::Next => Command::none(),
         }
     }
 
@@ -87,10 +91,22 @@ impl Page for GenPhrase {
             .width(220)
             .height(Length::Fill)
             .push(zebra_print);
+        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(GenPhraseMessage::Next);
+        let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(GenPhraseMessage::Back);
+        let btns_row = Row::new().push(back_btn).push(forward_btn);
+        let header_col = self.view_header().push(btns_row);
+
+        // let main_col = Column::new().push(header_col).push(btns_row);
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)
-            .push(self.view_header());
+            .push(header_col);
 
         Container::new(row)
             .height(Length::Fill)
@@ -118,19 +134,52 @@ impl GenPhrase {
         }
     }
 
+    pub fn view_words_row(&self) -> Column<'_, GenPhraseMessage> {
+        let words_row: Vec<Element<'_, GenPhraseMessage>> = self
+            .words
+            .chunks(4)
+            .map(|chunk| {
+                let words_chunk: Vec<Element<'_, GenPhraseMessage>> = chunk
+                    .iter()
+                    .map(|w| {
+                        Button::new(
+                            Text::new(w)
+                                .size(14)
+                                .horizontal_alignment(Horizontal::Center),
+                        )
+                        .style(zebra_ui::style::button::Button::Primary)
+                        .width(90)
+                        .height(30)
+                        .into()
+                    })
+                    .collect();
+                Row::with_children(words_chunk)
+                    .spacing(5)
+                    .align_items(Alignment::Start)
+                    .into()
+            })
+            .collect();
+
+        Column::with_children(words_row)
+            .width(400)
+            .height(220)
+            .spacing(5)
+            .align_items(Alignment::Center)
+    }
+
     pub fn view_header(&self) -> Column<'_, GenPhraseMessage> {
         let title = match &self.error_msg {
             Some(e) => Text::new(e.clone()),
             None => Text::new(t!("gen_page_title")),
         }
-        .size(24);
+        .size(20);
         let count_pick_list = pick_list(
             self.counts.as_slice(),
             Some(self.count),
             GenPhraseMessage::CountSelected,
         )
-        .text_size(20)
-        .padding(5)
+        .text_size(16)
+        .padding(4)
         .width(80)
         .style(zebra_ui::style::pick_list::PickList::OutlineLight);
         let language_pick_list = pick_list(
@@ -138,11 +187,11 @@ impl GenPhrase {
             Some(self.dict),
             GenPhraseMessage::LanguageSelected,
         )
-        .text_size(20)
-        .padding(5)
+        .text_size(16)
+        .padding(4)
         .width(150)
         .style(zebra_ui::style::pick_list::PickList::OutlineLight);
-        let reload_btn = Button::new(zebra_ui::image::reload_icon().height(35).width(35))
+        let reload_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press(GenPhraseMessage::ReGenerate);
@@ -159,7 +208,9 @@ impl GenPhrase {
             .align_items(iced::Alignment::Center)
             .padding(10)
             .push(title)
-            .push(Space::new(0, 5))
+            .push(Space::new(0, 20))
             .push(header_row)
+            .push(Space::new(0, 20))
+            .push(self.view_words_row())
     }
 }
