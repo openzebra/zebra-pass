@@ -17,21 +17,21 @@ impl checkbox::StyleSheet for Theme {
 
         if is_selected {
             checkbox::Appearance {
-                background: palette.window_background_inverse.into(),
-                border_width: 0.0,
-                border_color: iced::Color::TRANSPARENT,
-                icon_color: palette.window_background_inverse,
+                background: iced::Color::TRANSPARENT.into(),
+                border_width: 1.0,
+                border_color: palette.primary,
+                icon_color: palette.primary,
                 text_color: None,
-                border_radius: BorderRadius::from(palette.radius),
+                border_radius: BorderRadius::from(6.0),
             }
         } else {
             checkbox::Appearance {
-                background: palette.danger.into(),
-                border_width: 0.0,
-                border_color: iced::Color::TRANSPARENT,
-                icon_color: palette.window_background_inverse,
+                background: palette.window_background.into(),
+                border_width: 1.0,
+                border_color: palette.primary,
+                icon_color: palette.primary,
                 text_color: None,
-                border_radius: BorderRadius::from(palette.radius),
+                border_radius: BorderRadius::from(6.0),
             }
         }
     }

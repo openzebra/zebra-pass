@@ -1,7 +1,7 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use iced::widget::{pick_list, Space};
+use iced::widget::{pick_list, Checkbox, Space};
 use iced::{alignment::Horizontal, Alignment, Command, Length, Subscription};
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
@@ -21,11 +21,13 @@ pub struct GenPhrase {
     pub error_msg: Option<String>,
     pub dicts: [zebra_lib::bip39::mnemonic::Language; 1],
     pub dict: zebra_lib::bip39::mnemonic::Language,
+    is_checked: bool,
     core: Arc<Mutex<Core>>,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum GenPhraseMessage {
+    ApproveSeed(bool),
     ReGenerate,
     CopyWords,
     CountSelected(usize),
@@ -39,7 +41,7 @@ impl Page for GenPhrase {
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let mut rng = rand::thread_rng();
-        let count = 12; // number of words
+        let count = 24; // number of words
         let dict = zebra_lib::bip39::mnemonic::Language::English;
         let m = Mnemonic::gen(&mut rng, count, dict.clone())
             .or(Err(ZebraErrors::Bip39InvalidMnemonic))?;
@@ -47,6 +49,7 @@ impl Page for GenPhrase {
         let error_msg = None;
         let counts = [12, 15, 18, 21, 24];
         let dicts = [dict.clone()];
+        let is_checked = false;
 
         Ok(Self {
             core,
@@ -56,6 +59,7 @@ impl Page for GenPhrase {
             error_msg,
             count,
             dict,
+            is_checked,
         })
     }
 
@@ -81,6 +85,10 @@ impl Page for GenPhrase {
                 self.re_generate();
                 Command::none()
             }
+            GenPhraseMessage::ApproveSeed(v) => {
+                self.is_checked = v;
+                Command::none()
+            }
             GenPhraseMessage::Back => Command::none(),
             GenPhraseMessage::Next => Command::none(),
             GenPhraseMessage::CopyWords => Command::none(),
@@ -96,15 +104,26 @@ impl Page for GenPhrase {
         let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(GenPhraseMessage::Next);
+            .on_press_maybe(match self.is_checked {
+                true => Some(GenPhraseMessage::Next),
+                false => None,
+            });
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press(GenPhraseMessage::Back);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
-        let header_col = self.view_header().push(btns_row);
+        let check_box = Checkbox::new(
+            t!("approve_seed_remember"),
+            self.is_checked,
+            GenPhraseMessage::ApproveSeed,
+        );
+        let row_check_box = Row::new()
+            .push(check_box)
+            .align_items(Alignment::Start)
+            .width(380);
+        let header_col = self.view_header().push(row_check_box).push(btns_row);
 
-        // let main_col = Column::new().push(header_col).push(btns_row);
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)
@@ -163,7 +182,6 @@ impl GenPhrase {
             .collect();
 
         Column::with_children(words_row)
-            .width(400)
             .height(220)
             .spacing(5)
             .align_items(Alignment::Center)
@@ -174,7 +192,7 @@ impl GenPhrase {
             Some(e) => Text::new(e.clone()),
             None => Text::new(t!("gen_page_title")),
         }
-        .size(20);
+        .size(24);
         let count_pick_list = pick_list(
             self.counts.as_slice(),
             Some(self.count),
