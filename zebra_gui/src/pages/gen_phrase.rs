@@ -27,6 +27,7 @@ pub struct GenPhrase {
 #[derive(Debug, Clone, Copy)]
 pub enum GenPhraseMessage {
     ReGenerate,
+    CopyWords,
     CountSelected(usize),
     LanguageSelected(zebra_lib::bip39::mnemonic::Language),
     Back,
@@ -82,6 +83,7 @@ impl Page for GenPhrase {
             }
             GenPhraseMessage::Back => Command::none(),
             GenPhraseMessage::Next => Command::none(),
+            GenPhraseMessage::CopyWords => Command::none(),
         }
     }
 
@@ -195,12 +197,16 @@ impl GenPhrase {
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press(GenPhraseMessage::ReGenerate);
+        let copy_btn = Button::new(zebra_ui::image::copy_icon().height(30).width(30))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(GenPhraseMessage::CopyWords);
         let header_row = Row::new()
+            .spacing(10)
             .push(reload_btn)
-            .push(Space::new(10, 0))
             .push(count_pick_list)
-            .push(Space::new(10, 0))
-            .push(language_pick_list);
+            .push(language_pick_list)
+            .push(copy_btn);
 
         Column::new()
             .width(Length::Fill)

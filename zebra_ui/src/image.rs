@@ -15,6 +15,7 @@ const FORWARD_ICON: &[u8] = include_bytes!("../static/icons/forward.svg");
 const RUST_ICON: &[u8] = include_bytes!("../static/imgs/rust.svg");
 const HOOVES_ICON: &[u8] = include_bytes!("../static/icons/hooves.svg");
 const RELOAD_ICON: &[u8] = include_bytes!("../static/icons/reload.svg");
+const COPY_ICON: &[u8] = include_bytes!("../static/icons/copy.svg");
 
 pub fn zebra_print_view() -> Svg {
     let h = Handle::from_memory(PRINT);
@@ -49,6 +50,15 @@ pub fn zebra_hooves() -> Svg {
 
 pub fn reload_icon() -> Svg {
     let h = Handle::from_memory(RELOAD_ICON);
+    Svg::new(h)
+        .height(Length::Fill)
+        .height(Length::Fill)
+        .content_fit(ContentFit::Cover)
+        .style(svg::Svg::Primary)
+}
+
+pub fn copy_icon() -> Svg {
+    let h = Handle::from_memory(COPY_ICON);
     Svg::new(h)
         .height(Length::Fill)
         .height(Length::Fill)
