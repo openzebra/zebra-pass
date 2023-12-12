@@ -2,14 +2,15 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::widget::{pick_list, Checkbox, Space};
-use iced::{alignment::Horizontal, Alignment, Command, Length, Subscription};
+use iced::{alignment::Horizontal, clipboard, Alignment, Command, Length, Subscription};
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
 
-use crate::gui::GlobalMessage;
+use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
 use rand;
 
+use super::options::Options;
 use super::Page;
 use zebra_ui::widget::*;
 
@@ -89,9 +90,17 @@ impl Page for GenPhrase {
                 self.is_checked = v;
                 Command::none()
             }
-            GenPhraseMessage::Back => Command::none(),
+            GenPhraseMessage::Back => {
+                // TODO: remove unwrap!
+                let options = Options::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::Options(options);
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+            }
             GenPhraseMessage::Next => Command::none(),
-            GenPhraseMessage::CopyWords => Command::none(),
+            GenPhraseMessage::CopyWords => {
+                let words = self.words.join(" ");
+                clipboard::write::<GlobalMessage>(words)
+            }
         }
     }
 
@@ -101,7 +110,16 @@ impl Page for GenPhrase {
             .width(220)
             .height(Length::Fill)
             .push(zebra_print);
-        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
+        let forward_icon =
+            zebra_ui::image::forward_icon()
+                .height(50)
+                .width(50)
+                .style(if self.is_checked {
+                    zebra_ui::style::svg::Svg::Primary
+                } else {
+                    zebra_ui::style::svg::Svg::PrimaryDisabled
+                });
+        let forward_btn = Button::new(forward_icon)
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press_maybe(match self.is_checked {

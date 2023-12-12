@@ -8,6 +8,7 @@ use iced::widget::svg;
 pub enum Svg {
     #[default]
     Primary,
+    PrimaryDisabled,
     Inverse,
     Normal,
 }
@@ -25,6 +26,13 @@ impl svg::StyleSheet for Theme {
             Svg::Primary => svg::Appearance {
                 color: Some(palette.primary),
             },
+            Svg::PrimaryDisabled => {
+                let mut color = palette.primary;
+
+                color.a = 0.5;
+
+                svg::Appearance { color: Some(color) }
+            }
             Svg::Inverse => svg::Appearance {
                 color: Some(palette.window_background_inverse),
             },
@@ -40,6 +48,9 @@ impl svg::StyleSheet for Theme {
             Svg::Normal => svg::Appearance::default(),
             Svg::Primary => svg::Appearance {
                 color: Some(palette.window_background_inverse),
+            },
+            Svg::PrimaryDisabled => svg::Appearance {
+                color: Some(palette.primary),
             },
             Svg::Inverse => svg::Appearance {
                 color: Some(palette.window_background_inverse),
