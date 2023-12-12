@@ -16,6 +16,7 @@ pub mod inverview;
 pub mod loader;
 pub mod locale;
 pub mod options;
+pub mod restore;
 
 pub trait Page {
     type Message: Debug + Send;
