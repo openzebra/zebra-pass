@@ -13,6 +13,7 @@ use crate::{
 use super::{
     gen_phrase::GenPhrase,
     inverview::{Interview, SlideStep},
+    restore::Restore,
     Page,
 };
 use iced::{alignment::Horizontal, widget::Space, Command, Length, Subscription};
@@ -54,7 +55,11 @@ impl Page for Options {
                 let route = Routers::GenPhrase(gen_phrase);
                 Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
-            OptionsMessage::Restore => Command::none(),
+            OptionsMessage::Restore => {
+                let restore = Restore::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::Restore(restore);
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+            }
         }
     }
 
@@ -67,7 +72,7 @@ impl Page for Options {
         let title = Text::new(t!("zebra_name"))
             .size(34)
             .horizontal_alignment(Horizontal::Center);
-        let forward_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
+        let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press(OptionsMessage::Back);
@@ -80,7 +85,7 @@ impl Page for Options {
             .push(Space::new(0, 20))
             .push(self.options_view())
             .push(Space::new(0, 20))
-            .push(forward_btn);
+            .push(back_btn);
         let row = Row::new().width(Length::Fill).push(print_col).push(col);
 
         Container::new(row)

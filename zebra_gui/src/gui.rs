@@ -18,6 +18,7 @@ pub enum Routers {
     Interview(pages::inverview::Interview),
     Options(pages::options::Options),
     GenPhrase(pages::gen_phrase::GenPhrase),
+    Restore(pages::restore::Restore),
 }
 
 pub struct GUI {
@@ -32,6 +33,7 @@ pub enum GlobalMessage {
     InterviewMessage(pages::inverview::InterviewMessage),
     OptionsMessage(pages::options::OptionsMessage),
     GenPhraseMessage(pages::gen_phrase::GenPhraseMessage),
+    RestoreMessage(pages::restore::RestoreMessage),
     Route(Routers),
 }
 
@@ -88,6 +90,10 @@ impl Application for GUI {
                 Routers::GenPhrase(view) => view.update(msg),
                 _ => Command::none(),
             },
+            GlobalMessage::RestoreMessage(msg) => match &mut self.route {
+                Routers::Restore(view) => view.update(msg),
+                _ => Command::none(),
+            },
             GlobalMessage::Route(route) => {
                 self.route = route;
                 Command::none()
@@ -110,6 +116,9 @@ impl Application for GUI {
             Routers::GenPhrase(v) => v
                 .subscription()
                 .map(|msg| GlobalMessage::GenPhraseMessage(msg)),
+            Routers::Restore(v) => v
+                .subscription()
+                .map(|msg| GlobalMessage::RestoreMessage(msg)),
         }])
     }
 
@@ -120,6 +129,7 @@ impl Application for GUI {
             Routers::Interview(l) => l.view().map(|msg| GlobalMessage::InterviewMessage(msg)),
             Routers::Options(l) => l.view().map(|msg| GlobalMessage::OptionsMessage(msg)),
             Routers::GenPhrase(l) => l.view().map(|msg| GlobalMessage::GenPhraseMessage(msg)),
+            Routers::Restore(l) => l.view().map(|msg| GlobalMessage::RestoreMessage(msg)),
         }
     }
 
