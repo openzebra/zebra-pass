@@ -16,6 +16,7 @@ use zebra_ui::widget::*;
 
 #[derive(Debug)]
 pub struct Restore {
+    words: Vec<String>,
     core: Arc<Mutex<Core>>,
 }
 
@@ -29,7 +30,8 @@ impl Page for Restore {
     type Message = RestoreMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        Ok(Self { core })
+        let words = Vec::new();
+        Ok(Self { core, words })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -60,7 +62,7 @@ impl Page for Restore {
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(RestoreMessage::Next);
+            .on_press(RestoreMessage::Back);
         let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
