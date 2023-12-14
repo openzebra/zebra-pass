@@ -38,7 +38,7 @@ pub enum RestoreMessage {
     Back,
     Next,
     InputChanged((usize, String)),
-    InputPaste(String),
+    InputPaste((usize, String)),
     CountSelected(usize),
     LanguageSelected(Language),
 }
@@ -85,28 +85,32 @@ impl Page for Restore {
                 self.words[index] = value;
                 let words = self.words.join(" ");
 
-                match Mnemonic::mnemonic_to_entropy(Language::English, &words) {
-                    Ok(_) => {
-                        self.right_words = true;
-                    }
-                    Err(e) => {
-                        dbg!(e);
-                        self.right_words = false;
-                        // TODO: make error hanlder!
-                    }
-                };
+                if words.len() >= self.counts[0] {
+                    match Mnemonic::mnemonic_to_entropy(self.dict, &words) {
+                        Ok(_) => {
+                            self.right_words = true;
+                        }
+                        Err(_) => {
+                            self.right_words = false;
+                        }
+                    };
+                }
                 Command::none()
             }
-            RestoreMessage::InputPaste(v) => {
+            RestoreMessage::InputPaste((index, v)) => {
                 self.err_message = None;
                 let words: Vec<String> = v.split(" ").map(|s| s.to_string()).collect();
 
+                if words.len() == 1 {
+                    self.words[index] = v.clone();
+                }
+
                 if let Some(word) = words.first() {
                     match Language::find_out_dict_by_word(word) {
-                        Ok(l) => self.dict = l,
+                        Ok(l) => {
+                            self.dict = l;
+                        }
                         Err(_) => {
-                            self.err_message = Some(t!("not_found_word_in_dict", word => word));
-
                             return Command::none();
                         }
                     }
@@ -114,18 +118,20 @@ impl Page for Restore {
                     return Command::none();
                 }
 
-                match Mnemonic::mnemonic_to_entropy(self.dict, &v) {
-                    Ok(m) => {
-                        self.words = m.get_vec().iter().map(|s| s.to_string()).collect();
-                        self.right_words = true;
-                        self.count = self.words.len();
-                    }
-                    Err(e) => {
-                        dbg!(e);
-                        self.right_words = false;
-                        // TODO: make error hanlder!
-                    }
-                };
+                if words.len() > self.counts[0] {
+                    match Mnemonic::mnemonic_to_entropy(self.dict, &v) {
+                        Ok(m) => {
+                            self.words = m.get_vec().iter().map(|s| s.to_string()).collect();
+                            self.right_words = true;
+                            self.count = self.words.len();
+                        }
+                        Err(e) => {
+                            dbg!(e);
+                            self.right_words = false;
+                            // TODO: make error hanlder!
+                        }
+                    };
+                }
 
                 Command::none()
             }
@@ -247,7 +253,9 @@ impl Restore {
                             .on_input(move |v| {
                                 RestoreMessage::InputChanged(((index * CHUNKS) + chunk_index, v))
                             })
-                            .on_paste(RestoreMessage::InputPaste)
+                            .on_paste(move |v| {
+                                RestoreMessage::InputPaste(((index * CHUNKS) + chunk_index, v))
+                            })
                             .into()
                     })
                     .collect();
