@@ -37,6 +37,7 @@ pub enum RestoreMessage {
     Next,
     InputChanged((usize, String)),
     InputPaste(String),
+    CountSelected(usize),
 }
 
 impl Page for Restore {
@@ -103,6 +104,11 @@ impl Page for Restore {
 
                 Command::none()
             }
+            RestoreMessage::CountSelected(count) => {
+                self.count = count;
+
+                Command::none()
+            }
         }
     }
 
@@ -159,6 +165,19 @@ impl Page for Restore {
 }
 
 impl Restore {
+    pub fn view_top_row(&self) -> Row<'_, RestoreMessage> {
+        let count_pick_list = pick_list(
+            self.counts.as_slice(),
+            Some(self.count),
+            RestoreMessage::CountSelected,
+        )
+        .text_size(16)
+        .padding(4)
+        .width(80)
+        .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+
+        Row::new().push(count_pick_list)
+    }
     pub fn view_content(&self) -> Column<'_, RestoreMessage> {
         const CHUNKS: usize = 4;
         let words_row: Vec<Element<'_, RestoreMessage>> = self
