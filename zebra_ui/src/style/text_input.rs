@@ -18,16 +18,23 @@ impl text_input::StyleSheet for Theme {
             Theme::Dark(p) => p,
             Theme::Light(p) => p,
         };
-        let border_radius = BorderRadius::from(18.0);
+        let border_radius = BorderRadius::from(palette.radius);
         let border_width = 1.0;
+
         match style {
-            TextInput::Primary => text_input::Appearance {
-                border_width,
-                border_radius,
-                icon_color: palette.info,
-                background: iced::Background::Color(iced::Color::TRANSPARENT),
-                border_color: palette.primary,
-            },
+            TextInput::Primary => {
+                let mut alfa_primary = palette.primary;
+
+                alfa_primary.a = 0.8;
+
+                text_input::Appearance {
+                    border_width,
+                    border_radius,
+                    icon_color: palette.primary,
+                    background: iced::Background::Color(iced::Color::TRANSPARENT),
+                    border_color: alfa_primary,
+                }
+            }
         }
     }
 
@@ -38,8 +45,21 @@ impl text_input::StyleSheet for Theme {
     }
 
     fn focused(&self, style: &Self::Style) -> text_input::Appearance {
-        text_input::Appearance {
-            ..self.active(style)
+        let palette = match self {
+            Theme::Dark(p) => p,
+            Theme::Light(p) => p,
+        };
+        let border_radius = BorderRadius::from(palette.radius);
+        let border_width = 1.0;
+
+        match style {
+            TextInput::Primary => text_input::Appearance {
+                border_width,
+                border_radius,
+                icon_color: palette.primary,
+                background: iced::Background::Color(iced::Color::TRANSPARENT),
+                border_color: palette.primary,
+            },
         }
     }
 
@@ -52,13 +72,20 @@ impl text_input::StyleSheet for Theme {
         palette.primary
     }
 
-    fn placeholder_color(&self, _style: &Self::Style) -> iced::Color {
+    fn placeholder_color(&self, style: &Self::Style) -> iced::Color {
         let palette = match self {
             Theme::Dark(p) => p,
             Theme::Light(p) => p,
         };
 
-        palette.secondary
+        match style {
+            TextInput::Primary => {
+                let mut alfa_primary = palette.primary;
+                alfa_primary.a = 0.1;
+
+                alfa_primary
+            }
+        }
     }
 
     fn value_color(&self, _style: &Self::Style) -> iced::Color {
@@ -67,7 +94,7 @@ impl text_input::StyleSheet for Theme {
             Theme::Light(p) => p,
         };
 
-        palette.danger
+        palette.window_background_inverse
     }
 
     fn selection_color(&self, _style: &Self::Style) -> iced::Color {
@@ -76,6 +103,6 @@ impl text_input::StyleSheet for Theme {
             Theme::Light(p) => p,
         };
 
-        palette.warn
+        palette.window_background_inverse
     }
 }
