@@ -27,8 +27,8 @@ pub struct Restore {
     pub counts: [usize; 5],
     pub dicts: [Language; 1],
     pub dict: Language,
-    pub right_words: bool,
     pub err_message: Option<String>,
+    pub error_indexs: [bool; 24],
     words: Vec<String>,
     core: Arc<Mutex<Core>>,
 }
@@ -49,18 +49,18 @@ impl Page for Restore {
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let counts = [12, 15, 18, 21, 24];
         let count = 24; // number of words
-        let right_words = false;
         let err_message = None;
         let words = vec![String::new(); count];
         let dict = Language::English;
         let dicts = [dict.clone()];
+        let error_indexs = [false; 24];
 
         Ok(Self {
             core,
+            error_indexs,
             dicts,
             dict,
             err_message,
-            right_words,
             words,
             count,
             counts,
@@ -79,22 +79,68 @@ impl Page for Restore {
                 let route = Routers::Options(options);
                 Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
-            RestoreMessage::Next => Command::none(),
+            RestoreMessage::Next => {
+                self.error_indexs = [false; 24];
+                self.err_message = None;
+
+                let words: Vec<String> = self
+                    .words
+                    .iter()
+                    .filter_map(|s| {
+                        if s.is_empty() {
+                            None
+                        } else {
+                            Some(s.to_string())
+                        }
+                    })
+                    .collect();
+
+                if words.len() < self.counts[0] {
+                    self.err_message =
+                        Some(t!("restore_invalid_words_count", count => self.counts[0]));
+
+                    return Command::none();
+                }
+
+                let current_dict = self.dict;
+
+                for (i, word) in self.words.iter().enumerate() {
+                    match Language::find_out_dict_by_word(word) {
+                        Ok(dict) => {
+                            if dict == current_dict {
+                                continue;
+                            }
+
+                            self.error_indexs[i] = true;
+                            self.err_message = Some(t!("invalid_dict_bip39"));
+                        }
+                        Err(_) => {
+                            self.error_indexs[i] = true;
+                            self.err_message = Some(t!("not_found_word_in_dict", word => word));
+                        }
+                    }
+                }
+
+                if self.err_message.is_some() {
+                    return Command::none();
+                }
+
+                let words_str = words.join(" ");
+                match Mnemonic::mnemonic_to_entropy(self.dict, &words_str) {
+                    Ok(_m) => {
+                        //TODO: make it workds route
+                        return Command::none();
+                    }
+                    Err(e) => {
+                        self.err_message = Some(t!("secret_phrase_invalid", code => e.to_string()));
+                        return Command::none();
+                    }
+                };
+            }
             RestoreMessage::InputChanged((index, value)) => {
                 self.err_message = None;
                 self.words[index] = value;
-                let words = self.words.join(" ");
 
-                if words.len() >= self.counts[0] {
-                    match Mnemonic::mnemonic_to_entropy(self.dict, &words) {
-                        Ok(_) => {
-                            self.right_words = true;
-                        }
-                        Err(_) => {
-                            self.right_words = false;
-                        }
-                    };
-                }
                 Command::none()
             }
             RestoreMessage::InputPaste((index, v)) => {
@@ -118,26 +164,22 @@ impl Page for Restore {
                     return Command::none();
                 }
 
-                if words.len() > self.counts[0] {
-                    match Mnemonic::mnemonic_to_entropy(self.dict, &v) {
-                        Ok(m) => {
-                            self.words = m.get_vec().iter().map(|s| s.to_string()).collect();
-                            self.right_words = true;
-                            self.count = self.words.len();
-                        }
-                        Err(e) => {
-                            dbg!(e);
-                            self.right_words = false;
-                            // TODO: make error hanlder!
-                        }
-                    };
+                if words.len() >= self.counts[0] {
+                    self.words = words;
                 }
 
                 Command::none()
             }
             RestoreMessage::CountSelected(count) => {
                 self.count = count;
-                self.words.truncate(count);
+
+                if self.count > self.words.len() {
+                    let need_add = self.count - self.words.len();
+
+                    self.words.extend(vec![String::new(); need_add])
+                } else {
+                    self.words.truncate(count);
+                }
 
                 Command::none()
             }
@@ -158,15 +200,10 @@ impl Page for Restore {
         let title = Text::new(t!("restore_page_title"))
             .size(34)
             .horizontal_alignment(Horizontal::Center);
-        let forward_icon =
-            zebra_ui::image::forward_icon()
-                .height(50)
-                .width(50)
-                .style(if self.right_words {
-                    zebra_ui::style::svg::Svg::Primary
-                } else {
-                    zebra_ui::style::svg::Svg::PrimaryDisabled
-                });
+        let forward_icon = zebra_ui::image::forward_icon()
+            .height(50)
+            .width(50)
+            .style(zebra_ui::style::svg::Svg::Primary);
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
@@ -174,11 +211,7 @@ impl Page for Restore {
         let forward_btn = Button::new(forward_icon)
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
-            .on_press_maybe(if self.right_words {
-                Some(RestoreMessage::Next)
-            } else {
-                None
-            });
+            .on_press(RestoreMessage::Next);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let error_message = Text::new(self.err_message.clone().unwrap_or(String::new()))
             .size(16)
@@ -234,6 +267,7 @@ impl Restore {
             .push(language_pick_list)
             .spacing(10)
     }
+
     pub fn view_content(&self) -> Column<'_, RestoreMessage> {
         const CHUNKS: usize = 4;
         let words_row: Vec<Element<'_, RestoreMessage>> = self
@@ -246,16 +280,16 @@ impl Restore {
                     .enumerate()
                     .map(|(chunk_index, w)| {
                         let placeholder = format!("#{}", (index * CHUNKS) + chunk_index + 1);
+                        let element_index = (index * CHUNKS) + chunk_index;
                         text_input(&placeholder, w)
                             .size(14)
                             .width(90)
-                            .style(zebra_ui::style::text_input::TextInput::Primary)
-                            .on_input(move |v| {
-                                RestoreMessage::InputChanged(((index * CHUNKS) + chunk_index, v))
+                            .style(match self.error_indexs[element_index] {
+                                true => zebra_ui::style::text_input::TextInput::Danger,
+                                false => zebra_ui::style::text_input::TextInput::Primary,
                             })
-                            .on_paste(move |v| {
-                                RestoreMessage::InputPaste(((index * CHUNKS) + chunk_index, v))
-                            })
+                            .on_input(move |v| RestoreMessage::InputChanged((element_index, v)))
+                            .on_paste(move |v| RestoreMessage::InputPaste((element_index, v)))
                             .into()
                     })
                     .collect();

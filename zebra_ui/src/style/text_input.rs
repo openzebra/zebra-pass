@@ -8,6 +8,7 @@ use iced::{widget::text_input, BorderRadius};
 pub enum TextInput {
     #[default]
     Primary,
+    Danger,
 }
 
 impl text_input::StyleSheet for Theme {
@@ -35,6 +36,13 @@ impl text_input::StyleSheet for Theme {
                     border_color: alfa_primary,
                 }
             }
+            TextInput::Danger => text_input::Appearance {
+                border_width,
+                border_radius,
+                icon_color: palette.danger,
+                background: iced::Background::Color(iced::Color::TRANSPARENT),
+                border_color: palette.danger,
+            },
         }
     }
 
@@ -59,6 +67,13 @@ impl text_input::StyleSheet for Theme {
                 icon_color: palette.primary,
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
                 border_color: palette.primary,
+            },
+            TextInput::Danger => text_input::Appearance {
+                border_width,
+                border_radius,
+                icon_color: palette.danger,
+                background: iced::Background::Color(iced::Color::TRANSPARENT),
+                border_color: palette.danger,
             },
         }
     }
@@ -85,24 +100,31 @@ impl text_input::StyleSheet for Theme {
 
                 alfa_primary
             }
+            TextInput::Danger => palette.danger,
         }
     }
 
-    fn value_color(&self, _style: &Self::Style) -> iced::Color {
+    fn value_color(&self, style: &Self::Style) -> iced::Color {
         let palette = match self {
             Theme::Dark(p) => p,
             Theme::Light(p) => p,
         };
 
-        palette.window_background_inverse
+        match style {
+            TextInput::Primary => palette.primary,
+            TextInput::Danger => palette.danger,
+        }
     }
 
-    fn selection_color(&self, _style: &Self::Style) -> iced::Color {
+    fn selection_color(&self, style: &Self::Style) -> iced::Color {
         let palette = match self {
             Theme::Dark(p) => p,
             Theme::Light(p) => p,
         };
 
-        palette.window_background_inverse
+        match style {
+            TextInput::Primary => palette.primary,
+            TextInput::Danger => palette.danger,
+        }
     }
 }
