@@ -48,6 +48,22 @@ impl std::fmt::Display for Language {
     }
 }
 
+impl Language {
+    pub fn get_dict(&self) -> [&str; NUMBER_WORDS] {
+        match self {
+            Language::English => super::language::english::WORDS,
+        }
+    }
+
+    pub fn find_out_dict_by_word(word: &str) -> Result<Language, ZebraErrors> {
+        if super::language::english::WORDS.contains(&word) {
+            return Ok(Language::English);
+        }
+
+        Err(ZebraErrors::Bip39NotIncluededWord)
+    }
+}
+
 impl Mnemonic {
     pub fn entropy_to_mnemonic(
         language: Language,

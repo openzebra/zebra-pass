@@ -104,7 +104,7 @@ mod settings_tests {
         state.secure_key_store = String::from("test keys");
         state.secure_data_store = String::from("test data");
 
-        state.update(&db).unwrap();
+        state.state_update(&db).unwrap();
 
         let mut new_state = State::new();
 

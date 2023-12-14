@@ -36,6 +36,7 @@ pub enum ZebraErrors {
     Bip39BadEntropyBitCount(usize),
     Bip39InvalidMnemonic,
     Bip39SliceError,
+    Bip39NotIncluededWord,
 
     // State
     StateNotRead,
