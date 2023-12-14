@@ -160,20 +160,24 @@ impl Page for Restore {
 
 impl Restore {
     pub fn view_content(&self) -> Column<'_, RestoreMessage> {
+        const CHUNKS: usize = 4;
         let words_row: Vec<Element<'_, RestoreMessage>> = self
             .words
-            .chunks(4)
-            .map(|chunk| {
+            .chunks(CHUNKS)
+            .enumerate()
+            .map(|(index, chunk)| {
                 let words_chunk: Vec<Element<'_, RestoreMessage>> = chunk
                     .iter()
                     .enumerate()
-                    .map(|(index, w)| {
-                        let placeholder = format!("#{}", index);
+                    .map(|(chunk_index, w)| {
+                        let placeholder = format!("#{}", (index * CHUNKS) + chunk_index + 1);
                         text_input(&placeholder, w)
                             .size(14)
                             .width(90)
                             .style(zebra_ui::style::text_input::TextInput::Primary)
-                            .on_input(move |v| RestoreMessage::InputChanged((index, v)))
+                            .on_input(move |v| {
+                                RestoreMessage::InputChanged(((index * CHUNKS) + chunk_index, v))
+                            })
                             .on_paste(RestoreMessage::InputPaste)
                             .into()
                     })
