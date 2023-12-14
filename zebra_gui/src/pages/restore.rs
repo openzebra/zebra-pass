@@ -139,16 +139,17 @@ impl Page for Restore {
             }
             RestoreMessage::InputChanged((index, value)) => {
                 self.err_message = None;
-                self.words[index] = value;
+                self.words[index] = value.to_lowercase();
 
                 Command::none()
             }
             RestoreMessage::InputPaste((index, v)) => {
                 self.err_message = None;
-                let words: Vec<String> = v.split(" ").map(|s| s.to_string()).collect();
+                let words: Vec<String> =
+                    v.to_lowercase().split(" ").map(|s| s.to_string()).collect();
 
                 if words.len() == 1 {
-                    self.words[index] = v.clone();
+                    self.words[index] = v.clone().to_lowercase();
                 }
 
                 if let Some(word) = words.first() {
