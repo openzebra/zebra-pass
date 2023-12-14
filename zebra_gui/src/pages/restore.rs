@@ -25,6 +25,8 @@ use zebra_ui::widget::*;
 pub struct Restore {
     pub count: usize,
     pub counts: [usize; 5],
+    pub dicts: [Language; 1],
+    pub dict: Language,
     pub right_words: bool,
     pub err_message: Option<String>,
     words: Vec<String>,
@@ -38,6 +40,7 @@ pub enum RestoreMessage {
     InputChanged((usize, String)),
     InputPaste(String),
     CountSelected(usize),
+    LanguageSelected(Language),
 }
 
 impl Page for Restore {
@@ -49,9 +52,13 @@ impl Page for Restore {
         let right_words = false;
         let err_message = None;
         let words = vec![String::new(); count];
+        let dict = Language::English;
+        let dicts = [dict.clone()];
 
         Ok(Self {
             core,
+            dicts,
+            dict,
             err_message,
             right_words,
             words,
@@ -94,6 +101,7 @@ impl Page for Restore {
                     Ok(m) => {
                         self.words = m.get_vec().iter().map(|s| s.to_string()).collect();
                         self.right_words = true;
+                        self.count = self.words.len();
                     }
                     Err(e) => {
                         dbg!(e);
@@ -107,6 +115,11 @@ impl Page for Restore {
             RestoreMessage::CountSelected(count) => {
                 self.count = count;
                 self.words.truncate(count);
+
+                Command::none()
+            }
+            RestoreMessage::LanguageSelected(lang) => {
+                self.dict = lang;
 
                 Command::none()
             }
@@ -178,8 +191,20 @@ impl Restore {
         .padding(4)
         .width(80)
         .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        let language_pick_list = pick_list(
+            self.dicts.as_slice(),
+            Some(self.dict),
+            RestoreMessage::LanguageSelected,
+        )
+        .text_size(16)
+        .padding(4)
+        .width(150)
+        .style(zebra_ui::style::pick_list::PickList::OutlineLight);
 
-        Row::new().push(count_pick_list)
+        Row::new()
+            .push(count_pick_list)
+            .push(language_pick_list)
+            .spacing(10)
     }
     pub fn view_content(&self) -> Column<'_, RestoreMessage> {
         const CHUNKS: usize = 4;
@@ -209,8 +234,8 @@ impl Restore {
             .collect();
         Column::with_children(words_row)
             .spacing(5)
+            .height(220)
             .width(Length::Fill)
-            .height(Length::Fill)
             .align_items(iced::Alignment::Center)
     }
 }
