@@ -1,9 +1,12 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-
 use std::sync::{Arc, Mutex};
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{
+    bip39::mnemonic::{Language, Mnemonic},
+    core::core::Core,
+    errors::ZebraErrors,
+};
 
 use crate::{
     gui::{GlobalMessage, Routers},
@@ -11,7 +14,11 @@ use crate::{
 };
 
 use super::{options::Options, Page};
-use iced::{alignment::Horizontal, widget::Space, Command, Length, Subscription};
+use iced::{
+    alignment::Horizontal,
+    widget::{text_input, Space},
+    Command, Length, Subscription,
+};
 use zebra_ui::widget::*;
 
 #[derive(Debug)]
@@ -24,13 +31,15 @@ pub struct Restore {
 pub enum RestoreMessage {
     Back,
     Next,
+    InputChanged((usize, String)),
+    InputPaste(String),
 }
 
 impl Page for Restore {
     type Message = RestoreMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        let words = Vec::new();
+        let words = vec![String::new(); 24];
         Ok(Self { core, words })
     }
 
@@ -47,6 +56,23 @@ impl Page for Restore {
                 Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             RestoreMessage::Next => Command::none(),
+            RestoreMessage::InputChanged((index, value)) => {
+                self.words[index] = value;
+                Command::none()
+            }
+            RestoreMessage::InputPaste(v) => {
+                match Mnemonic::mnemonic_to_entropy(Language::English, &v) {
+                    Ok(m) => {
+                        self.words = m.get_vec().iter().map(|s| s.to_string()).collect();
+                    }
+                    Err(e) => {
+                        dbg!(e);
+                        // TODO: make error hanlder!
+                    }
+                };
+
+                Command::none()
+            }
         }
     }
 
@@ -70,10 +96,12 @@ impl Page for Restore {
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let content_col = Column::new()
             .push(title)
-            .push(btns_row)
             .width(Length::Fill)
             .height(Length::Fill)
             .align_items(iced::Alignment::Center)
+            .push(Space::new(0, 15))
+            .push(self.view_content())
+            .push(btns_row)
             .padding(10);
         let row = Row::new()
             .width(Length::Fill)
@@ -84,5 +112,36 @@ impl Page for Restore {
             .height(Length::Fill)
             .width(Length::Fill)
             .into()
+    }
+}
+
+impl Restore {
+    pub fn view_content(&self) -> Column<'_, RestoreMessage> {
+        let words_row: Vec<Element<'_, RestoreMessage>> = self
+            .words
+            .chunks(4)
+            .map(|chunk| {
+                let words_chunk: Vec<Element<'_, RestoreMessage>> = chunk
+                    .iter()
+                    .enumerate()
+                    .map(|(index, w)| {
+                        let placeholder = format!("#{}", index);
+                        text_input(&placeholder, w)
+                            .size(14)
+                            .width(90)
+                            .style(zebra_ui::style::text_input::TextInput::Primary)
+                            .on_input(move |v| RestoreMessage::InputChanged((index, v)))
+                            .on_paste(RestoreMessage::InputPaste)
+                            .into()
+                    })
+                    .collect();
+                Row::with_children(words_chunk).spacing(5).into()
+            })
+            .collect();
+        Column::with_children(words_row)
+            .spacing(5)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .align_items(iced::Alignment::Center)
     }
 }

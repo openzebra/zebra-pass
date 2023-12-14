@@ -5,14 +5,14 @@ use super::Theme;
 use iced::{widget::text_input, BorderRadius};
 
 #[derive(Debug, Copy, Clone, Default)]
-pub enum Form {
+pub enum TextInput {
     #[default]
-    Simple,
-    Invalid,
+    Primary,
 }
 
 impl text_input::StyleSheet for Theme {
-    type Style = Form;
+    type Style = TextInput;
+
     fn active(&self, style: &Self::Style) -> text_input::Appearance {
         let palette = match self {
             Theme::Dark(p) => p,
@@ -21,19 +21,12 @@ impl text_input::StyleSheet for Theme {
         let border_radius = BorderRadius::from(18.0);
         let border_width = 1.0;
         match style {
-            Form::Simple => text_input::Appearance {
+            TextInput::Primary => text_input::Appearance {
                 border_width,
                 border_radius,
                 icon_color: palette.info,
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
                 border_color: palette.primary,
-            },
-            Form::Invalid => text_input::Appearance {
-                border_radius,
-                border_width,
-                icon_color: palette.info,
-                background: iced::Background::Color(iced::Color::TRANSPARENT),
-                border_color: palette.secondary,
             },
         }
     }
