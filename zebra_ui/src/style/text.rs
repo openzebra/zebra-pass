@@ -8,6 +8,7 @@ use iced::widget::text;
 pub enum Text {
     #[default]
     Default,
+    Dabger,
     Color(iced::Color),
 }
 
@@ -21,8 +22,15 @@ impl text::StyleSheet for Theme {
     type Style = Text;
 
     fn appearance(&self, style: Self::Style) -> text::Appearance {
+        let palette = match self {
+            Theme::Dark(p) => p,
+            Theme::Light(p) => p,
+        };
         match style {
             Text::Default => Default::default(),
+            Text::Dabger => text::Appearance {
+                color: palette.danger.into(),
+            },
             Text::Color(c) => text::Appearance { color: Some(c) },
         }
     }

@@ -81,6 +81,7 @@ impl Page for Restore {
             }
             RestoreMessage::Next => Command::none(),
             RestoreMessage::InputChanged((index, value)) => {
+                self.err_message = None;
                 self.words[index] = value;
                 let words = self.words.join(" ");
 
@@ -97,7 +98,23 @@ impl Page for Restore {
                 Command::none()
             }
             RestoreMessage::InputPaste(v) => {
-                match Mnemonic::mnemonic_to_entropy(Language::English, &v) {
+                self.err_message = None;
+                let words: Vec<String> = v.split(" ").map(|s| s.to_string()).collect();
+
+                if let Some(word) = words.first() {
+                    match Language::find_out_dict_by_word(word) {
+                        Ok(l) => self.dict = l,
+                        Err(_) => {
+                            self.err_message = Some(t!("not_found_word_in_dict", word => word));
+
+                            return Command::none();
+                        }
+                    }
+                } else {
+                    return Command::none();
+                }
+
+                match Mnemonic::mnemonic_to_entropy(self.dict, &v) {
                     Ok(m) => {
                         self.words = m.get_vec().iter().map(|s| s.to_string()).collect();
                         self.right_words = true;
@@ -157,6 +174,10 @@ impl Page for Restore {
                 None
             });
         let btns_row = Row::new().push(back_btn).push(forward_btn);
+        let error_message = Text::new(self.err_message.clone().unwrap_or(String::new()))
+            .size(16)
+            .style(zebra_ui::style::text::Text::Dabger)
+            .horizontal_alignment(Horizontal::Center);
         let content_col = Column::new()
             .width(Length::Fill)
             .height(Length::Fill)
@@ -166,6 +187,7 @@ impl Page for Restore {
             .push(self.view_top_row())
             .push(Space::new(0, 20))
             .push(self.view_content())
+            .push(error_message)
             .push(btns_row)
             .padding(10);
         let row = Row::new()
