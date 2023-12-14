@@ -44,11 +44,11 @@ impl Page for Restore {
     type Message = RestoreMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        let words = vec![String::new(); 24];
         let counts = [12, 15, 18, 21, 24];
         let count = 24; // number of words
         let right_words = false;
         let err_message = None;
+        let words = vec![String::new(); count];
 
         Ok(Self {
             core,
@@ -106,6 +106,7 @@ impl Page for Restore {
             }
             RestoreMessage::CountSelected(count) => {
                 self.count = count;
+                self.words.truncate(count);
 
                 Command::none()
             }
@@ -144,11 +145,13 @@ impl Page for Restore {
             });
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let content_col = Column::new()
-            .push(title)
             .width(Length::Fill)
             .height(Length::Fill)
             .align_items(iced::Alignment::Center)
-            .push(Space::new(0, 15))
+            .push(title)
+            .push(Space::new(0, 20))
+            .push(self.view_top_row())
+            .push(Space::new(0, 20))
             .push(self.view_content())
             .push(btns_row)
             .padding(10);
