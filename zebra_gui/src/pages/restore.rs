@@ -16,13 +16,17 @@ use crate::{
 use super::{options::Options, Page};
 use iced::{
     alignment::Horizontal,
-    widget::{text_input, Space},
+    widget::{pick_list, text_input, Space},
     Command, Length, Subscription,
 };
 use zebra_ui::widget::*;
 
 #[derive(Debug)]
 pub struct Restore {
+    pub count: usize,
+    pub counts: [usize; 5],
+    pub right_words: bool,
+    pub err_message: Option<String>,
     words: Vec<String>,
     core: Arc<Mutex<Core>>,
 }
@@ -40,7 +44,19 @@ impl Page for Restore {
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let words = vec![String::new(); 24];
-        Ok(Self { core, words })
+        let counts = [12, 15, 18, 21, 24];
+        let count = 24; // number of words
+        let right_words = false;
+        let err_message = None;
+
+        Ok(Self {
+            core,
+            err_message,
+            right_words,
+            words,
+            count,
+            counts,
+        })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -58,15 +74,29 @@ impl Page for Restore {
             RestoreMessage::Next => Command::none(),
             RestoreMessage::InputChanged((index, value)) => {
                 self.words[index] = value;
+                let words = self.words.join(" ");
+
+                match Mnemonic::mnemonic_to_entropy(Language::English, &words) {
+                    Ok(_) => {
+                        self.right_words = true;
+                    }
+                    Err(e) => {
+                        dbg!(e);
+                        self.right_words = false;
+                        // TODO: make error hanlder!
+                    }
+                };
                 Command::none()
             }
             RestoreMessage::InputPaste(v) => {
                 match Mnemonic::mnemonic_to_entropy(Language::English, &v) {
                     Ok(m) => {
                         self.words = m.get_vec().iter().map(|s| s.to_string()).collect();
+                        self.right_words = true;
                     }
                     Err(e) => {
                         dbg!(e);
+                        self.right_words = false;
                         // TODO: make error hanlder!
                     }
                 };
@@ -85,14 +115,27 @@ impl Page for Restore {
         let title = Text::new(t!("restore_page_title"))
             .size(34)
             .horizontal_alignment(Horizontal::Center);
+        let forward_icon =
+            zebra_ui::image::forward_icon()
+                .height(50)
+                .width(50)
+                .style(if self.right_words {
+                    zebra_ui::style::svg::Svg::Primary
+                } else {
+                    zebra_ui::style::svg::Svg::PrimaryDisabled
+                });
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press(RestoreMessage::Back);
-        let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
+        let forward_btn = Button::new(forward_icon)
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(RestoreMessage::Next);
+            .on_press_maybe(if self.right_words {
+                Some(RestoreMessage::Next)
+            } else {
+                None
+            });
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let content_col = Column::new()
             .push(title)
