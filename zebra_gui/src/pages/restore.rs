@@ -13,7 +13,11 @@ use crate::{
     rust_i18n::t,
 };
 
-use super::{options::Options, password_setup::PasswordSetup, Page};
+use super::{
+    options::Options,
+    password_setup::{LastRoute, PasswordSetup},
+    Page,
+};
 use iced::{
     alignment::Horizontal,
     widget::{pick_list, text_input, Space},
@@ -132,6 +136,7 @@ impl Page for Restore {
                             PasswordSetup::new(Arc::clone(&self.core)).unwrap();
 
                         password_setup.set_mnemonic(m);
+                        password_setup.last_route = LastRoute::Restore;
 
                         let route = Routers::PasswordSetup(password_setup);
                         return Command::perform(std::future::ready(1), |_| {

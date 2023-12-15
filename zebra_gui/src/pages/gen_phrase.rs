@@ -11,7 +11,7 @@ use crate::rust_i18n::t;
 use rand;
 
 use super::options::Options;
-use super::password_setup::PasswordSetup;
+use super::password_setup::{LastRoute, PasswordSetup};
 use super::Page;
 use zebra_ui::widget::*;
 
@@ -106,6 +106,7 @@ impl Page for GenPhrase {
                             PasswordSetup::new(Arc::clone(&self.core)).unwrap();
 
                         password_setup.set_mnemonic(m);
+                        password_setup.last_route = LastRoute::Gen;
 
                         let route = Routers::PasswordSetup(password_setup);
                         return Command::perform(std::future::ready(1), |_| {

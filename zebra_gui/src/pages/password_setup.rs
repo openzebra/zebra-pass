@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use super::Page;
+use super::{gen_phrase::GenPhrase, restore::Restore, Page};
 use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
@@ -13,7 +13,14 @@ use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors
 use zebra_ui::widget::*;
 
 #[derive(Debug)]
+pub enum LastRoute {
+    Gen,
+    Restore,
+}
+
+#[derive(Debug)]
 pub struct PasswordSetup {
+    pub last_route: LastRoute,
     core: Arc<Mutex<Core>>,
     mnemonic: Option<Mnemonic>,
 }
@@ -29,7 +36,12 @@ impl Page for PasswordSetup {
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let mnemonic = None;
-        Ok(Self { core, mnemonic })
+        let last_route = LastRoute::Gen;
+        Ok(Self {
+            core,
+            mnemonic,
+            last_route,
+        })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -39,7 +51,22 @@ impl Page for PasswordSetup {
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
         match message {
             PasswordSetupMessage::Next => Command::none(),
-            PasswordSetupMessage::Back => Command::none(),
+            PasswordSetupMessage::Back => {
+                let route = match self.last_route {
+                    LastRoute::Gen => {
+                        let gen_phrase = GenPhrase::new(Arc::clone(&self.core)).unwrap();
+
+                        Routers::GenPhrase(gen_phrase)
+                    }
+                    LastRoute::Restore => {
+                        let restore = Restore::new(Arc::clone(&self.core)).unwrap();
+
+                        Routers::Restore(restore)
+                    }
+                };
+
+                return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
+            }
         }
     }
 
