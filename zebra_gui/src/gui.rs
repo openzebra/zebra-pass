@@ -19,6 +19,7 @@ pub enum Routers {
     Options(pages::options::Options),
     GenPhrase(pages::gen_phrase::GenPhrase),
     Restore(pages::restore::Restore),
+    PasswordSetup(pages::password_setup::PasswordSetup),
 }
 
 pub struct GUI {
@@ -34,6 +35,7 @@ pub enum GlobalMessage {
     OptionsMessage(pages::options::OptionsMessage),
     GenPhraseMessage(pages::gen_phrase::GenPhraseMessage),
     RestoreMessage(pages::restore::RestoreMessage),
+    PasswordSetupMessage(pages::password_setup::PasswordSetupMessage),
     Route(Routers),
 }
 
@@ -55,8 +57,8 @@ impl Application for GUI {
 
     fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
         let core = Arc::new(Mutex::new(arg));
-        let tmp = pages::restore::Restore::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let route = Routers::Restore(tmp);
+        let tmp = pages::options::Options::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let route = Routers::Options(tmp);
         // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
         // let route = Routers::Loading(loader);
 
@@ -94,6 +96,10 @@ impl Application for GUI {
                 Routers::Restore(view) => view.update(msg),
                 _ => Command::none(),
             },
+            GlobalMessage::PasswordSetupMessage(msg) => match &mut self.route {
+                Routers::PasswordSetup(view) => view.update(msg),
+                _ => Command::none(),
+            },
             GlobalMessage::Route(route) => {
                 self.route = route;
                 Command::none()
@@ -119,6 +125,9 @@ impl Application for GUI {
             Routers::Restore(v) => v
                 .subscription()
                 .map(|msg| GlobalMessage::RestoreMessage(msg)),
+            Routers::PasswordSetup(v) => v
+                .subscription()
+                .map(|msg| GlobalMessage::PasswordSetupMessage(msg)),
         }])
     }
 
@@ -130,6 +139,9 @@ impl Application for GUI {
             Routers::Options(l) => l.view().map(|msg| GlobalMessage::OptionsMessage(msg)),
             Routers::GenPhrase(l) => l.view().map(|msg| GlobalMessage::GenPhraseMessage(msg)),
             Routers::Restore(l) => l.view().map(|msg| GlobalMessage::RestoreMessage(msg)),
+            Routers::PasswordSetup(l) => {
+                l.view().map(|msg| GlobalMessage::PasswordSetupMessage(msg))
+            }
         }
     }
 

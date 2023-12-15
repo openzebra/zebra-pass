@@ -13,7 +13,7 @@ use crate::{
     rust_i18n::t,
 };
 
-use super::{options::Options, Page};
+use super::{options::Options, password_setup::PasswordSetup, Page};
 use iced::{
     alignment::Horizontal,
     widget::{pick_list, text_input, Space},
@@ -127,9 +127,16 @@ impl Page for Restore {
 
                 let words_str = words.join(" ");
                 match Mnemonic::mnemonic_to_entropy(self.dict, &words_str) {
-                    Ok(_m) => {
-                        //TODO: make it workds route
-                        return Command::none();
+                    Ok(m) => {
+                        let mut password_setup =
+                            PasswordSetup::new(Arc::clone(&self.core)).unwrap();
+
+                        password_setup.set_mnemonic(m);
+
+                        let route = Routers::PasswordSetup(password_setup);
+                        return Command::perform(std::future::ready(1), |_| {
+                            GlobalMessage::Route(route)
+                        });
                     }
                     Err(e) => {
                         self.err_message = Some(t!("secret_phrase_invalid", code => e.to_string()));

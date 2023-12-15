@@ -11,6 +11,7 @@ use crate::rust_i18n::t;
 use rand;
 
 use super::options::Options;
+use super::password_setup::PasswordSetup;
 use super::Page;
 use zebra_ui::widget::*;
 
@@ -96,7 +97,27 @@ impl Page for GenPhrase {
                 let route = Routers::Options(options);
                 Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
-            GenPhraseMessage::Next => Command::none(),
+            GenPhraseMessage::Next => {
+                let words_str = self.words.join(" ");
+
+                match Mnemonic::mnemonic_to_entropy(self.dict, &words_str) {
+                    Ok(m) => {
+                        let mut password_setup =
+                            PasswordSetup::new(Arc::clone(&self.core)).unwrap();
+
+                        password_setup.set_mnemonic(m);
+
+                        let route = Routers::PasswordSetup(password_setup);
+                        return Command::perform(std::future::ready(1), |_| {
+                            GlobalMessage::Route(route)
+                        });
+                    }
+                    Err(e) => {
+                        self.error_msg = Some(t!("secret_phrase_invalid", code => e.to_string()));
+                        return Command::none();
+                    }
+                }
+            }
             GenPhraseMessage::CopyWords => {
                 let words = self.words.join(" ");
                 clipboard::write::<GlobalMessage>(words)
