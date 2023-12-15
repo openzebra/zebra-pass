@@ -37,7 +37,10 @@ impl Page for PasswordSetup {
     }
 
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
-        Command::none()
+        match message {
+            PasswordSetupMessage::Next => Command::none(),
+            PasswordSetupMessage::Back => Command::none(),
+        }
     }
 
     fn view(&self) -> Element<Self::Message> {
@@ -62,7 +65,20 @@ impl Page for PasswordSetup {
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press(PasswordSetupMessage::Next);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
-        let row = Row::new().width(Length::Fill).push(print_col);
+        let content_col = Column::new()
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Center)
+            .push(title)
+            .push(match &self.mnemonic {
+                Some(m) => self.view_content(m),
+                None => self.view_error(),
+            })
+            .push(btns_row);
+        let row = Row::new()
+            .width(Length::Fill)
+            .push(print_col)
+            .push(content_col);
 
         Container::new(row)
             .height(Length::Fill)
@@ -74,5 +90,17 @@ impl Page for PasswordSetup {
 impl PasswordSetup {
     pub fn set_mnemonic(&mut self, m: Mnemonic) {
         self.mnemonic = Some(m);
+    }
+
+    pub fn view_error(&self) -> Column<'_, PasswordSetupMessage> {
+        let error_message = Text::new(t!("mnemonic_is_not_inited"))
+            .size(16)
+            .style(zebra_ui::style::text::Text::Dabger)
+            .horizontal_alignment(Horizontal::Center);
+        Column::new().push(error_message)
+    }
+
+    pub fn view_content(&self, m: &Mnemonic) -> Column<'_, PasswordSetupMessage> {
+        Column::new()
     }
 }
