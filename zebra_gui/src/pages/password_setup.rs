@@ -37,6 +37,7 @@ impl Page for PasswordSetup {
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let mnemonic = None;
         let last_route = LastRoute::Gen;
+
         Ok(Self {
             core,
             mnemonic,
@@ -76,7 +77,7 @@ impl Page for PasswordSetup {
             .width(220)
             .height(Length::Fill)
             .push(zebra_print);
-        let title = Text::new(t!("restore_page_title"))
+        let title = Text::new(t!("setup_account_and_password"))
             .size(34)
             .horizontal_alignment(Horizontal::Center);
         let forward_icon = zebra_ui::image::forward_icon()
@@ -119,15 +120,25 @@ impl PasswordSetup {
         self.mnemonic = Some(m);
     }
 
-    pub fn view_error(&self) -> Column<'_, PasswordSetupMessage> {
+    pub fn view_error<'a>(&self) -> Container<'a, PasswordSetupMessage> {
         let error_message = Text::new(t!("mnemonic_is_not_inited"))
             .size(16)
             .style(zebra_ui::style::text::Text::Dabger)
             .horizontal_alignment(Horizontal::Center);
-        Column::new().push(error_message)
+
+        Container::new(Column::new().push(error_message))
     }
 
-    pub fn view_content(&self, m: &Mnemonic) -> Column<'_, PasswordSetupMessage> {
-        Column::new()
+    pub fn view_content<'a>(&self, m: &Mnemonic) -> Container<'a, PasswordSetupMessage> {
+        let options_col = Column::new()
+            .align_items(iced::Alignment::Center)
+            .padding(20)
+            .height(Length::Fill)
+            .width(Length::Fill);
+
+        Container::new(options_col)
+            .height(252)
+            .width(350)
+            .style(zebra_ui::style::container::Container::Bordered)
     }
 }
