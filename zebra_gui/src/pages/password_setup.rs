@@ -7,7 +7,7 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
-use iced::{alignment::Horizontal, Command, Length, Subscription};
+use iced::{alignment::Horizontal, widget::text_input, Command, Length, Subscription};
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
@@ -129,16 +129,28 @@ impl PasswordSetup {
         Container::new(Column::new().push(error_message))
     }
 
-    pub fn view_content<'a>(&self, m: &Mnemonic) -> Container<'a, PasswordSetupMessage> {
+    pub fn view_info<'a>(&self) -> Container<'a, PasswordSetupMessage> {
         let options_col = Column::new()
             .align_items(iced::Alignment::Center)
             .padding(20)
             .height(Length::Fill)
             .width(Length::Fill);
-
         Container::new(options_col)
-            .height(252)
+            .height(152)
             .width(350)
             .style(zebra_ui::style::container::Container::Bordered)
+    }
+
+    pub fn view_content<'a>(&self, m: &Mnemonic) -> Container<'a, PasswordSetupMessage> {
+        let info = self.view_info();
+        let passowrd = text_input("", "")
+            .size(14)
+            .width(90)
+            .password()
+            .style(zebra_ui::style::text_input::TextInput::Primary);
+        let in_row = Row::new().push(passowrd);
+        let main_col = Column::new().push(info).push(in_row);
+
+        Container::new(main_col)
     }
 }
