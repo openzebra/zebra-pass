@@ -7,7 +7,12 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
-use iced::{alignment::Horizontal, widget::text_input, Command, Length, Subscription};
+use iced::widget::Checkbox;
+use iced::{
+    alignment::Horizontal,
+    widget::{text_input, Space},
+    Command, Length, Subscription,
+};
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
@@ -21,6 +26,8 @@ pub enum LastRoute {
 #[derive(Debug)]
 pub struct PasswordSetup {
     pub last_route: LastRoute,
+    password: String,
+    confirm_password: String,
     core: Arc<Mutex<Core>>,
     mnemonic: Option<Mnemonic>,
 }
@@ -29,6 +36,9 @@ pub struct PasswordSetup {
 pub enum PasswordSetupMessage {
     Next,
     Back,
+    ApprovePolicy(bool),
+    OnPasswordInputed(String),
+    OnConfirmPasswordInputed(String),
 }
 
 impl Page for PasswordSetup {
@@ -37,11 +47,15 @@ impl Page for PasswordSetup {
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let mnemonic = None;
         let last_route = LastRoute::Gen;
+        let password = String::new();
+        let confirm_password = String::new();
 
         Ok(Self {
             core,
             mnemonic,
             last_route,
+            password,
+            confirm_password,
         })
     }
 
@@ -67,6 +81,15 @@ impl Page for PasswordSetup {
                 };
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
+            }
+            PasswordSetupMessage::ApprovePolicy(_v) => Command::none(),
+            PasswordSetupMessage::OnPasswordInputed(v) => {
+                self.password = v;
+                Command::none()
+            }
+            PasswordSetupMessage::OnConfirmPasswordInputed(v) => {
+                self.confirm_password = v;
+                Command::none()
             }
         }
     }
@@ -143,13 +166,36 @@ impl PasswordSetup {
 
     pub fn view_content<'a>(&self, m: &Mnemonic) -> Container<'a, PasswordSetupMessage> {
         let info = self.view_info();
-        let passowrd = text_input("", "")
+        let passowrd = text_input(&t!("placeholder_password"), &self.password)
             .size(14)
-            .width(90)
+            .width(250)
             .password()
+            .on_input(PasswordSetupMessage::OnPasswordInputed)
             .style(zebra_ui::style::text_input::TextInput::Primary);
-        let in_row = Row::new().push(passowrd);
-        let main_col = Column::new().push(info).push(in_row);
+        let confirm_passowrd =
+            text_input(&t!("placeholder_confirm_password"), &self.confirm_password)
+                .size(14)
+                .width(250)
+                .password()
+                .on_input(PasswordSetupMessage::OnConfirmPasswordInputed)
+                .style(zebra_ui::style::text_input::TextInput::Primary);
+        let in_col = Column::new()
+            .spacing(5)
+            .push(passowrd)
+            .push(confirm_passowrd);
+        let check_box = Checkbox::new(
+            t!("accept_privacy_policy"),
+            true,
+            PasswordSetupMessage::ApprovePolicy,
+        );
+        let main_col = Column::new()
+            .align_items(iced::Alignment::Center)
+            .push(Space::new(0, 20))
+            .push(info)
+            .push(Space::new(0, 20))
+            .push(in_col)
+            .push(Space::new(0, 20))
+            .push(check_box);
 
         Container::new(main_col)
     }

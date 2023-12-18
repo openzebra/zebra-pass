@@ -19,3 +19,6 @@ invalid_dict_bip39: 'Все слова bip39 должен быть на одно
 restore_invalid_words_count: 'Минимальное количество слов  %{count}'
 secret_phrase_invalid: 'Секретная фраза неверна! код ошибки %{code}'
 setup_account_and_password: 'Учетная запись, пароль'
+accept_privacy_policy: 'Принимаю политику конфиденциальности'
+placeholder_password: 'Пароль'
+placeholder_confirm_password: 'Подтвердить'
