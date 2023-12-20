@@ -28,6 +28,7 @@ pub struct PasswordSetup {
     pub last_route: LastRoute,
     password: String,
     confirm_password: String,
+    approved: bool,
     core: Arc<Mutex<Core>>,
     mnemonic: Option<Mnemonic>,
 }
@@ -49,9 +50,11 @@ impl Page for PasswordSetup {
         let last_route = LastRoute::Gen;
         let password = String::new();
         let confirm_password = String::new();
+        let approved = false;
 
         Ok(Self {
             core,
+            approved,
             mnemonic,
             last_route,
             password,
@@ -82,7 +85,10 @@ impl Page for PasswordSetup {
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
-            PasswordSetupMessage::ApprovePolicy(_v) => Command::none(),
+            PasswordSetupMessage::ApprovePolicy(v) => {
+                self.approved = v;
+                Command::none()
+            }
             PasswordSetupMessage::OnPasswordInputed(v) => {
                 self.password = v;
                 Command::none()
@@ -185,7 +191,7 @@ impl PasswordSetup {
             .push(confirm_passowrd);
         let check_box = Checkbox::new(
             t!("accept_privacy_policy"),
-            true,
+            self.approved,
             PasswordSetupMessage::ApprovePolicy,
         );
         let main_col = Column::new()
