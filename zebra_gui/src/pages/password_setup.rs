@@ -35,6 +35,7 @@ pub struct PasswordSetup {
     approved: bool,
     server_sync: bool,
     email_restore: bool,
+    enabled_salt: bool,
     core: Arc<Mutex<Core>>,
     mnemonic: Option<Mnemonic>,
 }
@@ -46,6 +47,7 @@ pub enum PasswordSetupMessage {
     ApprovePolicy(bool),
     ApproveServerSync(bool),
     ApproveEmailRestore(bool),
+    EnableSalt(bool),
     OnPasswordInputed(String),
     OnConfirmPasswordInputed(String),
     OnEmailInputed(String),
@@ -65,9 +67,11 @@ impl Page for PasswordSetup {
         let server_sync = true;
         let email_restore = true;
         let email = String::new();
+        let enabled_salt = false;
 
         Ok(Self {
             email,
+            enabled_salt,
             salt,
             core,
             email_restore,
@@ -131,6 +135,10 @@ impl Page for PasswordSetup {
             }
             PasswordSetupMessage::ApproveServerSync(v) => {
                 self.server_sync = v;
+                Command::none()
+            }
+            PasswordSetupMessage::EnableSalt(v) => {
+                self.enabled_salt = v;
                 Command::none()
             }
             PasswordSetupMessage::ApproveEmailRestore(v) => {
@@ -239,6 +247,11 @@ impl PasswordSetup {
             self.email_restore,
             PasswordSetupMessage::ApproveEmailRestore,
         );
+        let phrase_salt_check_box = Checkbox::new(
+            t!("secret_phrase_salt"),
+            self.enabled_salt,
+            PasswordSetupMessage::EnableSalt,
+        );
         let email_restore_row = Row::new()
             .push(email_restore_check_box)
             .width(Length::Fill)
@@ -247,15 +260,23 @@ impl PasswordSetup {
             .size(14)
             .width(250)
             .style(zebra_ui::style::text_input::TextInput::Primary);
-        let salt_input = text_input(&t!("placeholder_salt"), &self.salt)
+        let mut salt_input = text_input(&t!("placeholder_salt"), &self.salt)
             .size(14)
             .width(250)
-            .on_input(PasswordSetupMessage::OnSaltInput)
             .style(zebra_ui::style::text_input::TextInput::Primary);
+
+        if self.enabled_salt {
+            salt_input = salt_input.on_input(PasswordSetupMessage::OnSaltInput);
+        }
 
         if self.email_restore {
             email_input = email_input.on_input(PasswordSetupMessage::OnEmailInputed);
         }
+
+        let salt_row = Row::new()
+            .push(phrase_salt_check_box)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Start);
 
         let options_col = Column::new()
             .align_items(iced::Alignment::Center)
@@ -267,9 +288,10 @@ impl PasswordSetup {
             .push(server_sync_row)
             .push(email_restore_row)
             .push(email_input)
+            .push(salt_row)
             .push(salt_input);
         Container::new(options_col)
-            .height(152)
+            .height(180)
             .width(350)
             .style(zebra_ui::style::container::Container::Bordered)
     }
@@ -280,14 +302,14 @@ impl PasswordSetup {
             .style(zebra_ui::style::text::Text::Dabger)
             .size(14);
         let passowrd = text_input(&t!("placeholder_password"), &self.password)
-            .size(20)
+            .size(16)
             .width(250)
             .password()
             .on_input(PasswordSetupMessage::OnPasswordInputed)
             .style(zebra_ui::style::text_input::TextInput::Primary);
         let confirm_passowrd =
             text_input(&t!("placeholder_confirm_password"), &self.confirm_password)
-                .size(20)
+                .size(16)
                 .width(250)
                 .password()
                 .on_input(PasswordSetupMessage::OnConfirmPasswordInputed)
@@ -307,7 +329,7 @@ impl PasswordSetup {
             .align_items(iced::Alignment::Start);
         let main_col = Column::new()
             .align_items(iced::Alignment::Center)
-            .push(Space::new(0, 20))
+            .push(Space::new(0, 5))
             .push(info)
             .push(Space::new(0, 5))
             .push(error_msg)
