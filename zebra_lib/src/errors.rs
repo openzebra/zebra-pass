@@ -49,7 +49,10 @@ pub enum ZebraErrors {
     PassGenInvalidRng,
 
     SyncStateLock,
+
+    RegexError,
 }
+
 impl fmt::Display for ZebraErrors {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self)
