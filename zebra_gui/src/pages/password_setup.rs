@@ -28,6 +28,7 @@ pub enum LastRoute {
 #[derive(Debug)]
 pub struct PasswordSetup {
     pub last_route: LastRoute,
+    error_msg: String,
     salt: String,
     password: String,
     confirm_password: String,
@@ -68,9 +69,11 @@ impl Page for PasswordSetup {
         let email_restore = true;
         let email = String::new();
         let enabled_salt = false;
+        let error_msg = String::new();
 
         Ok(Self {
             email,
+            error_msg,
             enabled_salt,
             salt,
             core,
@@ -91,11 +94,45 @@ impl Page for PasswordSetup {
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
         match message {
             PasswordSetupMessage::Next => {
-                let mut core = self.core.lock().unwrap();
-                // let words = self.mnemonic.unwrap().get();
-                // core.init_data(self.server_sync, self.email, self.password, words, m)
+                let mut core = match self.core.lock() {
+                    Ok(c) => c,
+                    Err(_) => {
+                        self.error_msg = t!("thread_sync_error");
 
-                Command::none()
+                        return Command::none();
+                    }
+                };
+                let m = match &self.mnemonic {
+                    Some(m) => m,
+                    None => {
+                        self.error_msg = t!("mnemonic_is_not_inited");
+
+                        return Command::none();
+                    }
+                };
+
+                if MIN_PASSWORD_SIZE > self.password.len() {
+                    self.error_msg = t!("week_password_len");
+
+                    return Command::none();
+                }
+                match core.init_data(
+                    self.server_sync,
+                    &self.email,
+                    &self.password,
+                    &self.salt,
+                    &m,
+                ) {
+                    Ok(_) => {
+                        dbg!("ok");
+                        return Command::none();
+                    }
+                    Err(e) => {
+                        self.error_msg = e.to_string();
+
+                        return Command::none();
+                    }
+                }
             }
             PasswordSetupMessage::Back => {
                 let route = match self.last_route {
@@ -135,18 +172,18 @@ impl Page for PasswordSetup {
             }
             PasswordSetupMessage::ApproveServerSync(v) => {
                 self.server_sync = v;
+                self.email_restore = v;
                 Command::none()
             }
             PasswordSetupMessage::EnableSalt(v) => {
                 self.enabled_salt = v;
+                if !v {
+                    self.salt = String::new();
+                }
                 Command::none()
             }
             PasswordSetupMessage::ApproveEmailRestore(v) => {
                 self.email_restore = v;
-
-                if !v {
-                    self.email = String::new();
-                }
 
                 Command::none()
             }
@@ -243,7 +280,7 @@ impl PasswordSetup {
             .width(Length::Fill)
             .align_items(iced::Alignment::Start);
         let email_restore_check_box = Checkbox::new(
-            t!("server_sync_check_box"),
+            t!("email_restore_checkbox"),
             self.email_restore,
             PasswordSetupMessage::ApproveEmailRestore,
         );
@@ -258,11 +295,11 @@ impl PasswordSetup {
             .align_items(iced::Alignment::Start);
         let mut email_input = text_input(&t!("placeholder_email"), &self.email)
             .size(14)
-            .width(250)
+            .width(Length::Fill)
             .style(zebra_ui::style::text_input::TextInput::Primary);
         let mut salt_input = text_input(&t!("placeholder_salt"), &self.salt)
             .size(14)
-            .width(250)
+            .width(Length::Fill)
             .style(zebra_ui::style::text_input::TextInput::Primary);
 
         if self.enabled_salt {
@@ -292,13 +329,13 @@ impl PasswordSetup {
             .push(salt_input);
         Container::new(options_col)
             .height(180)
-            .width(350)
+            .width(290)
             .style(zebra_ui::style::container::Container::Bordered)
     }
 
-    pub fn view_content<'a>(&self, m: &Mnemonic) -> Container<'a, PasswordSetupMessage> {
+    pub fn view_content(&self, m: &Mnemonic) -> Container<'_, PasswordSetupMessage> {
         let info = self.view_info();
-        let error_msg = Text::new("error")
+        let error_msg = Text::new(&self.error_msg)
             .style(zebra_ui::style::text::Text::Dabger)
             .size(14);
         let passowrd = text_input(&t!("placeholder_password"), &self.password)
