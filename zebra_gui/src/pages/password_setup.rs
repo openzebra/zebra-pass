@@ -235,7 +235,7 @@ impl Page for PasswordSetup {
             .align_items(iced::Alignment::Center)
             .push(title)
             .push(match &self.mnemonic {
-                Some(m) => self.view_content(m),
+                Some(_m) => self.view_content(),
                 None => self.view_error(),
             })
             .push(btns_row);
@@ -333,7 +333,7 @@ impl PasswordSetup {
             .style(zebra_ui::style::container::Container::Bordered)
     }
 
-    pub fn view_content(&self, m: &Mnemonic) -> Container<'_, PasswordSetupMessage> {
+    pub fn view_content(&self) -> Container<'_, PasswordSetupMessage> {
         let info = self.view_info();
         let error_msg = Text::new(&self.error_msg)
             .style(zebra_ui::style::text::Text::Dabger)
