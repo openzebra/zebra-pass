@@ -28,6 +28,7 @@ pub enum LastRoute {
 #[derive(Debug)]
 pub struct PasswordSetup {
     pub last_route: LastRoute,
+    salt: String,
     password: String,
     confirm_password: String,
     email: String,
@@ -48,6 +49,7 @@ pub enum PasswordSetupMessage {
     OnPasswordInputed(String),
     OnConfirmPasswordInputed(String),
     OnEmailInputed(String),
+    OnSaltInput(String),
 }
 
 impl Page for PasswordSetup {
@@ -57,6 +59,7 @@ impl Page for PasswordSetup {
         let mnemonic = None;
         let last_route = LastRoute::Gen;
         let password = String::new();
+        let salt = String::new();
         let confirm_password = String::new();
         let approved = false;
         let server_sync = true;
@@ -65,6 +68,7 @@ impl Page for PasswordSetup {
 
         Ok(Self {
             email,
+            salt,
             core,
             email_restore,
             server_sync,
@@ -82,7 +86,13 @@ impl Page for PasswordSetup {
 
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
         match message {
-            PasswordSetupMessage::Next => Command::none(),
+            PasswordSetupMessage::Next => {
+                let mut core = self.core.lock().unwrap();
+                // let words = self.mnemonic.unwrap().get();
+                // core.init_data(self.server_sync, self.email, self.password, words, m)
+
+                Command::none()
+            }
             PasswordSetupMessage::Back => {
                 let route = match self.last_route {
                     LastRoute::Gen => {
@@ -115,6 +125,10 @@ impl Page for PasswordSetup {
                 self.email = v;
                 Command::none()
             }
+            PasswordSetupMessage::OnSaltInput(v) => {
+                self.salt = v;
+                Command::none()
+            }
             PasswordSetupMessage::ApproveServerSync(v) => {
                 self.server_sync = v;
                 Command::none()
@@ -141,7 +155,11 @@ impl Page for PasswordSetup {
             .size(34)
             .horizontal_alignment(Horizontal::Center);
         let forward_icon = zebra_ui::image::forward_icon().height(50).width(50).style(
-            if self.approved && self.password == self.confirm_password {
+            if self.approved
+                && self.password == self.confirm_password
+                && !self.password.is_empty()
+                && !self.confirm_password.is_empty()
+            {
                 zebra_ui::style::svg::Svg::Primary
             } else {
                 zebra_ui::style::svg::Svg::PrimaryDisabled
@@ -154,11 +172,17 @@ impl Page for PasswordSetup {
         let forward_btn = Button::new(forward_icon)
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
-            .on_press_maybe(if self.approved && self.password == self.confirm_password {
-                Some(PasswordSetupMessage::Next)
-            } else {
-                None
-            });
+            .on_press_maybe(
+                if self.approved
+                    && self.password == self.confirm_password
+                    && !self.password.is_empty()
+                    && !self.confirm_password.is_empty()
+                {
+                    Some(PasswordSetupMessage::Next)
+                } else {
+                    None
+                },
+            );
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let content_col = Column::new()
             .height(Length::Fill)
@@ -223,6 +247,11 @@ impl PasswordSetup {
             .size(14)
             .width(250)
             .style(zebra_ui::style::text_input::TextInput::Primary);
+        let salt_input = text_input(&t!("placeholder_salt"), &self.salt)
+            .size(14)
+            .width(250)
+            .on_input(PasswordSetupMessage::OnSaltInput)
+            .style(zebra_ui::style::text_input::TextInput::Primary);
 
         if self.email_restore {
             email_input = email_input.on_input(PasswordSetupMessage::OnEmailInputed);
@@ -237,7 +266,8 @@ impl PasswordSetup {
             .push(title)
             .push(server_sync_row)
             .push(email_restore_row)
-            .push(email_input);
+            .push(email_input)
+            .push(salt_input);
         Container::new(options_col)
             .height(152)
             .width(350)
@@ -283,7 +313,7 @@ impl PasswordSetup {
             .push(error_msg)
             .push(Space::new(0, 5))
             .push(in_col)
-            .push(Space::new(0, 10))
+            .push(Space::new(0, 5))
             .push(chec_row);
 
         Container::new(main_col)

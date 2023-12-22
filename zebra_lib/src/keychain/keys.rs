@@ -125,8 +125,8 @@ impl KeyChain {
     }
 
     pub fn get_address(&self) -> [u8; SHA256_SIZE] {
-        let mut hasher = Sha256::new();
         let pub_key = self.ntrup_keys.1.as_bytes();
+        let mut hasher = Sha256::new();
         hasher.update(pub_key);
 
         hasher.finalize().into()
