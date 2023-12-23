@@ -4,8 +4,11 @@
 
 use std::sync::{Arc, Mutex};
 
-use chrono::Duration;
-use iced::{widget::text, Alignment, Command, Length, Subscription};
+use crate::rust_i18n::t;
+use iced::{
+    widget::{text, Space},
+    Alignment, Command, Length, Subscription,
+};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::{components::circular::Circular, widget::*};
 
@@ -48,22 +51,28 @@ impl Page for Loader {
     fn view(&self) -> Element<Self::Message> {
         let message = match &self.error {
             Some(err) => text(err).size(25),
-            None => text("Loading...").size(25),
+            None => text(t!("loading")).size(25),
         }
         .horizontal_alignment(iced::alignment::Horizontal::Center);
-
         let spiner = Circular::new();
-
-        let row = Row::new()
+        let col_loading = Column::new()
             .height(Length::Fill)
-            .align_items(Alignment::Center)
-            .push(message)
-            .push(spiner);
-
-        Column::new()
             .width(Length::Fill)
             .align_items(Alignment::Center)
-            .push(row)
+            .push(Space::new(0, 100))
+            .push(message)
+            .push(spiner);
+        let main_row = Row::new()
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .align_items(Alignment::Center)
+            .push(col_loading);
+
+        Container::new(main_row)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .center_x()
+            .center_y()
             .into()
     }
 }

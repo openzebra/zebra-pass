@@ -1,5 +1,6 @@
 
 _version: 1
+loading: 'Loading...'
 welcome: 'Welcome'
 error.message: 'Something wrong, error message is: %{error}'
 locale.en: 'English'

@@ -43,8 +43,8 @@ where
     /// Creates a new [`Circular`] with the given content.
     pub fn new() -> Self {
         Circular {
-            size: 40.0,
-            bar_height: 4.0,
+            size: 50.0,
+            bar_height: 3.0,
             style: <Theme as StyleSheet>::Style::default(),
             easing: Easing::builder()
                 .cubic_bezier_to([0.2, 0.0], [0.0, 1.0], [1.0, 1.0])
@@ -310,7 +310,6 @@ where
             );
 
             let mut builder = canvas::path::Builder::new();
-
             let start = state.animation.rotation() * 2.0 * PI;
 
             match state.animation {

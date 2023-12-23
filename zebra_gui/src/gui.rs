@@ -57,10 +57,10 @@ impl Application for GUI {
 
     fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
         let core = Arc::new(Mutex::new(arg));
-        // let tmp = pages::options::Options::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        // let route = Routers::Options(tmp);
-        let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let route = Routers::Loading(loader);
+        let tmp = pages::options::Options::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let route = Routers::Options(tmp);
+        // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        // let route = Routers::Loading(loader);
 
         (
             Self { core, route },

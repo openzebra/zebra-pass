@@ -1,5 +1,6 @@
 
 _version: 1
+loading: 'Загрузка....'
 welcome: 'Привет'
 gui_error_message: 'Что то не так, Ошибка: %{error}'
 locale.en: 'English'
