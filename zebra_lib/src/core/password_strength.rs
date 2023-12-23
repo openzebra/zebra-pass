@@ -6,7 +6,7 @@ use regex::Regex;
 use crate::errors::ZebraErrors;
 
 const IDIAL: f32 = 2500.0;
-pub const MIN_PASSWORD_SIZE: usize = 6;
+pub const MIN_PASSWORD_SIZE: usize = 10;
 
 pub fn password_strength(password: &str) -> Result<u8, ZebraErrors> {
     let mut strength = 0.0;

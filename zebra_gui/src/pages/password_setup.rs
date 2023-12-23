@@ -7,17 +7,23 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
-use iced::widget::Checkbox;
+use iced::keyboard;
+use iced::widget::{self, Checkbox};
 use iced::{
     alignment::Horizontal,
     widget::{text_input, Space},
     Command, Length, Subscription,
 };
 use std::sync::{Arc, Mutex};
-use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
+use zebra_lib::{
+    bip39::mnemonic::Mnemonic,
+    core::{
+        core::Core,
+        password_strength::{password_strength, MIN_PASSWORD_SIZE},
+    },
+    errors::ZebraErrors,
+};
 use zebra_ui::widget::*;
-
-pub const MIN_PASSWORD_SIZE: usize = 6;
 
 #[derive(Debug)]
 pub enum LastRoute {
@@ -53,6 +59,7 @@ pub enum PasswordSetupMessage {
     OnConfirmPasswordInputed(String),
     OnEmailInputed(String),
     OnSaltInput(String),
+    TabPressed { shift: bool },
 }
 
 impl Page for PasswordSetup {
@@ -88,7 +95,12 @@ impl Page for PasswordSetup {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        Subscription::none()
+        keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
+            (keyboard::KeyCode::Tab, _) => Some(PasswordSetupMessage::TabPressed {
+                shift: modifiers.shift(),
+            }),
+            _ => None,
+        })
     }
 
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
@@ -110,8 +122,16 @@ impl Page for PasswordSetup {
                         return Command::none();
                     }
                 };
+                let strength = match password_strength(&self.password) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        self.error_msg = t!(&e.to_string());
 
-                if MIN_PASSWORD_SIZE > self.password.len() {
+                        return Command::none();
+                    }
+                };
+
+                if MIN_PASSWORD_SIZE > strength as usize {
                     self.error_msg = t!("week_password_len");
 
                     return Command::none();
@@ -186,6 +206,13 @@ impl Page for PasswordSetup {
                 self.email_restore = v;
 
                 Command::none()
+            }
+            PasswordSetupMessage::TabPressed { shift } => {
+                if shift {
+                    widget::focus_previous()
+                } else {
+                    widget::focus_next()
+                }
             }
         }
     }

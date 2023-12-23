@@ -23,6 +23,7 @@ accept_privacy_policy: 'Принимаю политику конфиденциа
 placeholder_password: 'Пароль'
 placeholder_confirm_password: 'Подтвердить'
 placeholder_salt: 'Соль секретной фразы'
+placeholder_email: 'Email'
 server_sync_check_box: 'Синхронизация с нашим сервером.'
 email_restore_checkbox: 'Email для восстановления с сервера.'
 secret_phrase_salt: 'Соль секретной фразы.'
