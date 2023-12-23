@@ -125,10 +125,16 @@ impl Page for PasswordSetup {
 
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
         match message {
-            PasswordSetupMessage::SetupFinish(result) => {
-                dbg!("fishish");
-                return Command::none();
-            }
+            PasswordSetupMessage::SetupFinish(result) => match result {
+                Ok(_) => {
+                    return Command::none();
+                }
+                Err(e) => {
+                    self.error_msg = e.to_string();
+
+                    return Command::none();
+                }
+            },
             PasswordSetupMessage::Next => {
                 if !self.approved
                     || self.password != self.confirm_password
