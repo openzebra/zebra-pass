@@ -43,8 +43,9 @@ pub struct PasswordSetup {
     server_sync: bool,
     email_restore: bool,
     enabled_salt: bool,
+    loading: bool,
     core: Arc<Mutex<Core>>,
-    mnemonic: Option<Mnemonic>,
+    mnemonic: Option<Arc<Mnemonic>>,
 }
 
 #[derive(Debug, Clone)]
@@ -60,6 +61,23 @@ pub enum PasswordSetupMessage {
     OnEmailInputed(String),
     OnSaltInput(String),
     TabPressed(bool),
+    SetupFinish(Result<(), String>),
+}
+
+pub async fn setup_password(
+    core: Arc<Mutex<Core>>,
+    m: Arc<Mnemonic>,
+    server_sync: bool,
+    email: String,
+    password: String,
+    salt: String,
+) -> Result<(), String> {
+    let mut core = core.lock().or(Err(t!("thread_sync_error")))?;
+    match core.init_data(server_sync, &email, &password, &salt, &m) {
+        Ok(_) => {}
+        Err(e) => return Err(e.to_string()),
+    };
+    Ok(())
 }
 
 impl Page for PasswordSetup {
@@ -76,10 +94,12 @@ impl Page for PasswordSetup {
         let email_restore = true;
         let email = String::new();
         let enabled_salt = false;
+        let loading = false;
         let error_msg = String::new();
 
         Ok(Self {
             email,
+            loading,
             error_msg,
             enabled_salt,
             salt,
@@ -105,6 +125,10 @@ impl Page for PasswordSetup {
 
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
         match message {
+            PasswordSetupMessage::SetupFinish(result) => {
+                dbg!("fishish");
+                return Command::none();
+            }
             PasswordSetupMessage::Next => {
                 if !self.approved
                     || self.password != self.confirm_password
@@ -114,16 +138,8 @@ impl Page for PasswordSetup {
                     return Command::none();
                 }
 
-                let mut core = match self.core.lock() {
-                    Ok(c) => c,
-                    Err(_) => {
-                        self.error_msg = t!("thread_sync_error");
-
-                        return Command::none();
-                    }
-                };
-                let m = match &self.mnemonic {
-                    Some(m) => m,
+                let m_ref = match &self.mnemonic {
+                    Some(m) => Arc::clone(m),
                     None => {
                         self.error_msg = t!("mnemonic_is_not_inited");
 
@@ -145,23 +161,20 @@ impl Page for PasswordSetup {
                     return Command::none();
                 }
 
-                match core.init_data(
-                    self.server_sync,
-                    &self.email,
-                    &self.password,
-                    &self.salt,
-                    &m,
-                ) {
-                    Ok(_) => {
-                        dbg!("ok");
-                        return Command::none();
-                    }
-                    Err(e) => {
-                        self.error_msg = e.to_string();
+                self.loading = true;
 
-                        return Command::none();
-                    }
-                }
+                Command::perform(
+                    setup_password(
+                        Arc::clone(&self.core),
+                        m_ref,
+                        self.server_sync,
+                        // TODO: maybe need optimze it
+                        self.email.clone(),
+                        self.password.clone(),
+                        self.salt.clone(),
+                    ),
+                    |r| GlobalMessage::PasswordSetupMessage(PasswordSetupMessage::SetupFinish(r)),
+                )
             }
             PasswordSetupMessage::Back => {
                 let route = match self.last_route {
@@ -180,7 +193,9 @@ impl Page for PasswordSetup {
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
             PasswordSetupMessage::ApprovePolicy(v) => {
-                self.approved = v;
+                if !self.loading {
+                    self.approved = v;
+                }
                 Command::none()
             }
             PasswordSetupMessage::OnPasswordInputed(v) => {
@@ -200,19 +215,25 @@ impl Page for PasswordSetup {
                 Command::none()
             }
             PasswordSetupMessage::ApproveServerSync(v) => {
-                self.server_sync = v;
-                self.email_restore = v;
+                if !self.loading {
+                    self.server_sync = v;
+                    self.email_restore = v;
+                }
                 Command::none()
             }
             PasswordSetupMessage::EnableSalt(v) => {
-                self.enabled_salt = v;
-                if !v {
-                    self.salt = String::new();
+                if !self.loading {
+                    self.enabled_salt = v;
+                    if !v {
+                        self.salt = String::new();
+                    }
                 }
                 Command::none()
             }
             PasswordSetupMessage::ApproveEmailRestore(v) => {
-                self.email_restore = v;
+                if !self.loading {
+                    self.email_restore = v;
+                }
 
                 Command::none()
             }
@@ -265,6 +286,7 @@ impl Page for PasswordSetup {
                 },
             );
         let btns_row = Row::new().push(back_btn).push(forward_btn);
+        let load_row = Row::new().push(zebra_ui::components::circular::Circular::new());
         let content_col = Column::new()
             .height(Length::Fill)
             .width(Length::Fill)
@@ -274,7 +296,10 @@ impl Page for PasswordSetup {
                 Some(_m) => self.view_content(),
                 None => self.view_error(),
             })
-            .push(btns_row);
+            .push(match self.loading {
+                false => btns_row,
+                true => load_row,
+            });
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)
@@ -289,7 +314,7 @@ impl Page for PasswordSetup {
 
 impl PasswordSetup {
     pub fn set_mnemonic(&mut self, m: Mnemonic) {
-        self.mnemonic = Some(m);
+        self.mnemonic = Some(Arc::new(m));
     }
 
     pub fn view_error<'a>(&self) -> Container<'a, PasswordSetupMessage> {
@@ -302,10 +327,6 @@ impl PasswordSetup {
     }
 
     pub fn view_info<'a>(&self) -> Container<'a, PasswordSetupMessage> {
-        let title = Text::new(t!("zebra_futures"))
-            .size(14)
-            .width(Length::Fill)
-            .horizontal_alignment(Horizontal::Left);
         let server_sync_check_box = Checkbox::new(
             t!("server_sync_check_box"),
             self.server_sync,
@@ -338,11 +359,11 @@ impl PasswordSetup {
             .width(Length::Fill)
             .style(zebra_ui::style::text_input::TextInput::Primary);
 
-        if self.enabled_salt {
+        if self.enabled_salt && !self.loading {
             salt_input = salt_input.on_input(PasswordSetupMessage::OnSaltInput);
         }
 
-        if self.email_restore {
+        if self.email_restore && !self.loading {
             email_input = email_input.on_input(PasswordSetupMessage::OnEmailInputed);
         }
 
@@ -357,14 +378,13 @@ impl PasswordSetup {
             .spacing(5)
             .height(Length::Fill)
             .width(Length::Fill)
-            .push(title)
             .push(server_sync_row)
             .push(email_restore_row)
             .push(email_input)
             .push(salt_row)
             .push(salt_input);
         Container::new(options_col)
-            .height(180)
+            .height(160)
             .width(290)
             .style(zebra_ui::style::container::Container::Bordered)
     }
@@ -374,21 +394,28 @@ impl PasswordSetup {
         let error_msg = Text::new(&self.error_msg)
             .style(zebra_ui::style::text::Text::Dabger)
             .size(14);
-        let passowrd = text_input(&t!("placeholder_password"), &self.password)
+        let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
             .size(16)
             .width(250)
             .password()
-            .on_submit(PasswordSetupMessage::Next)
-            .on_input(PasswordSetupMessage::OnPasswordInputed)
             .style(zebra_ui::style::text_input::TextInput::Primary);
-        let confirm_passowrd =
+        let mut confirm_passowrd =
             text_input(&t!("placeholder_confirm_password"), &self.confirm_password)
                 .size(16)
                 .width(250)
                 .password()
-                .on_input(PasswordSetupMessage::OnConfirmPasswordInputed)
-                .on_submit(PasswordSetupMessage::Next)
                 .style(zebra_ui::style::text_input::TextInput::Primary);
+
+        if !self.loading {
+            passowrd = passowrd
+                .on_submit(PasswordSetupMessage::Next)
+                .on_input(PasswordSetupMessage::OnPasswordInputed);
+
+            confirm_passowrd = confirm_passowrd
+                .on_input(PasswordSetupMessage::OnConfirmPasswordInputed)
+                .on_submit(PasswordSetupMessage::Next);
+        }
+
         let in_col = Column::new()
             .spacing(5)
             .push(passowrd)
