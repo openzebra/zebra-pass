@@ -4,9 +4,10 @@
 
 use std::sync::{Arc, Mutex};
 
+use chrono::Duration;
 use iced::{widget::text, Alignment, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
+use zebra_ui::{components::circular::Circular, widget::*};
 
 use crate::gui::{GlobalMessage, Routers};
 
@@ -51,10 +52,13 @@ impl Page for Loader {
         }
         .horizontal_alignment(iced::alignment::Horizontal::Center);
 
+        let spiner = Circular::new();
+
         let row = Row::new()
             .height(Length::Fill)
             .align_items(Alignment::Center)
-            .push(message);
+            .push(message)
+            .push(spiner);
 
         Column::new()
             .width(Length::Fill)

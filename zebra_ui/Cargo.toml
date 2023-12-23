@@ -8,3 +8,4 @@ resolver = "2"
 
 [dependencies]
 iced = { path = "../../iced", default-features= false, features = ["svg", "image", "lazy", "advanced", "canvas"] }
+lyon_algorithms = "1.0.4"

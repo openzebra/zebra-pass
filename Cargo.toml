@@ -32,3 +32,4 @@ zebra_ui = { path = "zebra_ui" }
 zebra_lib = { path = "zebra_lib" }
 tokio = {version = "1.34.0", features = ["signal"]}
 rand = { version = "0.8.5", features = ["small_rng"] }
+lyon_algorithms = "1.0.4"
