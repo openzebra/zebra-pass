@@ -18,9 +18,10 @@ use super::{
     password_setup::{LastRoute, PasswordSetup},
     Page,
 };
+use iced::keyboard;
 use iced::{
     alignment::Horizontal,
-    widget::{pick_list, text_input, Space},
+    widget::{self, pick_list, text_input, Space},
     Command, Length, Subscription,
 };
 use zebra_ui::widget::*;
@@ -45,6 +46,7 @@ pub enum RestoreMessage {
     InputPaste((usize, String)),
     CountSelected(usize),
     LanguageSelected(Language),
+    TabPressed(bool),
 }
 
 impl Page for Restore {
@@ -72,11 +74,21 @@ impl Page for Restore {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        Subscription::none()
+        keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
+            (keyboard::KeyCode::Tab, _) => Some(RestoreMessage::TabPressed(modifiers.shift())),
+            _ => None,
+        })
     }
 
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
         match message {
+            RestoreMessage::TabPressed(shift) => {
+                if shift {
+                    widget::focus_previous()
+                } else {
+                    widget::focus_next()
+                }
+            }
             RestoreMessage::Back => {
                 // TODO: remove unwrap!
                 let options = Options::new(Arc::clone(&self.core)).unwrap();

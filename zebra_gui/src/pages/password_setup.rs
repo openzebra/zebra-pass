@@ -59,7 +59,7 @@ pub enum PasswordSetupMessage {
     OnConfirmPasswordInputed(String),
     OnEmailInputed(String),
     OnSaltInput(String),
-    TabPressed { shift: bool },
+    TabPressed(bool),
 }
 
 impl Page for PasswordSetup {
@@ -96,9 +96,9 @@ impl Page for PasswordSetup {
 
     fn subscription(&self) -> Subscription<Self::Message> {
         keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
-            (keyboard::KeyCode::Tab, _) => Some(PasswordSetupMessage::TabPressed {
-                shift: modifiers.shift(),
-            }),
+            (keyboard::KeyCode::Tab, _) => {
+                Some(PasswordSetupMessage::TabPressed(modifiers.shift()))
+            }
             _ => None,
         })
     }
@@ -207,7 +207,7 @@ impl Page for PasswordSetup {
 
                 Command::none()
             }
-            PasswordSetupMessage::TabPressed { shift } => {
+            PasswordSetupMessage::TabPressed(shift) => {
                 if shift {
                     widget::focus_previous()
                 } else {
