@@ -106,6 +106,14 @@ impl Page for PasswordSetup {
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
         match message {
             PasswordSetupMessage::Next => {
+                if !self.approved
+                    || self.password != self.confirm_password
+                    || self.password.is_empty()
+                    || self.confirm_password.is_empty()
+                {
+                    return Command::none();
+                }
+
                 let mut core = match self.core.lock() {
                     Ok(c) => c,
                     Err(_) => {
@@ -136,6 +144,7 @@ impl Page for PasswordSetup {
 
                     return Command::none();
                 }
+
                 match core.init_data(
                     self.server_sync,
                     &self.email,
@@ -369,6 +378,7 @@ impl PasswordSetup {
             .size(16)
             .width(250)
             .password()
+            .on_submit(PasswordSetupMessage::Next)
             .on_input(PasswordSetupMessage::OnPasswordInputed)
             .style(zebra_ui::style::text_input::TextInput::Primary);
         let confirm_passowrd =
@@ -377,6 +387,7 @@ impl PasswordSetup {
                 .width(250)
                 .password()
                 .on_input(PasswordSetupMessage::OnConfirmPasswordInputed)
+                .on_submit(PasswordSetupMessage::Next)
                 .style(zebra_ui::style::text_input::TextInput::Primary);
         let in_col = Column::new()
             .spacing(5)
