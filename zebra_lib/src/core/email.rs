@@ -10,3 +10,10 @@ pub fn is_valid_email(email: &str) -> Result<bool, ZebraErrors> {
         .or(Err(ZebraErrors::RegexError))?;
     Ok(email_regex.is_match(email))
 }
+
+#[test]
+fn test_email_validator() {
+    assert!(is_valid_email("loh@sss.ru").unwrap());
+    assert!(!is_valid_email("loh@ru").unwrap());
+    assert!(!is_valid_email("lohru").unwrap());
+}
