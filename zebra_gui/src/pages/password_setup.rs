@@ -19,6 +19,7 @@ use zebra_lib::{
     bip39::mnemonic::Mnemonic,
     core::{
         core::Core,
+        email::is_valid_email,
         password_strength::{password_strength, MIN_PASSWORD_SIZE},
     },
     errors::ZebraErrors,
@@ -131,17 +132,36 @@ impl Page for PasswordSetup {
                 }
                 Err(e) => {
                     self.error_msg = e.to_string();
+                    self.loading = false;
 
                     return Command::none();
                 }
             },
             PasswordSetupMessage::Next => {
+                self.error_msg = String::new();
                 if !self.approved
                     || self.password != self.confirm_password
                     || self.password.is_empty()
                     || self.confirm_password.is_empty()
                 {
                     return Command::none();
+                }
+
+                if self.email_restore {
+                    match is_valid_email(&self.email) {
+                        Ok(v) => {
+                            if !v {
+                                self.error_msg = t!("invalid_email");
+
+                                return Command::none();
+                            }
+                        }
+                        Err(e) => {
+                            self.error_msg = e.to_string();
+
+                            return Command::none();
+                        }
+                    }
                 }
 
                 let m_ref = match &self.mnemonic {
@@ -201,26 +221,32 @@ impl Page for PasswordSetup {
             PasswordSetupMessage::ApprovePolicy(v) => {
                 if !self.loading {
                     self.approved = v;
+                    self.error_msg = String::new();
                 }
                 Command::none()
             }
             PasswordSetupMessage::OnPasswordInputed(v) => {
+                self.error_msg = String::new();
                 self.password = v;
                 Command::none()
             }
             PasswordSetupMessage::OnConfirmPasswordInputed(v) => {
+                self.error_msg = String::new();
                 self.confirm_password = v;
                 Command::none()
             }
             PasswordSetupMessage::OnEmailInputed(v) => {
+                self.error_msg = String::new();
                 self.email = v;
                 Command::none()
             }
             PasswordSetupMessage::OnSaltInput(v) => {
+                self.error_msg = String::new();
                 self.salt = v;
                 Command::none()
             }
             PasswordSetupMessage::ApproveServerSync(v) => {
+                self.error_msg = String::new();
                 if !self.loading {
                     self.server_sync = v;
                     self.email_restore = v;
@@ -228,6 +254,7 @@ impl Page for PasswordSetup {
                 Command::none()
             }
             PasswordSetupMessage::EnableSalt(v) => {
+                self.error_msg = String::new();
                 if !self.loading {
                     self.enabled_salt = v;
                     if !v {
@@ -237,6 +264,7 @@ impl Page for PasswordSetup {
                 Command::none()
             }
             PasswordSetupMessage::ApproveEmailRestore(v) => {
+                self.error_msg = String::new();
                 if !self.loading {
                     self.email_restore = v;
                 }

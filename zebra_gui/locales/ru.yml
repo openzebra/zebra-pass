@@ -30,3 +30,4 @@ email_restore_checkbox: 'Email для восстановления с серве
 secret_phrase_salt: 'Соль секретной фразы.'
 thread_sync_error: 'Внутренняя ошибка процессора'
 week_password_len: 'Пароль слишком слабый'
+invalid_email: 'Некорректный формат Email'
