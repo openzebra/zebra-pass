@@ -292,7 +292,9 @@ impl Page for PasswordSetup {
                 },
             );
         let btns_row = Row::new().push(back_btn).push(forward_btn);
-        let load_row = Row::new().push(zebra_ui::components::circular::Circular::new());
+        let load_row = Row::new()
+            .padding(5)
+            .push(zebra_ui::components::circular::Circular::new().size(30.0));
         let content_col = Column::new()
             .height(Length::Fill)
             .width(Length::Fill)
