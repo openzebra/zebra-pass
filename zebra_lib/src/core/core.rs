@@ -110,6 +110,10 @@ impl Core {
         Ok(())
     }
 
+    pub fn is_unlock(&self) -> bool {
+        self.keys.is_some()
+    }
+
     // gen_keys from password
     // -> decrypt keys_session(bip39)
     // -> decrypt secure_data via (bip39) keys

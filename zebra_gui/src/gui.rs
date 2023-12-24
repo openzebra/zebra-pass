@@ -43,8 +43,8 @@ pub enum GlobalMessage {
     Route(Routers),
 }
 
-async fn load() -> Result<(), ()> {
-    std::thread::sleep(std::time::Duration::from_millis(1000000));
+async fn load(_core: Arc<Mutex<core::Core>>) -> Result<(), ()> {
+    std::thread::sleep(std::time::Duration::from_millis(100));
     // TODO: make it load when server sync added.
     Ok(())
 }
@@ -61,14 +61,15 @@ impl Application for GUI {
 
     fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
         let core = Arc::new(Mutex::new(arg));
-        let tmp = pages::options::Options::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let route = Routers::Options(tmp);
-        // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        // let route = Routers::Loading(loader);
+        // let tmp = pages::options::Options::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        // let route = Routers::Options(tmp);
+        let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let route = Routers::Loading(loader);
+        let core_ref = Arc::clone(&core);
 
         (
             Self { core, route },
-            Command::perform(load(), |_| {
+            Command::perform(load(core_ref), |_| {
                 GlobalMessage::LoadMessage(pages::loader::LoadMessage::Synced)
             }),
         )

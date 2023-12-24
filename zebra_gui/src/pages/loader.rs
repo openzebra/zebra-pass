@@ -14,7 +14,7 @@ use zebra_ui::{components::circular::Circular, widget::*};
 
 use crate::gui::{GlobalMessage, Routers};
 
-use super::{locale::Locale, Page};
+use super::{home::Home, locale::Locale, lock::Lock, Page};
 
 #[derive(Debug)]
 pub struct Loader {
@@ -41,9 +41,30 @@ impl Page for Loader {
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
             LoadMessage::Synced => {
-                let locale = Locale::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Locale(locale);
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                // TODO: remove unwrap.
+                let core = self.core.lock().unwrap();
+
+                if !core.state.inited {
+                    let locale = Locale::new(Arc::clone(&self.core)).unwrap();
+                    let route = Routers::Locale(locale);
+                    return Command::perform(std::future::ready(1), |_| {
+                        GlobalMessage::Route(route)
+                    });
+                }
+
+                if core.is_unlock() {
+                    let home = Home::new(Arc::clone(&self.core)).unwrap();
+                    let route = Routers::Home(home);
+                    return Command::perform(std::future::ready(1), |_| {
+                        GlobalMessage::Route(route)
+                    });
+                } else {
+                    let lock = Lock::new(Arc::clone(&self.core)).unwrap();
+                    let route = Routers::Lock(lock);
+                    return Command::perform(std::future::ready(1), |_| {
+                        GlobalMessage::Route(route)
+                    });
+                }
             }
         }
     }
