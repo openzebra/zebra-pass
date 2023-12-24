@@ -4,7 +4,8 @@
 
 use std::sync::{Arc, Mutex};
 
-use iced::{Command, Length, Subscription};
+use crate::rust_i18n::t;
+use iced::{alignment::Horizontal, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
@@ -36,7 +37,26 @@ impl Page for Lock {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        Container::new(Row::new())
+        let zebra_print = zebra_ui::image::zebra_print_view();
+        let title = Text::new(t!("welcome"))
+            .size(34)
+            .horizontal_alignment(Horizontal::Center);
+        let print_col = Column::new()
+            .width(220)
+            .height(Length::Fill)
+            .push(zebra_print);
+        let payload_col = Column::new()
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .align_items(iced::Alignment::Center)
+            .padding(50)
+            .push(title);
+        let row = Row::new()
+            .width(Length::Fill)
+            .push(print_col)
+            .push(payload_col);
+
+        Container::new(row)
             .height(Length::Fill)
             .width(Length::Fill)
             .into()
