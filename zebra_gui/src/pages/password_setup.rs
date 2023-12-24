@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use super::{gen_phrase::GenPhrase, restore::Restore, Page};
+use super::{gen_phrase::GenPhrase, home::Home, restore::Restore, Page};
 use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
@@ -128,7 +128,12 @@ impl Page for PasswordSetup {
         match message {
             PasswordSetupMessage::SetupFinish(result) => match result {
                 Ok(_) => {
-                    return Command::none();
+                    let home = Home::new(Arc::clone(&self.core)).unwrap();
+                    let route = Routers::Home(home);
+
+                    return Command::perform(std::future::ready(1), |_| {
+                        GlobalMessage::Route(route)
+                    });
                 }
                 Err(e) => {
                     self.error_msg = e.to_string();
@@ -148,6 +153,12 @@ impl Page for PasswordSetup {
                 }
 
                 if self.email_restore {
+                    if self.email.is_empty() {
+                        self.error_msg = t!("empty_email");
+
+                        return Command::none();
+                    }
+
                     match is_valid_email(&self.email) {
                         Ok(v) => {
                             if !v {

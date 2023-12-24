@@ -12,9 +12,11 @@ use iced::{Command, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
 pub mod gen_phrase;
+pub mod home;
 pub mod inverview;
 pub mod loader;
 pub mod locale;
+pub mod lock;
 pub mod options;
 pub mod password_setup;
 pub mod restore;

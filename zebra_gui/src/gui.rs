@@ -20,6 +20,8 @@ pub enum Routers {
     GenPhrase(pages::gen_phrase::GenPhrase),
     Restore(pages::restore::Restore),
     PasswordSetup(pages::password_setup::PasswordSetup),
+    Home(pages::home::Home),
+    Lock(pages::lock::Lock),
 }
 
 pub struct GUI {
@@ -36,6 +38,8 @@ pub enum GlobalMessage {
     GenPhraseMessage(pages::gen_phrase::GenPhraseMessage),
     RestoreMessage(pages::restore::RestoreMessage),
     PasswordSetupMessage(pages::password_setup::PasswordSetupMessage),
+    HomeMessage(pages::home::HomeMessage),
+    LockMessage(pages::lock::LockMessage),
     Route(Routers),
 }
 
@@ -100,6 +104,14 @@ impl Application for GUI {
                 Routers::PasswordSetup(view) => view.update(msg),
                 _ => Command::none(),
             },
+            GlobalMessage::HomeMessage(msg) => match &mut self.route {
+                Routers::Home(view) => view.update(msg),
+                _ => Command::none(),
+            },
+            GlobalMessage::LockMessage(msg) => match &mut self.route {
+                Routers::Lock(view) => view.update(msg),
+                _ => Command::none(),
+            },
             GlobalMessage::Route(route) => {
                 self.route = route;
                 Command::none()
@@ -128,6 +140,8 @@ impl Application for GUI {
             Routers::PasswordSetup(v) => v
                 .subscription()
                 .map(|msg| GlobalMessage::PasswordSetupMessage(msg)),
+            Routers::Home(v) => v.subscription().map(|msg| GlobalMessage::HomeMessage(msg)),
+            Routers::Lock(v) => v.subscription().map(|msg| GlobalMessage::LockMessage(msg)),
         }])
     }
 
@@ -142,6 +156,8 @@ impl Application for GUI {
             Routers::PasswordSetup(l) => {
                 l.view().map(|msg| GlobalMessage::PasswordSetupMessage(msg))
             }
+            Routers::Home(l) => l.view().map(|msg| GlobalMessage::HomeMessage(msg)),
+            Routers::Lock(l) => l.view().map(|msg| GlobalMessage::LockMessage(msg)),
         }
     }
 
