@@ -16,7 +16,7 @@ use zebra_ui::{components::circular, widget::*};
 
 use crate::gui::GlobalMessage;
 
-use super::{home::Home, Page};
+use super::{home::Home, options::Options, Page};
 
 #[derive(Debug)]
 pub struct Lock {
@@ -34,6 +34,7 @@ pub enum LockMessage {
     OnPasswordInput(String),
     TabPressed(bool),
     EventOccurred(Event),
+    OnOptions,
     OnSubmit,
     OnFinishLoading(Result<(), ZebraErrors>),
 }
@@ -83,11 +84,21 @@ impl Page for Lock {
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
             LockMessage::OnSubmit => {
+                if self.password.is_empty() {
+                    return Command::none();
+                }
+
                 self.loading = true;
 
                 Command::perform(unlock(Arc::clone(&self.core), self.password.clone()), |r| {
                     GlobalMessage::LockMessage(LockMessage::OnFinishLoading(r))
                 })
+            }
+            LockMessage::OnOptions => {
+                let options = Options::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::Options(options);
+
+                return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
             LockMessage::OnPasswordInput(v) => {
                 self.password = v;
@@ -170,6 +181,17 @@ impl Page for Lock {
         .height(38)
         .width(250)
         .style(zebra_ui::style::button::Button::OutlinePrimary);
+        let options_btn = Button::new(Text::new(t!("restore_or_create")).size(14))
+            .on_press_maybe(if self.loading {
+                None
+            } else {
+                Some(LockMessage::OnOptions)
+            })
+            .style(zebra_ui::style::button::Button::Ref);
+        let options_col = Column::new()
+            .width(250)
+            .push(options_btn)
+            .align_items(iced::Alignment::Start);
         let lock_icon = zebra_ui::image::lock_icon().width(100).height(100);
         let print_col = Column::new()
             .width(220)
@@ -189,7 +211,8 @@ impl Page for Lock {
             .push(match self.loading {
                 false => submit_btn,
                 true => loading_btn,
-            });
+            })
+            .push(options_col);
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)
