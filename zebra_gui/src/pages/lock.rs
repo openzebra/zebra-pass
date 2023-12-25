@@ -101,9 +101,6 @@ impl Page for Lock {
 
     fn view(&self) -> Element<Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
-        let title = Text::new(t!("welcome"))
-            .size(34)
-            .horizontal_alignment(Horizontal::Center);
         let error_message = Text::new(&self.err_message)
             .size(14)
             .style(zebra_ui::style::text::Text::Dabger)
@@ -134,6 +131,7 @@ impl Page for Lock {
         .width(250)
         .on_press(LockMessage::OnSubmit)
         .style(zebra_ui::style::button::Button::OutlinePrimary);
+        let lock_icon = zebra_ui::image::lock_icon().width(100).height(100);
         let print_col = Column::new()
             .width(220)
             .height(Length::Fill)
@@ -143,7 +141,7 @@ impl Page for Lock {
             .height(Length::Fill)
             .align_items(iced::Alignment::Center)
             .padding(50)
-            .push(title)
+            .push(lock_icon)
             .push(Space::new(0.0, 16.0))
             .push(error_message)
             .push(Space::new(0.0, 5.0))
