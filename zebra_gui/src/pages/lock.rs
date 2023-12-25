@@ -7,8 +7,9 @@ use std::sync::{Arc, Mutex};
 use crate::rust_i18n::t;
 use iced::{
     alignment::Horizontal,
+    event,
     widget::{text_input, Space},
-    Command, Length, Subscription,
+    Command, Event, Length, Subscription,
 };
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
@@ -23,12 +24,16 @@ pub struct Lock {
     password: String,
     show: bool,
     loading: bool,
+    loaded: bool,
+    err_message: String,
+    input_id: text_input::Id,
 }
 
 #[derive(Debug, Clone)]
 pub enum LockMessage {
     OnPasswordInput(String),
     TabPressed(bool),
+    EventOccurred(Event),
     OnSubmit,
 }
 
@@ -39,9 +44,15 @@ impl Page for Lock {
         let password = String::new();
         let show = false;
         let loading = false;
+        let loaded = false;
+        let err_message = String::new();
+        let input_id = text_input::Id::new("password_id");
 
         Ok(Self {
             core,
+            err_message,
+            input_id,
+            loaded,
             loading,
             password,
             show,
@@ -49,24 +60,40 @@ impl Page for Lock {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        iced::keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
-            (iced::keyboard::KeyCode::Tab, _) => Some(LockMessage::TabPressed(modifiers.shift())),
-            _ => None,
-        })
+        Subscription::batch([
+            event::listen().map(LockMessage::EventOccurred),
+            iced::keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
+                (iced::keyboard::KeyCode::Tab, _) => {
+                    Some(LockMessage::TabPressed(modifiers.shift()))
+                }
+                _ => None,
+            }),
+        ])
     }
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
+            LockMessage::OnSubmit => {
+                dbg!("submited");
+                Command::none()
+            }
             LockMessage::OnPasswordInput(v) => {
                 self.password = v;
                 Command::none()
             }
-            LockMessage::OnSubmit => Command::none(),
             LockMessage::TabPressed(shift) => {
                 if shift {
                     iced::widget::focus_previous()
                 } else {
                     iced::widget::focus_next()
+                }
+            }
+            LockMessage::EventOccurred(_) => {
+                if !self.loaded {
+                    self.loaded = true;
+                    text_input::focus::<GlobalMessage>(self.input_id.clone())
+                } else {
+                    Command::none()
                 }
             }
         }
@@ -77,15 +104,24 @@ impl Page for Lock {
         let title = Text::new(t!("welcome"))
             .size(34)
             .horizontal_alignment(Horizontal::Center);
+        let error_message = Text::new(&self.err_message)
+            .size(14)
+            .style(zebra_ui::style::text::Text::Dabger)
+            .horizontal_alignment(Horizontal::Center);
         let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
             .size(16)
             .padding(8)
             .width(250)
-            .password()
+            .id(self.input_id.clone())
             .style(zebra_ui::style::text_input::TextInput::Primary);
 
         if !self.loading {
-            passowrd = passowrd.on_input(LockMessage::OnPasswordInput);
+            passowrd = passowrd
+                .on_input(LockMessage::OnPasswordInput)
+                .on_submit(LockMessage::OnSubmit);
+        }
+        if !self.show {
+            passowrd = passowrd.password();
         }
 
         let submit_btn = Button::new(
@@ -109,6 +145,8 @@ impl Page for Lock {
             .padding(50)
             .push(title)
             .push(Space::new(0.0, 16.0))
+            .push(error_message)
+            .push(Space::new(0.0, 5.0))
             .push(passowrd)
             .push(Space::new(0.0, 5.0))
             .push(submit_btn);
