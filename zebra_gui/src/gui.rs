@@ -44,7 +44,7 @@ pub enum GlobalMessage {
 }
 
 async fn load(_core: Arc<Mutex<core::Core>>) -> Result<(), ()> {
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    // std::thread::sleep(std::time::Duration::from_millis(100));
     // TODO: make it load when server sync added.
     Ok(())
 }

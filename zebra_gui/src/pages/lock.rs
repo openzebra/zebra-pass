@@ -5,7 +5,11 @@
 use std::sync::{Arc, Mutex};
 
 use crate::rust_i18n::t;
-use iced::{alignment::Horizontal, widget::text_input, Command, Length, Subscription};
+use iced::{
+    alignment::Horizontal,
+    widget::{text_input, Space},
+    Command, Length, Subscription,
+};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
@@ -24,6 +28,8 @@ pub struct Lock {
 #[derive(Debug, Clone)]
 pub enum LockMessage {
     OnPasswordInput(String),
+    TabPressed(bool),
+    OnSubmit,
 }
 
 impl Page for Lock {
@@ -43,7 +49,10 @@ impl Page for Lock {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        Subscription::none()
+        iced::keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
+            (iced::keyboard::KeyCode::Tab, _) => Some(LockMessage::TabPressed(modifiers.shift())),
+            _ => None,
+        })
     }
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
@@ -51,6 +60,14 @@ impl Page for Lock {
             LockMessage::OnPasswordInput(v) => {
                 self.password = v;
                 Command::none()
+            }
+            LockMessage::OnSubmit => Command::none(),
+            LockMessage::TabPressed(shift) => {
+                if shift {
+                    iced::widget::focus_previous()
+                } else {
+                    iced::widget::focus_next()
+                }
             }
         }
     }
@@ -62,6 +79,7 @@ impl Page for Lock {
             .horizontal_alignment(Horizontal::Center);
         let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
             .size(16)
+            .padding(8)
             .width(250)
             .password()
             .style(zebra_ui::style::text_input::TextInput::Primary);
@@ -70,6 +88,16 @@ impl Page for Lock {
             passowrd = passowrd.on_input(LockMessage::OnPasswordInput);
         }
 
+        let submit_btn = Button::new(
+            Text::new(t!("create_btn"))
+                .horizontal_alignment(Horizontal::Center)
+                .width(Length::Fill)
+                .size(16),
+        )
+        .padding(8)
+        .width(250)
+        .on_press(LockMessage::OnSubmit)
+        .style(zebra_ui::style::button::Button::OutlinePrimary);
         let print_col = Column::new()
             .width(220)
             .height(Length::Fill)
@@ -80,8 +108,10 @@ impl Page for Lock {
             .align_items(iced::Alignment::Center)
             .padding(50)
             .push(title)
-            .push(passowrd);
-
+            .push(Space::new(0.0, 16.0))
+            .push(passowrd)
+            .push(Space::new(0.0, 5.0))
+            .push(submit_btn);
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)
