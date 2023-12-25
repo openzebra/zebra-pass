@@ -4,7 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use crate::rust_i18n::t;
+use crate::{gui::Routers, rust_i18n::t};
 use iced::{
     alignment::Horizontal,
     event,
@@ -12,11 +12,11 @@ use iced::{
     Command, Event, Length, Subscription,
 };
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
+use zebra_ui::{components::circular, widget::*};
 
 use crate::gui::GlobalMessage;
 
-use super::Page;
+use super::{home::Home, Page};
 
 #[derive(Debug)]
 pub struct Lock {
@@ -35,6 +35,15 @@ pub enum LockMessage {
     TabPressed(bool),
     EventOccurred(Event),
     OnSubmit,
+    OnFinishLoading(Result<(), ZebraErrors>),
+}
+
+pub async fn unlock(core: Arc<Mutex<Core>>, passowrd: String) -> Result<(), ZebraErrors> {
+    let mut core = core.lock().or(Err(ZebraErrors::SyncStateLock))?;
+
+    core.unlock(&passowrd)?;
+
+    Ok(())
 }
 
 impl Page for Lock {
@@ -74,8 +83,11 @@ impl Page for Lock {
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
             LockMessage::OnSubmit => {
-                dbg!("submited");
-                Command::none()
+                self.loading = true;
+
+                Command::perform(unlock(Arc::clone(&self.core), self.password.clone()), |r| {
+                    GlobalMessage::LockMessage(LockMessage::OnFinishLoading(r))
+                })
             }
             LockMessage::OnPasswordInput(v) => {
                 self.password = v;
@@ -96,6 +108,22 @@ impl Page for Lock {
                     Command::none()
                 }
             }
+            LockMessage::OnFinishLoading(result) => match result {
+                Ok(_) => {
+                    let home = Home::new(Arc::clone(&self.core)).unwrap();
+                    let route = Routers::Home(home);
+
+                    return Command::perform(std::future::ready(1), |_| {
+                        GlobalMessage::Route(route)
+                    });
+                }
+                Err(e) => {
+                    self.loading = false;
+                    self.err_message = e.to_string();
+
+                    text_input::focus::<GlobalMessage>(self.input_id.clone())
+                }
+            },
         }
     }
 
@@ -129,7 +157,18 @@ impl Page for Lock {
         )
         .padding(8)
         .width(250)
+        .height(38)
         .on_press(LockMessage::OnSubmit)
+        .style(zebra_ui::style::button::Button::OutlinePrimary);
+        let loading_btn = Button::new(
+            Column::new()
+                .push(circular::Circular::new().size(20.0))
+                .width(Length::Fill)
+                .align_items(iced::Alignment::Center),
+        )
+        .padding(8)
+        .height(38)
+        .width(250)
         .style(zebra_ui::style::button::Button::OutlinePrimary);
         let lock_icon = zebra_ui::image::lock_icon().width(100).height(100);
         let print_col = Column::new()
@@ -147,7 +186,10 @@ impl Page for Lock {
             .push(Space::new(0.0, 5.0))
             .push(passowrd)
             .push(Space::new(0.0, 5.0))
-            .push(submit_btn);
+            .push(match self.loading {
+                false => submit_btn,
+                true => loading_btn,
+            });
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)
