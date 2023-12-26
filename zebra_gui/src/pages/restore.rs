@@ -223,7 +223,7 @@ impl Page for Restore {
             .height(Length::Fill)
             .push(zebra_print);
         let title = Text::new(t!("restore_page_title"))
-            .size(34)
+            .size(24)
             .horizontal_alignment(Horizontal::Center);
         let forward_icon = zebra_ui::image::forward_icon()
             .height(50)
