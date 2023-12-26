@@ -85,7 +85,7 @@ impl Page for Lock {
         match message {
             LockMessage::OnSubmit => {
                 if self.password.is_empty() {
-                    return Command::none();
+                    return text_input::focus::<GlobalMessage>(self.input_id.clone());
                 }
 
                 self.loading = true;

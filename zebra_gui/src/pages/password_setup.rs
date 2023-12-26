@@ -378,7 +378,8 @@ impl PasswordSetup {
             t!("server_sync_check_box"),
             self.server_sync,
             PasswordSetupMessage::ApproveServerSync,
-        );
+        )
+        .text_size(11);
         let server_sync_row = Row::new()
             .push(server_sync_check_box)
             .width(Length::Fill)
@@ -387,12 +388,14 @@ impl PasswordSetup {
             t!("email_restore_checkbox"),
             self.email_restore,
             PasswordSetupMessage::ApproveEmailRestore,
-        );
+        )
+        .text_size(11);
         let phrase_salt_check_box = Checkbox::new(
             t!("secret_phrase_salt"),
             self.enabled_salt,
             PasswordSetupMessage::EnableSalt,
-        );
+        )
+        .text_size(11);
         let email_restore_row = Row::new()
             .push(email_restore_check_box)
             .width(Length::Fill)
@@ -471,7 +474,8 @@ impl PasswordSetup {
             t!("accept_privacy_policy"),
             self.approved,
             PasswordSetupMessage::ApprovePolicy,
-        );
+        )
+        .text_size(11);
         let chec_row = Row::new()
             .push(check_box)
             .width(250)
