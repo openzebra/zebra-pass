@@ -33,3 +33,5 @@ week_password_len: 'Пароль слишком слабый'
 invalid_email: 'Некорректный формат Email'
 empty_email: 'Пустой Email'
 restore_or_create: 'Создать или восстановить'
+unlock_btn: 'Разблокировать'
+

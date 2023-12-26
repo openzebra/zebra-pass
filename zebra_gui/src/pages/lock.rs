@@ -161,7 +161,7 @@ impl Page for Lock {
         }
 
         let submit_btn = Button::new(
-            Text::new(t!("create_btn"))
+            Text::new(t!("unlock_btn"))
                 .horizontal_alignment(Horizontal::Center)
                 .width(Length::Fill)
                 .size(16),
