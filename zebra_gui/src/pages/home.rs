@@ -36,7 +36,13 @@ impl Page for Home {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        Container::new(Row::new())
+        let header_col = Column::new().width(Length::Fill).height(60);
+        let content_col = Column::new().width(Length::Fill).height(Length::Fill);
+        let left_bar_col = Column::new().height(Length::Fill).width(60);
+        let main_row = Row::new().push(left_bar_col).push(content_col);
+        let main_col = Column::new().push(header_col).push(main_row);
+
+        Container::new(main_col)
             .height(Length::Fill)
             .width(Length::Fill)
             .into()
