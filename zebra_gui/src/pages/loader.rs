@@ -45,6 +45,7 @@ impl Page for Loader {
                 let core = self.core.lock().unwrap();
 
                 if !core.state.inited {
+                    drop(core);
                     let locale = Locale::new(Arc::clone(&self.core)).unwrap();
                     let route = Routers::Locale(locale);
                     return Command::perform(std::future::ready(1), |_| {
@@ -53,12 +54,14 @@ impl Page for Loader {
                 }
 
                 if core.is_unlock() {
+                    drop(core);
                     let home = Home::new(Arc::clone(&self.core)).unwrap();
                     let route = Routers::Home(home);
                     return Command::perform(std::future::ready(1), |_| {
                         GlobalMessage::Route(route)
                     });
                 } else {
+                    drop(core);
                     let lock = Lock::new(Arc::clone(&self.core)).unwrap();
                     let route = Routers::Lock(lock);
                     return Command::perform(std::future::ready(1), |_| {
