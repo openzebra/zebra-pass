@@ -10,6 +10,7 @@ pub enum Container {
     Transparent,
     Background,
     Bordered,
+    WeekBorder,
     Custom(iced::Color),
 }
 
@@ -31,7 +32,14 @@ impl container::StyleSheet for Theme {
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     border_radius: BorderRadius::from(16.0),
                     border_width: 2.0,
-                    border_color: p.window_background_inverse,
+                    border_color: p.window_background_inverse.into(),
+                },
+                Container::WeekBorder => container::Appearance {
+                    text_color: Default::default(),
+                    background: Some(iced::Background::Color(Color::TRANSPARENT)),
+                    border_radius: BorderRadius::from(0.0),
+                    border_width: 0.5,
+                    border_color: p.secondary.into(),
                 },
                 Container::Custom(c) => container::Appearance {
                     background: Some(iced::Background::Color(*c)),
@@ -57,6 +65,13 @@ impl container::StyleSheet for Theme {
                     border_radius: BorderRadius::from(16.0),
                     border_width: 2.0,
                     border_color: p.window_background_inverse,
+                },
+                Container::WeekBorder => container::Appearance {
+                    text_color: Default::default(),
+                    background: Some(iced::Background::Color(Color::TRANSPARENT)),
+                    border_radius: BorderRadius::from(0.0),
+                    border_width: 1.0,
+                    border_color: p.secondary,
                 },
             },
         }

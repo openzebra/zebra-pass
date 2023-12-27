@@ -36,15 +36,30 @@ impl Page for Home {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let header_col = Column::new().width(Length::Fill).height(60);
-        let content_col = Column::new().width(Length::Fill).height(Length::Fill);
+        let header = self.view_header();
+        let content_col = self.view_content();
         let left_bar_col = Column::new().height(Length::Fill).width(60);
         let main_row = Row::new().push(left_bar_col).push(content_col);
-        let main_col = Column::new().push(header_col).push(main_row);
+        let main_col = Column::new().push(header).push(main_row);
 
         Container::new(main_col)
             .height(Length::Fill)
             .width(Length::Fill)
             .into()
+    }
+}
+
+impl Home {
+    pub fn view_header(&self) -> Container<HomeMessage> {
+        let header_col = Column::new();
+        Container::new(header_col).width(Length::Fill).height(60)
+    }
+
+    pub fn view_content(&self) -> Container<HomeMessage> {
+        let content_col = Column::new();
+        Container::new(content_col)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .style(zebra_ui::style::container::Container::WeekBorder)
     }
 }
