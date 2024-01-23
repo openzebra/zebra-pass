@@ -101,6 +101,7 @@ impl Page for Lock {
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
             LockMessage::OnPasswordInput(v) => {
+                self.err_message = String::new();
                 self.password = v;
                 Command::none()
             }
