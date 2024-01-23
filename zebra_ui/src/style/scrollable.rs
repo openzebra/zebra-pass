@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use super::Theme;
-use iced::{widget::scrollable, BorderRadius};
+use iced::{widget::scrollable, Border};
 
 #[derive(Default, Clone)]
 pub struct Scrollable {}
@@ -16,14 +16,18 @@ impl scrollable::StyleSheet for Theme {
         };
         scrollable::Scrollbar {
             background: None,
-            border_width: 0.0,
-            border_color: palette.primary,
-            border_radius: BorderRadius::from(palette.radius),
+            border: Border {
+                color: palette.primary,
+                width: 0.0,
+                radius: palette.radius,
+            },
             scroller: scrollable::Scroller {
                 color: palette.secondary,
-                border_radius: BorderRadius::from(palette.radius),
-                border_width: 0.0,
-                border_color: iced::Color::TRANSPARENT,
+                border: Border {
+                    color: iced::Color::TRANSPARENT,
+                    width: 0.0,
+                    radius: palette.radius,
+                },
             },
         }
     }

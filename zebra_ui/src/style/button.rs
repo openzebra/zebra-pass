@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use super::Theme;
-use iced::widget::button;
+use iced::{widget::button, Border};
 
 #[derive(Default)]
 pub enum Button {
@@ -54,9 +54,11 @@ impl button::StyleSheet for Theme {
 
         iced::widget::button::Appearance {
             text_color,
-            border_color,
-            border_width,
-            border_radius,
+            border: Border {
+                color: border_color,
+                width: border_width,
+                radius: border_radius,
+            },
             background: Some(background_color.into()),
             ..Default::default()
         }
@@ -100,9 +102,11 @@ impl button::StyleSheet for Theme {
 
         iced::widget::button::Appearance {
             text_color,
-            border_color,
-            border_width,
-            border_radius,
+            border: Border {
+                color: border_color,
+                width: border_width,
+                radius: border_radius,
+            },
             background: Some(background_color.into()),
             ..Default::default()
         }

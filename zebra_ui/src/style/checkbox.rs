@@ -2,7 +2,8 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use super::Theme;
-use iced::{widget::checkbox, BorderRadius};
+use iced::widget::checkbox;
+use iced::Border;
 
 #[derive(Default)]
 pub struct CheckBox {}
@@ -18,20 +19,24 @@ impl checkbox::StyleSheet for Theme {
         if is_selected {
             checkbox::Appearance {
                 background: iced::Color::TRANSPARENT.into(),
-                border_width: 1.0,
-                border_color: palette.primary,
                 icon_color: palette.primary,
                 text_color: None,
-                border_radius: BorderRadius::from(6.0),
+                border: Border {
+                    radius: 6.0,
+                    color: palette.primary,
+                    width: 1.0,
+                },
             }
         } else {
             checkbox::Appearance {
                 background: palette.window_background.into(),
-                border_width: 1.0,
-                border_color: palette.primary,
                 icon_color: palette.primary,
                 text_color: None,
-                border_radius: BorderRadius::from(6.0),
+                border: Border {
+                    radius: 6.0,
+                    color: palette.primary,
+                    width: 1.0,
+                },
             }
         }
     }

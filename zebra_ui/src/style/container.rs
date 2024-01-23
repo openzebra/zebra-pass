@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use super::Theme;
-use iced::{widget::container, BorderRadius, Color};
+use iced::{widget::container, Border, Color};
 
 #[derive(Debug, Copy, Clone, Default)]
 pub enum Container {
@@ -30,16 +30,22 @@ impl container::StyleSheet for Theme {
                 Container::Bordered => container::Appearance {
                     text_color: Default::default(),
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
-                    border_radius: BorderRadius::from(16.0),
-                    border_width: 2.0,
-                    border_color: p.window_background_inverse.into(),
+                    shadow: Default::default(),
+                    border: Border {
+                        radius: 16.0,
+                        width: 2.0,
+                        color: p.window_background_inverse.into(),
+                    },
                 },
                 Container::WeekBorder => container::Appearance {
                     text_color: Default::default(),
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
-                    border_radius: BorderRadius::from(0.0),
-                    border_width: 0.5,
-                    border_color: p.secondary.into(),
+                    border: Border {
+                        radius: 0.0,
+                        width: 0.5,
+                        color: p.secondary.into(),
+                    },
+                    shadow: Default::default(),
                 },
                 Container::Custom(c) => container::Appearance {
                     background: Some(iced::Background::Color(*c)),
@@ -61,17 +67,23 @@ impl container::StyleSheet for Theme {
                 },
                 Container::Bordered => container::Appearance {
                     text_color: Default::default(),
+                    shadow: Default::default(),
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
-                    border_radius: BorderRadius::from(16.0),
-                    border_width: 2.0,
-                    border_color: p.window_background_inverse,
+                    border: Border {
+                        radius: 16.0,
+                        width: 2.0,
+                        color: p.window_background_inverse.into(),
+                    },
                 },
                 Container::WeekBorder => container::Appearance {
                     text_color: Default::default(),
+                    shadow: Default::default(),
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
-                    border_radius: BorderRadius::from(0.0),
-                    border_width: 1.0,
-                    border_color: p.secondary,
+                    border: Border {
+                        radius: 0.0,
+                        width: 1.0,
+                        color: p.secondary.into(),
+                    },
                 },
             },
         }

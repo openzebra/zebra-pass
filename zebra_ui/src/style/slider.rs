@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use super::Theme;
-use iced::{widget::slider, BorderRadius};
+use iced::widget::slider;
 
 #[derive(Debug, Copy, Clone, Default)]
 pub enum Slider {
@@ -20,11 +20,11 @@ impl slider::StyleSheet for Theme {
         let handle = slider::Handle {
             shape: slider::HandleShape::Rectangle {
                 width: 8,
-                border_radius: BorderRadius::from(4.0),
+                border_radius: 4.0.into(),
             },
             color: palette.window_background_inverse,
-            border_color: palette.window_background_inverse,
             border_width: 1.0,
+            border_color: palette.window_background_inverse,
         };
 
         match style {
@@ -32,7 +32,7 @@ impl slider::StyleSheet for Theme {
                 rail: slider::Rail {
                     colors: (palette.primary, iced::Color::TRANSPARENT),
                     width: 2.0,
-                    border_radius: BorderRadius::from(19.0),
+                    border_radius: 19.0.into(),
                 },
                 handle,
             },
@@ -46,7 +46,7 @@ impl slider::StyleSheet for Theme {
         let handle = slider::Handle {
             shape: slider::HandleShape::Rectangle {
                 width: 8,
-                border_radius: BorderRadius::from(4.0),
+                border_radius: 4.0.into(),
             },
             color: palette.primary,
             border_color: palette.window_background_inverse,
@@ -58,7 +58,7 @@ impl slider::StyleSheet for Theme {
                 rail: slider::Rail {
                     colors: (palette.primary, iced::Color::TRANSPARENT),
                     width: 2.0,
-                    border_radius: BorderRadius::from(19.0),
+                    border_radius: 19.0.into(),
                 },
                 handle,
             },
@@ -72,7 +72,7 @@ impl slider::StyleSheet for Theme {
         let handle = slider::Handle {
             shape: slider::HandleShape::Rectangle {
                 width: 8,
-                border_radius: BorderRadius::from(4.0),
+                border_radius: 4.0.into(),
             },
             color: palette.primary,
             border_color: palette.secondary,
@@ -84,7 +84,7 @@ impl slider::StyleSheet for Theme {
                 rail: slider::Rail {
                     colors: (palette.primary, iced::Color::TRANSPARENT),
                     width: 2.0,
-                    border_radius: BorderRadius::from(4.0),
+                    border_radius: 4.0.into(),
                 },
                 handle,
             },

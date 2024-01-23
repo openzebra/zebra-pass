@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use super::Theme;
-use iced::{widget::pick_list, BorderRadius};
+use iced::{widget::pick_list, Border};
 
 #[derive(Default, Clone)]
 pub enum PickList {
@@ -23,19 +23,23 @@ impl pick_list::StyleSheet for Theme {
                 placeholder_color: Default::default(),
                 handle_color: palette.warn,
                 background: palette.primary.into(),
-                border_width: 1.0,
-                border_color: palette.danger,
-                border_radius: BorderRadius::from(palette.radius),
                 text_color: iced::Color::BLACK,
+                border: Border {
+                    width: 1.0,
+                    color: palette.danger,
+                    radius: palette.radius,
+                },
             },
             PickList::OutlineLight => pick_list::Appearance {
                 placeholder_color: palette.primary,
                 handle_color: palette.window_background_inverse,
                 background: iced::Color::TRANSPARENT.into(),
-                border_width: 1.0,
-                border_color: palette.window_background_inverse,
-                border_radius: BorderRadius::from(palette.radius),
                 text_color: palette.window_background_inverse,
+                border: Border {
+                    width: 1.0,
+                    color: palette.window_background_inverse,
+                    radius: palette.radius,
+                },
             },
         }
     }
@@ -72,11 +76,13 @@ impl iced::overlay::menu::StyleSheet for Theme {
         iced::overlay::menu::Appearance {
             text_color: palette.window_background_inverse,
             background: palette.window_background.into(),
-            border_width: 0.0,
-            border_radius: [0., 0., 0., 0.].into(),
-            border_color: palette.window_background_inverse,
             selected_text_color: palette.window_background_inverse,
             selected_background: palette.secondary.into(),
+            border: Border {
+                width: 0.0,
+                color: palette.window_background_inverse,
+                radius: 0.into(),
+            },
         }
     }
 }

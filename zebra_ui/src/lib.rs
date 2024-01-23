@@ -9,9 +9,8 @@ pub mod style;
 
 pub mod widget {
     #![allow(dead_code)]
-    use crate::style::Theme;
 
-    pub type Renderer = iced::Renderer<Theme>;
+    pub type Renderer = iced::Renderer;
     pub type Element<'a, Message> = iced::Element<'a, Message, Renderer>;
     pub type Container<'a, Message> = iced::widget::Container<'a, Message, Renderer>;
     pub type Column<'a, Message> = iced::widget::Column<'a, Message, Renderer>;

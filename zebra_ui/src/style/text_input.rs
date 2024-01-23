@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use super::Theme;
-use iced::{widget::text_input, BorderRadius};
+use iced::{widget::text_input, Border};
 
 #[derive(Debug, Copy, Clone, Default)]
 pub enum TextInput {
@@ -19,7 +19,7 @@ impl text_input::StyleSheet for Theme {
             Theme::Dark(p) => p,
             Theme::Light(p) => p,
         };
-        let border_radius = BorderRadius::from(palette.radius);
+        let border_radius = palette.radius;
         let border_width = 1.0;
 
         match style {
@@ -29,19 +29,23 @@ impl text_input::StyleSheet for Theme {
                 alfa_primary.a = 0.8;
 
                 text_input::Appearance {
-                    border_width,
-                    border_radius,
                     icon_color: palette.primary,
                     background: iced::Background::Color(iced::Color::TRANSPARENT),
-                    border_color: alfa_primary,
+                    border: Border {
+                        width: border_width,
+                        radius: border_radius,
+                        color: alfa_primary,
+                    },
                 }
             }
             TextInput::Danger => text_input::Appearance {
-                border_width,
-                border_radius,
                 icon_color: palette.danger,
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
-                border_color: palette.danger,
+                border: Border {
+                    width: border_width,
+                    radius: border_radius,
+                    color: palette.danger,
+                },
             },
         }
     }
@@ -57,23 +61,27 @@ impl text_input::StyleSheet for Theme {
             Theme::Dark(p) => p,
             Theme::Light(p) => p,
         };
-        let border_radius = BorderRadius::from(palette.radius);
+        let border_radius = palette.radius;
         let border_width = 1.0;
 
         match style {
             TextInput::Primary => text_input::Appearance {
-                border_width,
-                border_radius,
                 icon_color: palette.primary,
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
-                border_color: palette.primary,
+                border: Border {
+                    width: border_width,
+                    radius: border_radius,
+                    color: palette.primary,
+                },
             },
             TextInput::Danger => text_input::Appearance {
-                border_width,
-                border_radius,
                 icon_color: palette.danger,
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
-                border_color: palette.danger,
+                border: Border {
+                    width: border_width,
+                    radius: border_radius,
+                    color: palette.danger,
+                },
             },
         }
     }
