@@ -14,5 +14,6 @@ zebra_lib = { path = "../zebra_lib" }
 tokio = {version = "1.34.0", features = ["signal"]}
 rust-i18n = "2.3.0"
 iced = { path = "../../iced", default-features= false, features = ["svg", "image", "lazy"] }
+iced_wgpu = "0.10"
 dark-light = "1.0.0"
 rand = { version = "0.8.5", features = ["small_rng"] }

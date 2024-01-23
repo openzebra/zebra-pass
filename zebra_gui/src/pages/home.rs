@@ -2,7 +2,10 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::sync::{Arc, Mutex};
+use std::{
+    str::Lines,
+    sync::{Arc, Mutex},
+};
 
 use iced::{Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
