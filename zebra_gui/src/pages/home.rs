@@ -4,7 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use iced::{Color, Command, Length, Subscription};
+use iced::{Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
@@ -36,15 +36,18 @@ impl Page for Home {
     }
 
     fn view(&self) -> Element<Self::Message> {
+        let line_alfa_channel = 0.4;
         let header = self.view_header();
 
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)
+            .alfa(line_alfa_channel)
             .style(zebra_ui::components::line::LineStyleSheet::Secondary);
         let hline = zebra_ui::components::line::Line::new()
             .height(Length::Fixed(1.0))
             .width(Length::Fill)
+            .alfa(line_alfa_channel)
             .style(zebra_ui::components::line::LineStyleSheet::Secondary);
 
         let content_col = self.view_content();

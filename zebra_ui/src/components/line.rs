@@ -17,6 +17,7 @@ where
     width: Length,
     height: Length,
     style: <Theme as StyleSheet>::Style,
+    alfa: f32,
 }
 
 impl<'a, Theme> Line<Theme>
@@ -28,6 +29,7 @@ where
             width: Length::Fill,
             height: Length::Fill,
             style: <Theme as StyleSheet>::Style::default(),
+            alfa: 1.0,
         }
     }
 
@@ -47,6 +49,13 @@ where
     /// Sets the height of the [`Line`].
     pub fn height(mut self, height: Length) -> Self {
         self.height = height;
+
+        self
+    }
+
+    /// Sets the alfa channel of the [`Line`].
+    pub fn alfa(mut self, alfa: f32) -> Self {
+        self.alfa = alfa;
 
         self
     }
@@ -83,7 +92,9 @@ where
         _cursor: mouse::Cursor,
         _viewport: &Rectangle,
     ) {
-        let custom_style = <Theme as StyleSheet>::appearance(theme, &self.style);
+        let mut custom_style = <Theme as StyleSheet>::appearance(theme, &self.style);
+
+        custom_style.color.a = self.alfa;
 
         renderer.fill_quad(
             renderer::Quad {
