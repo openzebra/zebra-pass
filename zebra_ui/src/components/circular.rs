@@ -1,6 +1,9 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use crate::style::Theme;
+use crate::widget::Renderer;
+
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::widget::tree::{self, Tree};
@@ -10,7 +13,7 @@ use iced::mouse;
 use iced::time::Instant;
 use iced::widget::canvas;
 use iced::window::{self, RedrawRequest};
-use iced::{Background, Color, Element, Event, Length, Rectangle, Renderer, Size, Vector};
+use iced::{Background, Color, Element, Event, Length, Rectangle, Size, Vector};
 
 use super::easing::Easing;
 
@@ -21,7 +24,6 @@ const MIN_RADIANS: f32 = PI / 8.0;
 const WRAP_RADIANS: f32 = 2.0 * PI - PI / 4.0;
 const BASE_ROTATION_SPEED: u32 = u32::MAX / 80;
 
-#[allow(missing_debug_implementations)]
 pub struct Circular<Theme>
 where
     Theme: StyleSheet,
@@ -38,7 +40,6 @@ impl<'a, Theme> Circular<Theme>
 where
     Theme: StyleSheet,
 {
-    /// Creates a new [`Circular`] with the given content.
     pub fn new() -> Self {
         Circular {
             size: 40.0,
@@ -383,16 +384,19 @@ pub trait StyleSheet {
     fn appearance(&self, style: &Self::Style) -> Appearance;
 }
 
-impl StyleSheet for iced::Theme {
+impl StyleSheet for Theme {
     type Style = ();
 
     fn appearance(&self, _style: &Self::Style) -> Appearance {
-        let palette = self.extended_palette();
+        let palette = match self {
+            Theme::Dark(p) => p,
+            Theme::Light(p) => p,
+        };
 
         Appearance {
             background: None,
-            track_color: palette.background.weak.color,
-            bar_color: palette.primary.base.color,
+            track_color: iced::Color::TRANSPARENT,
+            bar_color: palette.window_background_inverse,
         }
     }
 }

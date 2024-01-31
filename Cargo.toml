@@ -22,7 +22,7 @@ path = "zebra_gui/src/main.rs"
 
 [dependencies]
 #iced = { version = "0.10.0", default-features= false, features = ["svg", "image", "lazy", "advanced", "canvas"] }
-iced = { path = "../iced", default-features= false, features = ["svg", "image", "lazy", "advanced", "canvas"] }
+iced = { git = "https://github.com/hicaru/iced.git", default-features= false, features = ["svg", "image", "lazy", "advanced", "canvas"] }
 iced_lazy = "0.6"
 rust-i18n = "2.3.0"
 chrono = "0.4.31"

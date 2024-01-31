@@ -22,7 +22,7 @@ pub fn zebra_print_view() -> Svg {
     let h = Handle::from_memory(PRINT);
     Svg::new(h)
         .height(Length::Fill)
-        .height(Length::Fill)
+        .width(Length::Shrink)
         .content_fit(ContentFit::Cover)
         .style(svg::Svg::Inverse)
 }
