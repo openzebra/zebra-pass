@@ -71,10 +71,6 @@ where
         limits: &layout::Limits,
     ) -> layout::Node {
         layout::atomic(limits, self.width, self.height)
-        // layout::Node::new(Size {
-        //     width: 0.0,
-        //     height: 0.0,
-        // })
     }
 
     fn draw(
@@ -109,9 +105,18 @@ where
     Message: Clone + 'a,
     Theme: StyleSheet + 'a,
 {
-    fn from(circular: Line<Theme>) -> Self {
-        Self::new(circular)
+    fn from(l: Line<Theme>) -> Self {
+        Self::new(l)
     }
+}
+
+#[derive(Debug, Copy, Clone, Default)]
+pub enum LineStyleSheet {
+    #[default]
+    Black,
+    Primary,
+    Secondary,
+    Custom(iced::Color),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -137,16 +142,20 @@ pub trait StyleSheet {
 }
 
 impl StyleSheet for Theme {
-    type Style = ();
+    type Style = LineStyleSheet;
 
-    fn appearance(&self, _style: &Self::Style) -> Appearance {
+    fn appearance(&self, style: &Self::Style) -> Appearance {
         let palette = match self {
             Theme::Dark(p) => p,
             Theme::Light(p) => p,
         };
+        let color = match style {
+            LineStyleSheet::Black => palette.window_background_inverse,
+            LineStyleSheet::Primary => palette.primary,
+            LineStyleSheet::Secondary => palette.secondary,
+            LineStyleSheet::Custom(c) => *c,
+        };
 
-        Appearance {
-            color: palette.window_background_inverse,
-        }
+        Appearance { color }
     }
 }

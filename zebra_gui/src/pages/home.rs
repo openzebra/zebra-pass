@@ -37,14 +37,20 @@ impl Page for Home {
 
     fn view(&self) -> Element<Self::Message> {
         let header = self.view_header();
+
         let vline = zebra_ui::components::line::Line::new()
-            .width(Length::Fixed(10.0))
-            .height(Length::Fill);
+            .width(Length::Fixed(1.0))
+            .height(Length::Fill)
+            .style(zebra_ui::components::line::LineStyleSheet::Secondary);
+        let hline = zebra_ui::components::line::Line::new()
+            .height(Length::Fixed(1.0))
+            .width(Length::Fill)
+            .style(zebra_ui::components::line::LineStyleSheet::Secondary);
+
         let content_col = self.view_content();
         let left_bar_col = Column::new().height(Length::Fill).width(60);
-
         let main_row = Row::new().push(left_bar_col).push(vline).push(content_col);
-        let main_col = Column::new().push(header).push(main_row);
+        let main_col = Column::new().push(header).push(hline).push(main_row);
 
         Container::new(main_col)
             .height(Length::Fill)
