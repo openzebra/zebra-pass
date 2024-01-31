@@ -18,7 +18,7 @@ use super::{
     password_setup::{LastRoute, PasswordSetup},
     Page,
 };
-use iced::keyboard;
+use iced::keyboard::{self, key::Named};
 use iced::{
     alignment::Horizontal,
     widget::{self, pick_list, text_input, Space},
@@ -75,7 +75,9 @@ impl Page for Restore {
 
     fn subscription(&self) -> Subscription<Self::Message> {
         keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
-            (keyboard::KeyCode::Tab, _) => Some(RestoreMessage::TabPressed(modifiers.shift())),
+            (keyboard::Key::Named(Named::Tab), _) => {
+                Some(RestoreMessage::TabPressed(modifiers.shift()))
+            }
             _ => None,
         })
     }

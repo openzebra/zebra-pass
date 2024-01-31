@@ -61,10 +61,10 @@ impl Application for GUI {
 
     fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
         let core = Arc::new(Mutex::new(arg));
-        let tmp = pages::home::Home::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let route = Routers::Home(tmp);
-        // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        // let route = Routers::Loading(loader);
+        // let tmp = pages::home::Home::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        // let route = Routers::Home(tmp);
+        let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let route = Routers::Loading(loader);
         let core_ref = Arc::clone(&core);
 
         (
@@ -146,7 +146,7 @@ impl Application for GUI {
         }])
     }
 
-    fn view(&self) -> Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
+    fn view(&self) -> Element<'_, Self::Message, zebra_ui::style::Theme> {
         match &self.route {
             Routers::Loading(l) => l.view().map(|msg| GlobalMessage::LoadMessage(msg)),
             Routers::Locale(l) => l.view().map(|msg| GlobalMessage::LocaleMessage(msg)),

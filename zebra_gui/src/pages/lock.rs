@@ -8,6 +8,7 @@ use crate::{gui::Routers, rust_i18n::t};
 use iced::{
     alignment::Horizontal,
     event,
+    keyboard::key::Named,
     widget::{text_input, Space},
     Command, Event, Length, Subscription,
 };
@@ -73,7 +74,7 @@ impl Page for Lock {
         Subscription::batch([
             event::listen().map(LockMessage::EventOccurred),
             iced::keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
-                (iced::keyboard::KeyCode::Tab, _) => {
+                (iced::keyboard::Key::Named(Named::Tab), _) => {
                     Some(LockMessage::TabPressed(modifiers.shift()))
                 }
                 _ => None,

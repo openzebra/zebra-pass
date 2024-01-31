@@ -32,7 +32,7 @@ impl Application for GUIError {
         Command::none()
     }
 
-    fn view(&self) -> Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
+    fn view(&self) -> Element<'_, Self::Message, zebra_ui::style::Theme> {
         let palette = match self.theme() {
             style::Theme::Dark(p) => p,
             style::Theme::Light(p) => p,

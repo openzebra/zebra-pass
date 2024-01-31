@@ -63,7 +63,7 @@ impl Page for Options {
         }
     }
 
-    fn view(&self) -> Element<Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
             .width(220)

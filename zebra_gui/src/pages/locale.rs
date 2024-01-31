@@ -88,18 +88,17 @@ impl Page for Locale {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let locale_pick_list: iced::widget::PickList<'_, Language, LocaleMessage, Renderer> =
-            pick_list(
-                self.locales.as_slice(),
-                self.selected.clone(),
-                LocaleMessage::Selected,
-            )
-            .text_size(20)
-            .padding(5)
-            .width(220)
-            .on_opened(LocaleMessage::Openned)
-            .on_closed(LocaleMessage::Closed)
-            .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        let locale_pick_list = pick_list(
+            self.locales.as_slice(),
+            self.selected.clone(),
+            LocaleMessage::Selected,
+        )
+        .text_size(20)
+        .padding(5)
+        .width(220)
+        // .on_opened(LocaleMessage::Openned)
+        // .on_closed(LocaleMessage::Closed)
+        .style(zebra_ui::style::pick_list::PickList::OutlineLight);
 
         let zebra_print = zebra_ui::image::zebra_print_view();
         let title = Text::new(t!("welcome"))

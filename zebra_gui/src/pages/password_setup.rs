@@ -7,7 +7,7 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
-use iced::keyboard;
+use iced::keyboard::{self, key::Named};
 use iced::widget::{self, Checkbox};
 use iced::{
     alignment::Horizontal,
@@ -117,7 +117,7 @@ impl Page for PasswordSetup {
 
     fn subscription(&self) -> Subscription<Self::Message> {
         keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
-            (keyboard::KeyCode::Tab, _) => {
+            (keyboard::Key::Named(Named::Tab), _) => {
                 Some(PasswordSetupMessage::TabPressed(modifiers.shift()))
             }
             _ => None,
