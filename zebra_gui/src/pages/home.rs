@@ -51,8 +51,12 @@ impl Page for Home {
             .style(zebra_ui::components::line::LineStyleSheet::Secondary);
 
         let content_col = self.view_content();
-        let left_bar_col = Column::new().height(Length::Fill).width(60);
-        let main_row = Row::new().push(left_bar_col).push(vline).push(content_col);
+        let left_search_col = Column::new().height(Length::Fill).width(200);
+        let main_row = Row::new()
+            .push(self.view_left_nav_bar())
+            .push(left_search_col)
+            .push(vline)
+            .push(content_col);
         let main_col = Column::new().push(header).push(hline).push(main_row);
 
         Container::new(main_col)
@@ -73,5 +77,14 @@ impl Home {
         Container::new(content_col)
             .width(Length::Fill)
             .height(Length::Fill)
+    }
+
+    pub fn view_left_nav_bar(&self) -> Container<HomeMessage> {
+        let content_col = Column::new();
+
+        Container::new(content_col)
+            .width(60)
+            .height(Length::Fill)
+            .style(zebra_ui::style::container::Container::Dark)
     }
 }

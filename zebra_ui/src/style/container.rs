@@ -8,7 +8,7 @@ use iced::{widget::container, Border, Color};
 pub enum Container {
     #[default]
     Transparent,
-    Background,
+    Dark,
     Bordered,
     WeekBorder,
     Custom(iced::Color),
@@ -23,8 +23,8 @@ impl container::StyleSheet for Theme {
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     ..container::Appearance::default()
                 },
-                Container::Background => container::Appearance {
-                    background: Some(iced::Background::Color(p.danger)),
+                Container::Dark => container::Appearance {
+                    background: Some(iced::Background::Color(p.window_background_inverse)),
                     ..container::Appearance::default()
                 },
                 Container::Bordered => container::Appearance {
@@ -57,8 +57,8 @@ impl container::StyleSheet for Theme {
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     ..container::Appearance::default()
                 },
-                Container::Background => container::Appearance {
-                    background: Some(iced::Background::Color(Color::TRANSPARENT)),
+                Container::Dark => container::Appearance {
+                    background: Some(iced::Background::Color(p.window_background_inverse)),
                     ..container::Appearance::default()
                 },
                 Container::Custom(c) => container::Appearance {
