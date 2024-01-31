@@ -1,20 +1,18 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::widget::tree::{self, Tree};
-use iced::advanced::{Clipboard, Layout, Renderer, Shell, Widget};
+use iced::advanced::{self, Clipboard, Layout, Shell, Widget};
 use iced::event;
 use iced::mouse;
 use iced::time::Instant;
 use iced::widget::canvas;
 use iced::window::{self, RedrawRequest};
-use iced::{Background, Color, Element, Event, Length, Rectangle, Size, Vector};
+use iced::{Background, Color, Element, Event, Length, Rectangle, Renderer, Size, Vector};
 
 use super::easing::Easing;
-use crate::style::Theme;
 
 use std::f32::consts::PI;
 use std::time::Duration;
@@ -24,29 +22,29 @@ const WRAP_RADIANS: f32 = 2.0 * PI - PI / 4.0;
 const BASE_ROTATION_SPEED: u32 = u32::MAX / 80;
 
 #[allow(missing_debug_implementations)]
-pub struct Circular<Theme>
+pub struct Circular<'a, Theme>
 where
     Theme: StyleSheet,
 {
     size: f32,
     bar_height: f32,
     style: <Theme as StyleSheet>::Style,
-    easing: Easing,
+    easing: &'a Easing,
     cycle_duration: Duration,
     rotation_duration: Duration,
 }
 
-impl<Theme> Circular<Theme>
+impl<'a, Theme> Circular<'a, Theme>
 where
     Theme: StyleSheet,
 {
     /// Creates a new [`Circular`] with the given content.
     pub fn new() -> Self {
         Circular {
-            size: 50.0,
-            bar_height: 3.0,
+            size: 40.0,
+            bar_height: 4.0,
             style: <Theme as StyleSheet>::Style::default(),
-            easing: Easing::builder()
+            easing: &Easing::builder()
                 .cubic_bezier_to([0.2, 0.0], [0.0, 1.0], [1.0, 1.0])
                 .build(),
             cycle_duration: Duration::from_millis(600),
@@ -73,7 +71,7 @@ where
     }
 
     /// Sets the easing of this [`Circular`].
-    pub fn easing(mut self, easing: Easing) -> Self {
+    pub fn easing(mut self, easing: &'a Easing) -> Self {
         self.easing = easing;
         self
     }
@@ -92,7 +90,7 @@ where
     }
 }
 
-impl<Theme> Default for Circular<Theme>
+impl<'a, Theme> Default for Circular<'a, Theme>
 where
     Theme: StyleSheet,
 {
@@ -221,9 +219,9 @@ struct State {
     cache: canvas::Cache,
 }
 
-impl<Message, Theme> Widget<Message, iced::Renderer<Theme>> for Circular<Theme>
+impl<'a, Message, Theme> Widget<Message, Theme, Renderer> for Circular<'a, Theme>
 where
-    Message: Clone,
+    Message: 'a + Clone,
     Theme: StyleSheet,
 {
     fn tag(&self) -> tree::Tag {
@@ -234,24 +232,20 @@ where
         tree::State::new(State::default())
     }
 
-    fn width(&self) -> Length {
-        Length::Fixed(self.size)
-    }
-
-    fn height(&self) -> Length {
-        Length::Fixed(self.size)
+    fn size(&self) -> Size<Length> {
+        Size {
+            width: Length::Fixed(self.size),
+            height: Length::Fixed(self.size),
+        }
     }
 
     fn layout(
         &self,
         _tree: &mut Tree,
-        _renderer: &iced::Renderer<Theme>,
+        _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let limits = limits.width(self.size).height(self.size);
-        let size = limits.resolve(Size::ZERO);
-
-        layout::Node::new(size)
+        layout::atomic(limits, self.size, self.size)
     }
 
     fn on_event(
@@ -260,13 +254,11 @@ where
         event: Event,
         _layout: Layout<'_>,
         _cursor: mouse::Cursor,
-        _renderer: &iced::Renderer<Theme>,
+        _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) -> event::Status {
-        const FRAME_RATE: u64 = 60;
-
         let state = tree.state.downcast_mut::<State>();
 
         if let Event::Window(_, window::Event::RedrawRequested(now)) = event {
@@ -276,9 +268,7 @@ where
                     .timed_transition(self.cycle_duration, self.rotation_duration, now);
 
             state.cache.clear();
-            shell.request_redraw(RedrawRequest::At(
-                now + Duration::from_millis(1000 / FRAME_RATE),
-            ));
+            shell.request_redraw(RedrawRequest::NextFrame);
         }
 
         event::Status::Ignored
@@ -287,13 +277,15 @@ where
     fn draw(
         &self,
         tree: &Tree,
-        renderer: &mut iced::Renderer<Theme>,
+        renderer: &mut Renderer,
         theme: &Theme,
         _style: &renderer::Style,
         layout: Layout<'_>,
         _cursor: mouse::Cursor,
         _viewport: &Rectangle,
     ) {
+        use advanced::Renderer as _;
+
         let state = tree.state.downcast_ref::<State>();
         let bounds = layout.bounds();
         let custom_style = <Theme as StyleSheet>::appearance(theme, &self.style);
@@ -310,6 +302,7 @@ where
             );
 
             let mut builder = canvas::path::Builder::new();
+
             let start = state.animation.rotation() * 2.0 * PI;
 
             match state.animation {
@@ -351,12 +344,12 @@ where
     }
 }
 
-impl<'a, Message, Theme> From<Circular<Theme>> for Element<'a, Message, iced::Renderer<Theme>>
+impl<'a, Message, Theme> From<Circular<'a, Theme>> for Element<'a, Message, Theme, Renderer>
 where
     Message: Clone + 'a,
     Theme: StyleSheet + 'a,
 {
-    fn from(circular: Circular<Theme>) -> Self {
+    fn from(circular: Circular<'a, Theme>) -> Self {
         Self::new(circular)
     }
 }
@@ -390,19 +383,16 @@ pub trait StyleSheet {
     fn appearance(&self, style: &Self::Style) -> Appearance;
 }
 
-impl StyleSheet for Theme {
+impl StyleSheet for iced::Theme {
     type Style = ();
 
     fn appearance(&self, _style: &Self::Style) -> Appearance {
-        let palette = match self {
-            Theme::Dark(p) => p,
-            Theme::Light(p) => p,
-        };
+        let palette = self.extended_palette();
 
         Appearance {
             background: None,
-            track_color: iced::Color::TRANSPARENT,
-            bar_color: palette.window_background_inverse,
+            track_color: palette.background.weak.color,
+            bar_color: palette.primary.base.color,
         }
     }
 }
