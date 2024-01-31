@@ -27,7 +27,7 @@ impl pick_list::StyleSheet for Theme {
                 border: Border {
                     width: 1.0,
                     color: palette.danger,
-                    radius: palette.radius,
+                    radius: palette.radius.into(),
                 },
             },
             PickList::OutlineLight => pick_list::Appearance {
@@ -38,7 +38,7 @@ impl pick_list::StyleSheet for Theme {
                 border: Border {
                     width: 1.0,
                     color: palette.window_background_inverse,
-                    radius: palette.radius,
+                    radius: palette.radius.into(),
                 },
             },
         }

@@ -22,7 +22,7 @@ impl checkbox::StyleSheet for Theme {
                 icon_color: palette.primary,
                 text_color: None,
                 border: Border {
-                    radius: 6.0,
+                    radius: 6.0.into(),
                     color: palette.primary,
                     width: 1.0,
                 },
@@ -33,7 +33,7 @@ impl checkbox::StyleSheet for Theme {
                 icon_color: palette.primary,
                 text_color: None,
                 border: Border {
-                    radius: 6.0,
+                    radius: 6.0.into(),
                     color: palette.primary,
                     width: 1.0,
                 },

@@ -8,8 +8,6 @@ pub mod image;
 pub mod style;
 
 pub mod widget {
-    #![allow(dead_code)]
-
     pub type Renderer = iced::Renderer;
     pub type Element<'a, Message> = iced::Element<'a, Message, Renderer>;
     pub type Container<'a, Message> = iced::widget::Container<'a, Message, Renderer>;

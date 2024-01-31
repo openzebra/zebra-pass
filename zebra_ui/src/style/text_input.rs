@@ -33,7 +33,7 @@ impl text_input::StyleSheet for Theme {
                     background: iced::Background::Color(iced::Color::TRANSPARENT),
                     border: Border {
                         width: border_width,
-                        radius: border_radius,
+                        radius: border_radius.into(),
                         color: alfa_primary,
                     },
                 }
@@ -43,7 +43,7 @@ impl text_input::StyleSheet for Theme {
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
                 border: Border {
                     width: border_width,
-                    radius: border_radius,
+                    radius: border_radius.into(),
                     color: palette.danger,
                 },
             },
@@ -70,7 +70,7 @@ impl text_input::StyleSheet for Theme {
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
                 border: Border {
                     width: border_width,
-                    radius: border_radius,
+                    radius: border_radius.into(),
                     color: palette.primary,
                 },
             },
@@ -79,7 +79,7 @@ impl text_input::StyleSheet for Theme {
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
                 border: Border {
                     width: border_width,
-                    radius: border_radius,
+                    radius: border_radius.into(),
                     color: palette.danger,
                 },
             },

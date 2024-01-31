@@ -19,14 +19,14 @@ impl scrollable::StyleSheet for Theme {
             border: Border {
                 color: palette.primary,
                 width: 0.0,
-                radius: palette.radius,
+                radius: palette.radius.into(),
             },
             scroller: scrollable::Scroller {
                 color: palette.secondary,
                 border: Border {
                     color: iced::Color::TRANSPARENT,
                     width: 0.0,
-                    radius: palette.radius,
+                    radius: palette.radius.into(),
                 },
             },
         }

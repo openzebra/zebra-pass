@@ -32,7 +32,7 @@ impl container::StyleSheet for Theme {
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     shadow: Default::default(),
                     border: Border {
-                        radius: 16.0,
+                        radius: 16.0.into(),
                         width: 2.0,
                         color: p.window_background_inverse.into(),
                     },
@@ -41,7 +41,7 @@ impl container::StyleSheet for Theme {
                     text_color: Default::default(),
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     border: Border {
-                        radius: 0.0,
+                        radius: 0.0.into(),
                         width: 0.5,
                         color: p.secondary.into(),
                     },
@@ -70,7 +70,7 @@ impl container::StyleSheet for Theme {
                     shadow: Default::default(),
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     border: Border {
-                        radius: 16.0,
+                        radius: 16.0.into(),
                         width: 2.0,
                         color: p.window_background_inverse.into(),
                     },
@@ -80,7 +80,7 @@ impl container::StyleSheet for Theme {
                     shadow: Default::default(),
                     background: Some(iced::Background::Color(Color::TRANSPARENT)),
                     border: Border {
-                        radius: 0.0,
+                        radius: 0.0.into(),
                         width: 1.0,
                         color: p.secondary.into(),
                     },
