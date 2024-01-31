@@ -141,7 +141,7 @@ impl Page for Lock {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let zebra_print = zebra_ui::image::zebra_print_view().width(120);
+        let zebra_print = zebra_ui::image::zebra_print_view();
         let error_message = Text::new(&self.err_message)
             .size(14)
             .style(zebra_ui::style::text::Text::Dabger)
