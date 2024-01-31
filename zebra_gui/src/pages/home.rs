@@ -2,12 +2,9 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::{
-    str::Lines,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
-use iced::{Command, Length, Subscription};
+use iced::{Color, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
@@ -40,9 +37,13 @@ impl Page for Home {
 
     fn view(&self) -> Element<Self::Message> {
         let header = self.view_header();
+        let vline = zebra_ui::components::line::Line::new()
+            .width(Length::Fixed(10.0))
+            .height(Length::Fill);
         let content_col = self.view_content();
         let left_bar_col = Column::new().height(Length::Fill).width(60);
-        let main_row = Row::new().push(left_bar_col).push(content_col);
+
+        let main_row = Row::new().push(left_bar_col).push(vline).push(content_col);
         let main_col = Column::new().push(header).push(main_row);
 
         Container::new(main_col)
@@ -63,6 +64,5 @@ impl Home {
         Container::new(content_col)
             .width(Length::Fill)
             .height(Length::Fill)
-            .style(zebra_ui::style::container::Container::WeekBorder)
     }
 }

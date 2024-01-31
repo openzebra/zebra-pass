@@ -13,7 +13,7 @@ mod error;
 mod gui;
 mod pages;
 
-i18n!("locales", fallback = "en");
+i18n!("zebra_gui/locales", fallback = "en");
 
 fn main() -> iced::Result {
     let window = window::Settings {
