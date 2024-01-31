@@ -22,19 +22,19 @@ const WRAP_RADIANS: f32 = 2.0 * PI - PI / 4.0;
 const BASE_ROTATION_SPEED: u32 = u32::MAX / 80;
 
 #[allow(missing_debug_implementations)]
-pub struct Circular<'a, Theme>
+pub struct Circular<Theme>
 where
     Theme: StyleSheet,
 {
     size: f32,
     bar_height: f32,
     style: <Theme as StyleSheet>::Style,
-    easing: &'a Easing,
+    easing: Easing,
     cycle_duration: Duration,
     rotation_duration: Duration,
 }
 
-impl<'a, Theme> Circular<'a, Theme>
+impl<'a, Theme> Circular<Theme>
 where
     Theme: StyleSheet,
 {
@@ -44,7 +44,7 @@ where
             size: 40.0,
             bar_height: 4.0,
             style: <Theme as StyleSheet>::Style::default(),
-            easing: &Easing::builder()
+            easing: Easing::builder()
                 .cubic_bezier_to([0.2, 0.0], [0.0, 1.0], [1.0, 1.0])
                 .build(),
             cycle_duration: Duration::from_millis(600),
@@ -71,7 +71,7 @@ where
     }
 
     /// Sets the easing of this [`Circular`].
-    pub fn easing(mut self, easing: &'a Easing) -> Self {
+    pub fn easing(mut self, easing: Easing) -> Self {
         self.easing = easing;
         self
     }
@@ -90,7 +90,7 @@ where
     }
 }
 
-impl<'a, Theme> Default for Circular<'a, Theme>
+impl<Theme> Default for Circular<Theme>
 where
     Theme: StyleSheet,
 {
@@ -219,9 +219,9 @@ struct State {
     cache: canvas::Cache,
 }
 
-impl<'a, Message, Theme> Widget<Message, Theme, Renderer> for Circular<'a, Theme>
+impl<Message, Theme> Widget<Message, Theme, Renderer> for Circular<Theme>
 where
-    Message: 'a + Clone,
+    Message: Clone,
     Theme: StyleSheet,
 {
     fn tag(&self) -> tree::Tag {
@@ -344,12 +344,12 @@ where
     }
 }
 
-impl<'a, Message, Theme> From<Circular<'a, Theme>> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme> From<Circular<Theme>> for Element<'a, Message, Theme, Renderer>
 where
     Message: Clone + 'a,
     Theme: StyleSheet + 'a,
 {
-    fn from(circular: Circular<'a, Theme>) -> Self {
+    fn from(circular: Circular<Theme>) -> Self {
         Self::new(circular)
     }
 }

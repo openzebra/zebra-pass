@@ -19,5 +19,5 @@ pub mod widget {
     pub type ProgressBar = iced::widget::ProgressBar<Renderer>;
     pub type PickList<'a, Message> = iced::widget::PickList<'a, Message, Renderer>;
     pub type Scrollable<'a, Message> = iced::widget::Scrollable<'a, Message, Renderer>;
-    pub type Svg = iced::widget::Svg<Renderer>;
+    pub type Svg = iced::widget::Svg<crate::style::Theme>;
 }
