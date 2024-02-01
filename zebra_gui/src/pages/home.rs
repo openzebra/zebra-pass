@@ -8,7 +8,7 @@ use iced::{Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
-use crate::components::home_nav_bar::{NavBar, NavRoute};
+use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::gui::GlobalMessage;
 
 use super::Page;
@@ -37,7 +37,13 @@ impl Page for Home {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let main_row = Row::new();
+        let vline = zebra_ui::components::line::Line::new()
+            .width(Length::Fixed(1.0))
+            .height(Length::Fill)
+            .alfa(LINE_ALFA_CHANNEL)
+            .style(zebra_ui::components::line::LineStyleSheet::Secondary);
+        let left_search_col = Column::new().height(Length::Fill).width(200);
+        let main_row = Row::new().push(left_search_col).push(vline);
         let content = Container::new(main_row);
 
         NavBar::<Self::Message>::new().view(content).into()

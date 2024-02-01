@@ -4,7 +4,7 @@
 use iced::Length;
 use zebra_ui::widget::*;
 
-const LINE_ALFA_CHANNEL: f32 = 0.4;
+pub const LINE_ALFA_CHANNEL: f32 = 0.4;
 
 pub enum NavRoute {
     Home,
@@ -29,9 +29,32 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
         }
     }
 
+    pub fn set_route(mut self, route: NavRoute) -> Self {
+        self.route = route;
+
+        self
+    }
+
+    pub fn on_home(mut self, msg: Message) -> Self {
+        self.on_home = Some(msg);
+
+        self
+    }
+
+    pub fn on_gen(mut self, msg: Message) -> Self {
+        self.on_gen = Some(msg);
+
+        self
+    }
+
+    pub fn on_settings(mut self, msg: Message) -> Self {
+        self.on_settings = Some(msg);
+
+        self
+    }
+
     pub fn view(&self, content: Container<'a, Message>) -> Container<'a, Message> {
         let header = self.view_header();
-
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)
@@ -43,11 +66,9 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
             .alfa(LINE_ALFA_CHANNEL)
             .style(zebra_ui::components::line::LineStyleSheet::Secondary);
 
-        let left_search_col = Column::new().height(Length::Fill).width(200);
         let main_row = Row::new()
             .push(self.view_left_nav_bar())
             .push(vline.clone())
-            .push(left_search_col)
             .push(vline)
             .push(content);
         let main_col = Column::new().push(header).push(hline).push(main_row);
