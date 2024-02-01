@@ -17,6 +17,7 @@ const HOOVES_ICON: &[u8] = include_bytes!("../static/icons/hooves.svg");
 const RELOAD_ICON: &[u8] = include_bytes!("../static/icons/reload.svg");
 const COPY_ICON: &[u8] = include_bytes!("../static/icons/copy.svg");
 const LOCK_ICON: &[u8] = include_bytes!("../static/icons/lock.svg");
+const GEAR_ICON: &[u8] = include_bytes!("../static/icons/gear.svg");
 const ZEBRA_LOGO: &[u8] = include_bytes!("../static/imgs/zebra_logo.svg");
 
 pub fn zebra_print_view() -> Svg {
@@ -97,6 +98,13 @@ pub fn atom() -> Svg {
 
 pub fn lock_icon() -> Svg {
     let h = Handle::from_memory(LOCK_ICON);
+    Svg::new(h)
+        .content_fit(ContentFit::Cover)
+        .style(svg::Svg::Inverse)
+}
+
+pub fn gear_icon() -> Svg {
+    let h = Handle::from_memory(GEAR_ICON);
     Svg::new(h)
         .content_fit(ContentFit::Cover)
         .style(svg::Svg::Inverse)

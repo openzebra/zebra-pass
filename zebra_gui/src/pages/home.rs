@@ -19,7 +19,10 @@ pub struct Home {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum HomeMessage {}
+pub enum HomeMessage {
+    RouteGen,
+    RouteSettings,
+}
 
 impl Page for Home {
     type Message = HomeMessage;
@@ -44,7 +47,12 @@ impl Page for Home {
             self.view_records()
         });
 
-        NavBar::<Self::Message>::new().view(content).into()
+        NavBar::<Self::Message>::new()
+            .on_home(HomeMessage::RouteSettings)
+            .on_gen(HomeMessage::RouteGen)
+            .on_settings(HomeMessage::RouteSettings)
+            .view(content)
+            .into()
     }
 }
 

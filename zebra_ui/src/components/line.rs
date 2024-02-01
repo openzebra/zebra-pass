@@ -125,9 +125,10 @@ where
 #[derive(Debug, Clone, Default)]
 pub enum LineStyleSheet {
     #[default]
-    Black,
+    Inverse,
     Primary,
     Secondary,
+    Transparent,
     Custom(iced::Color),
 }
 
@@ -162,9 +163,10 @@ impl StyleSheet for Theme {
             Theme::Light(p) => p,
         };
         let color = match style {
-            LineStyleSheet::Black => palette.window_background_inverse,
+            LineStyleSheet::Inverse => palette.window_background_inverse,
             LineStyleSheet::Primary => palette.primary,
             LineStyleSheet::Secondary => palette.secondary,
+            LineStyleSheet::Transparent => Color::TRANSPARENT,
             LineStyleSheet::Custom(c) => *c,
         };
 
