@@ -10,6 +10,7 @@ use iced::advanced::widget::{self, Widget};
 use iced::mouse;
 use iced::{Border, Color, Element, Length, Rectangle, Size};
 
+#[derive(Clone)]
 pub struct Line<Theme>
 where
     Theme: StyleSheet,
@@ -121,7 +122,7 @@ where
     }
 }
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub enum LineStyleSheet {
     #[default]
     Black,
@@ -130,7 +131,7 @@ pub enum LineStyleSheet {
     Custom(iced::Color),
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Appearance {
     pub color: Color,
 }
@@ -146,7 +147,7 @@ impl std::default::Default for Appearance {
 /// A set of rules that dictate the style of an indicator.
 pub trait StyleSheet {
     /// The supported style of the [`StyleSheet`].
-    type Style: Default;
+    type Style: Default + Clone;
 
     /// Produces the active [`Appearance`] of a indicator.
     fn appearance(&self, style: &Self::Style) -> Appearance;

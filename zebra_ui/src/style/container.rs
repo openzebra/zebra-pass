@@ -16,6 +16,7 @@ pub enum Container {
 
 impl container::StyleSheet for Theme {
     type Style = Container;
+
     fn appearance(&self, style: &Self::Style) -> iced::widget::container::Appearance {
         match self {
             Theme::Light(p) => match style {

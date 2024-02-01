@@ -9,6 +9,7 @@ use iced::{window, Application, Settings, Size};
 use rust_i18n::i18n;
 use zebra_lib::core::core::Core;
 
+mod components;
 mod error;
 mod gui;
 mod pages;
