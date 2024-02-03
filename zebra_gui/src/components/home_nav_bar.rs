@@ -100,13 +100,13 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
     fn vew_home_btn(&self) -> Row<'a, Message> {
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(3.0))
-            .height(Length::Fixed(45.0))
+            .height(Length::Fixed(40.0))
             .style(if self.route == NavRoute::Home {
                 zebra_ui::components::line::LineStyleSheet::Inverse
             } else {
                 zebra_ui::components::line::LineStyleSheet::Transparent
             });
-        let lock_btn = Button::new(zebra_ui::image::lock_icon().height(40).width(40).style(
+        let lock_btn = Button::new(zebra_ui::image::lock_icon().height(25).width(25).style(
             if self.route == NavRoute::Home {
                 zebra_ui::style::svg::Svg::Inverse
             } else {
@@ -120,19 +120,20 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
         Row::new()
             .align_items(iced::Alignment::Center)
             .push(vline)
+            .push(Space::new(10.0, 0))
             .push(lock_btn)
     }
 
     fn vew_gen_btn(&self) -> Row<'a, Message> {
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(3.0))
-            .height(Length::Fixed(45.0))
+            .height(Length::Fixed(40.0))
             .style(if self.route == NavRoute::Gen {
                 zebra_ui::components::line::LineStyleSheet::Inverse
             } else {
                 zebra_ui::components::line::LineStyleSheet::Transparent
             });
-        let lock_btn = Button::new(zebra_ui::image::reload_icon().height(40).width(40).style(
+        let lock_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30).style(
             if self.route == NavRoute::Gen {
                 zebra_ui::style::svg::Svg::Inverse
             } else {
@@ -146,19 +147,20 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
         Row::new()
             .align_items(iced::Alignment::Center)
             .push(vline)
+            .push(Space::new(10.0, 0))
             .push(lock_btn)
     }
 
     fn vew_settings_btn(&self) -> Row<'a, Message> {
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(3.0))
-            .height(Length::Fixed(45.0))
+            .height(Length::Fixed(40.0))
             .style(if self.route == NavRoute::Settings {
                 zebra_ui::components::line::LineStyleSheet::Inverse
             } else {
                 zebra_ui::components::line::LineStyleSheet::Transparent
             });
-        let lock_btn = Button::new(zebra_ui::image::gear_icon().height(30).width(30).style(
+        let lock_btn = Button::new(zebra_ui::image::gear_icon().height(22).width(22).style(
             if self.route == NavRoute::Settings {
                 zebra_ui::style::svg::Svg::Inverse
             } else {
@@ -172,6 +174,7 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
         Row::new()
             .align_items(iced::Alignment::Center)
             .push(vline)
+            .push(Space::new(10.0, 0))
             .push(lock_btn)
     }
 }
