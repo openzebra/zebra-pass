@@ -142,7 +142,7 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
         ))
         .padding(0)
         .style(zebra_ui::style::button::Button::Transparent)
-        .on_press_maybe(self.on_home.clone());
+        .on_press_maybe(self.on_gen.clone());
 
         Row::new()
             .align_items(iced::Alignment::Center)
@@ -169,7 +169,7 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
         ))
         .padding(0)
         .style(zebra_ui::style::button::Button::Transparent)
-        .on_press_maybe(self.on_home.clone());
+        .on_press_maybe(self.on_settings.clone());
 
         Row::new()
             .align_items(iced::Alignment::Center)

@@ -8,25 +8,25 @@ use iced::{Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
-use crate::components::home_nav_bar::{NavBar, LINE_ALFA_CHANNEL};
+use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::gui::{GlobalMessage, Routers};
 
-use super::gen::Generator;
+use super::home::Home;
 use super::Page;
 
 #[derive(Debug)]
-pub struct Home {
+pub struct Generator {
     core: Arc<Mutex<Core>>,
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum HomeMessage {
-    RouteGen,
+pub enum GeneratorMessage {
+    RouteHome,
     RouteSettings,
 }
 
-impl Page for Home {
-    type Message = HomeMessage;
+impl Page for Generator {
+    type Message = GeneratorMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         Ok(Self { core })
@@ -38,14 +38,14 @@ impl Page for Home {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
-            HomeMessage::RouteGen => {
+            GeneratorMessage::RouteHome => {
                 // TODO: remove unwrap!
-                let gen = Generator::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Generator(gen);
+                let home = Home::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::Home(home);
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
-            HomeMessage::RouteSettings => Command::none(),
+            GeneratorMessage::RouteSettings => Command::none(),
         }
     }
 
@@ -58,19 +58,20 @@ impl Page for Home {
         });
 
         NavBar::<Self::Message>::new()
-            .on_gen(HomeMessage::RouteGen)
-            .on_settings(HomeMessage::RouteSettings)
+            .set_route(NavRoute::Gen)
+            .on_home(GeneratorMessage::RouteHome)
+            .on_settings(GeneratorMessage::RouteSettings)
             .view(content)
             .into()
     }
 }
 
-impl Home {
-    pub fn view_no_records(&self) -> Row<HomeMessage> {
+impl Generator {
+    pub fn view_no_records(&self) -> Row<GeneratorMessage> {
         Row::new()
     }
 
-    pub fn view_records(&self) -> Row<HomeMessage> {
+    pub fn view_records(&self) -> Row<GeneratorMessage> {
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)
