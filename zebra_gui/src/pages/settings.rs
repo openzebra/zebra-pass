@@ -1,4 +1,4 @@
-//! -- Copyright (c) 2023 Rina Khasanshin
+//! -- Copyright (c) 2024 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
@@ -12,22 +12,22 @@ use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::gui::{GlobalMessage, Routers};
 
 use super::gen::Generator;
-use super::settings::Settings;
+use super::home::Home;
 use super::Page;
 
 #[derive(Debug)]
-pub struct Home {
+pub struct Settings {
     core: Arc<Mutex<Core>>,
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum HomeMessage {
+pub enum SettingsMessage {
+    RouteHome,
     RouteGen,
-    RouteSettings,
 }
 
-impl Page for Home {
-    type Message = HomeMessage;
+impl Page for Settings {
+    type Message = SettingsMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         Ok(Self { core })
@@ -39,17 +39,17 @@ impl Page for Home {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
-            HomeMessage::RouteGen => {
+            SettingsMessage::RouteHome => {
                 // TODO: remove unwrap!
-                let gen = Generator::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Generator(gen);
+                let home = Home::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::Home(home);
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
-            HomeMessage::RouteSettings => {
+            SettingsMessage::RouteGen => {
                 // TODO: remove unwrap!
-                let settings = Settings::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Settings(settings);
+                let gen = Generator::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::Generator(gen);
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
@@ -65,20 +65,20 @@ impl Page for Home {
         });
 
         NavBar::<Self::Message>::new()
-            .set_route(NavRoute::Home)
-            .on_gen(HomeMessage::RouteGen)
-            .on_settings(HomeMessage::RouteSettings)
+            .set_route(NavRoute::Settings)
+            .on_home(SettingsMessage::RouteHome)
+            .on_gen(SettingsMessage::RouteGen)
             .view(content)
             .into()
     }
 }
 
-impl Home {
-    pub fn view_no_records(&self) -> Row<HomeMessage> {
+impl Settings {
+    pub fn view_no_records(&self) -> Row<SettingsMessage> {
         Row::new()
     }
 
-    pub fn view_records(&self) -> Row<HomeMessage> {
+    pub fn view_records(&self) -> Row<SettingsMessage> {
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)

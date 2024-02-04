@@ -21,6 +21,7 @@ pub mod lock;
 pub mod options;
 pub mod password_setup;
 pub mod restore;
+pub mod settings;
 
 pub trait Page {
     type Message: Debug + Send;

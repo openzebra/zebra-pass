@@ -12,6 +12,7 @@ use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::gui::{GlobalMessage, Routers};
 
 use super::home::Home;
+use super::settings::Settings;
 use super::Page;
 
 #[derive(Debug)]
@@ -45,7 +46,13 @@ impl Page for Generator {
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
-            GeneratorMessage::RouteSettings => Command::none(),
+            GeneratorMessage::RouteSettings => {
+                // TODO: remove unwrap!
+                let settings = Settings::new(Arc::clone(&self.core)).unwrap();
+                let route = Routers::Settings(settings);
+
+                return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
+            }
         }
     }
 
