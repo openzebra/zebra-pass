@@ -74,7 +74,10 @@ impl Page for Generator {
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
             GeneratorMessage::Copy => Command::none(),
-            GeneratorMessage::Refresh => Command::none(),
+            GeneratorMessage::Refresh => {
+                self.regenerate();
+                Command::none()
+            }
             GeneratorMessage::SliderChanged(value) => {
                 self.length = value;
                 self.regenerate();
@@ -129,7 +132,7 @@ impl Generator {
     }
 
     pub fn view_slider(&self) -> Container<GeneratorMessage> {
-        let h_slider = slider(0..=255, self.length, GeneratorMessage::SliderChanged);
+        let h_slider = slider(1..=255, self.length, GeneratorMessage::SliderChanged);
         let input_len = text_input("", &self.length.to_string())
             .size(12)
             .padding(4)
