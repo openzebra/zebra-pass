@@ -4,7 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use iced::widget::{text_input, Space};
+use iced::widget::{slider, text_input};
 use iced::{Command, Length, Subscription};
 use zebra_lib::core::passgen::PassGen;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
@@ -22,25 +22,27 @@ pub struct Generator {
     core: Arc<Mutex<Core>>,
     value: String,
     generator: PassGen,
-    length: usize,
+    length: u8,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum GeneratorMessage {
     RouteHome,
     RouteSettings,
     Copy,
     Refresh,
+    SliderChanged(u8),
+    InputLength(String),
 }
 
 impl Page for Generator {
     type Message = GeneratorMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        let mut rng = rand::thread_rng();
-        let length = 20;
+        let mut rng = rand::thread_rng(); // TODO: change to ChaCha
+        let length = 20u8;
         let generator = zebra_lib::core::passgen::PassGen::default();
-        let entropy_bytes = generator.gen(length, &mut rng)?;
+        let entropy_bytes = generator.gen(length as usize, &mut rng)?;
         let value = String::from_utf8_lossy(&entropy_bytes).to_string();
 
         Ok(Self {
@@ -73,6 +75,21 @@ impl Page for Generator {
             }
             GeneratorMessage::Copy => Command::none(),
             GeneratorMessage::Refresh => Command::none(),
+            GeneratorMessage::SliderChanged(value) => {
+                self.length = value;
+                self.regenerate();
+                Command::none()
+            }
+            GeneratorMessage::InputLength(value) => {
+                match value.parse::<u8>() {
+                    Ok(v) => {
+                        self.length = v;
+                        self.regenerate();
+                    }
+                    Err(_) => {}
+                }
+                Command::none()
+            }
         }
     }
 
@@ -87,17 +104,41 @@ impl Page for Generator {
 }
 
 impl Generator {
+    pub fn regenerate(&mut self) {
+        let mut rng = rand::thread_rng(); // TODO: change to ChaCha
+        let entropy_bytes = self.generator.gen(self.length as usize, &mut rng).unwrap(); // TODO: remove unwrap.
+
+        self.value = String::from_utf8_lossy(&entropy_bytes).to_string();
+    }
+
     pub fn view_entropy_gen(&self) -> Container<GeneratorMessage> {
-        let row = Row::new()
+        let row_pass_box = Row::new()
             .push(self.view_generator())
-            .align_items(iced::Alignment::Center)
-            .height(Length::Fill);
+            .align_items(iced::Alignment::Start);
+        let row_slider_box = Row::new()
+            .push(self.view_slider())
+            .align_items(iced::Alignment::Start);
         let col = Column::new()
-            .push(row)
+            .push(row_pass_box)
+            .push(row_slider_box)
             .align_items(iced::Alignment::Center)
+            .spacing(16)
             .width(Length::Fill);
 
-        Container::new(col).height(Length::Fill).width(Length::Fill)
+        Container::new(col).width(Length::Fill)
+    }
+
+    pub fn view_slider(&self) -> Container<GeneratorMessage> {
+        let h_slider = slider(0..=255, self.length, GeneratorMessage::SliderChanged);
+        let input_len = text_input("", &self.length.to_string())
+            .size(12)
+            .padding(4)
+            .width(50)
+            .on_input(GeneratorMessage::InputLength)
+            .style(zebra_ui::style::text_input::TextInput::Primary);
+        let slider_row = Row::new().push(h_slider).push(input_len).spacing(5);
+
+        Container::new(slider_row).width(300)
     }
 
     pub fn view_generator(&self) -> Container<GeneratorMessage> {
@@ -120,7 +161,6 @@ impl Generator {
             .align_items(iced::Alignment::Center)
             .push(copy_btn)
             .push(entropy)
-            .push(Space::new(20, 0))
             .push(reload_btn);
         let border_box = Container::new(box_row)
             .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
