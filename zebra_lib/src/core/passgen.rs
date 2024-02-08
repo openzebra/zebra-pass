@@ -10,11 +10,12 @@ const CHARSET: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const NUMSET: &str = "0123456789";
 const SYMBOLSSET: &str = "!@#$%^&*()_+-=";
 
+#[derive(Debug)]
 pub struct PassGen {
-    lowercase: bool,
-    upercase: bool,
-    nums: bool,
-    symbols: bool,
+    pub lowercase: bool,
+    pub upercase: bool,
+    pub nums: bool,
+    pub symbols: bool,
 }
 
 impl PassGen {
@@ -61,6 +62,12 @@ impl PassGen {
         }
 
         Ok(out)
+    }
+}
+
+impl Default for PassGen {
+    fn default() -> Self {
+        PassGen::from(true, true, true, true)
     }
 }
 

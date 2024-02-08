@@ -6,6 +6,7 @@ use std::sync::{Arc, Mutex};
 
 use iced::widget::{text_input, Space};
 use iced::{Command, Length, Subscription};
+use zebra_lib::core::passgen::PassGen;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
@@ -20,6 +21,8 @@ use super::Page;
 pub struct Generator {
     core: Arc<Mutex<Core>>,
     value: String,
+    generator: PassGen,
+    length: usize,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -34,9 +37,17 @@ impl Page for Generator {
     type Message = GeneratorMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
+        let mut rng = rand::thread_rng();
+        let length = 20;
+        let generator = zebra_lib::core::passgen::PassGen::default();
+        let entropy_bytes = generator.gen(length, &mut rng)?;
+        let value = String::from_utf8_lossy(&entropy_bytes).to_string();
+
         Ok(Self {
             core,
-            value: "DNSA(*3h2nger920fn)".to_owned(),
+            generator,
+            length,
+            value,
         })
     }
 
