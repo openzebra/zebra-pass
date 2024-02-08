@@ -4,11 +4,12 @@
 
 use std::sync::{Arc, Mutex};
 
+use iced::widget::{text_input, Space};
 use iced::{Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
-use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
+use crate::components::home_nav_bar::{NavBar, NavRoute};
 use crate::gui::{GlobalMessage, Routers};
 
 use super::home::Home;
@@ -18,19 +19,25 @@ use super::Page;
 #[derive(Debug)]
 pub struct Generator {
     core: Arc<Mutex<Core>>,
+    value: String,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum GeneratorMessage {
     RouteHome,
     RouteSettings,
+    Copy,
+    Refresh,
 }
 
 impl Page for Generator {
     type Message = GeneratorMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        Ok(Self { core })
+        Ok(Self {
+            core,
+            value: "DNSA(*3h2nger920fn)".to_owned(),
+        })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -53,39 +60,62 @@ impl Page for Generator {
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
+            GeneratorMessage::Copy => Command::none(),
+            GeneratorMessage::Refresh => Command::none(),
         }
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let records = &self.core.lock().unwrap().data;
-        let content = Container::new(if records.is_empty() {
-            self.view_no_records()
-        } else {
-            self.view_records()
-        });
-
         NavBar::<Self::Message>::new()
             .set_route(NavRoute::Gen)
             .on_home(GeneratorMessage::RouteHome)
             .on_settings(GeneratorMessage::RouteSettings)
-            .view(content)
+            .view(self.view_entropy_gen())
             .into()
     }
 }
 
 impl Generator {
-    pub fn view_no_records(&self) -> Row<GeneratorMessage> {
-        Row::new()
+    pub fn view_entropy_gen(&self) -> Container<GeneratorMessage> {
+        let row = Row::new()
+            .push(self.view_generator())
+            .align_items(iced::Alignment::Center)
+            .height(Length::Fill);
+        let col = Column::new()
+            .push(row)
+            .align_items(iced::Alignment::Center)
+            .width(Length::Fill);
+
+        Container::new(col).height(Length::Fill).width(Length::Fill)
     }
 
-    pub fn view_records(&self) -> Row<GeneratorMessage> {
-        let vline = zebra_ui::components::line::Line::new()
-            .width(Length::Fixed(1.0))
-            .height(Length::Fill)
-            .alfa(LINE_ALFA_CHANNEL)
-            .style(zebra_ui::components::line::LineStyleSheet::Secondary);
-        let left_search_col = Column::new().height(Length::Fill).width(200);
+    pub fn view_generator(&self) -> Container<GeneratorMessage> {
+        let entropy = text_input("", &self.value)
+            .size(16)
+            .padding(8)
+            .width(250)
+            // .id(self.input_id.clone())
+            .style(zebra_ui::style::text_input::TextInput::Transparent);
+        let reload_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(GeneratorMessage::Refresh);
+        let copy_btn = Button::new(zebra_ui::image::copy_icon().height(25).width(25))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(GeneratorMessage::Copy);
 
-        Row::new().push(left_search_col).push(vline)
+        let box_row: Row<'_, GeneratorMessage> = Row::new()
+            .align_items(iced::Alignment::Center)
+            .push(copy_btn)
+            .push(entropy)
+            .push(Space::new(20, 0))
+            .push(reload_btn);
+        let border_box = Container::new(box_row)
+            .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
+            .padding(16);
+        let col = Column::new().push(border_box);
+
+        Container::new(col)
     }
 }

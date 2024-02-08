@@ -8,6 +8,7 @@ use iced::{widget::text_input, Border};
 pub enum TextInput {
     #[default]
     Primary,
+    Transparent,
     Danger,
 }
 
@@ -38,6 +39,15 @@ impl text_input::StyleSheet for Theme {
                     },
                 }
             }
+            TextInput::Transparent => text_input::Appearance {
+                icon_color: iced::Color::TRANSPARENT,
+                background: iced::Background::Color(iced::Color::TRANSPARENT),
+                border: Border {
+                    width: border_width,
+                    radius: border_radius.into(),
+                    color: iced::Color::TRANSPARENT,
+                },
+            },
             TextInput::Danger => text_input::Appearance {
                 icon_color: palette.danger,
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
@@ -65,6 +75,15 @@ impl text_input::StyleSheet for Theme {
         let border_width = 1.0;
 
         match style {
+            TextInput::Transparent => text_input::Appearance {
+                icon_color: iced::Color::TRANSPARENT,
+                background: iced::Background::Color(iced::Color::TRANSPARENT),
+                border: Border {
+                    width: border_width,
+                    radius: border_radius.into(),
+                    color: iced::Color::TRANSPARENT,
+                },
+            },
             TextInput::Primary => text_input::Appearance {
                 icon_color: palette.primary,
                 background: iced::Background::Color(iced::Color::TRANSPARENT),
@@ -109,6 +128,7 @@ impl text_input::StyleSheet for Theme {
                 alfa_primary
             }
             TextInput::Danger => palette.danger,
+            TextInput::Transparent => iced::Color::TRANSPARENT,
         }
     }
 
@@ -121,6 +141,7 @@ impl text_input::StyleSheet for Theme {
         match style {
             TextInput::Primary => palette.primary,
             TextInput::Danger => palette.danger,
+            TextInput::Transparent => iced::Color::TRANSPARENT,
         }
     }
 
@@ -133,6 +154,7 @@ impl text_input::StyleSheet for Theme {
         match style {
             TextInput::Primary => palette.primary,
             TextInput::Danger => palette.danger,
+            TextInput::Transparent => iced::Color::TRANSPARENT,
         }
     }
 }

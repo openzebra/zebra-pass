@@ -11,6 +11,8 @@ pub enum Container {
     Dark,
     Bordered,
     WeekBorder,
+    PrimaryRoundedBox,
+    SecondaryRoundedBox,
     Custom(iced::Color),
 }
 
@@ -48,6 +50,26 @@ impl container::StyleSheet for Theme {
                     },
                     shadow: Default::default(),
                 },
+                Container::PrimaryRoundedBox => container::Appearance {
+                    text_color: Default::default(),
+                    background: Some(p.primary.into()),
+                    border: Border {
+                        radius: 8.0.into(),
+                        width: 2.0,
+                        color: p.secondary.into(),
+                    },
+                    shadow: Default::default(),
+                },
+                Container::SecondaryRoundedBox => container::Appearance {
+                    text_color: Default::default(),
+                    background: Some(p.secondary.into()),
+                    border: Border {
+                        radius: 16.0.into(),
+                        width: 0.5,
+                        color: p.primary.into(),
+                    },
+                    shadow: Default::default(),
+                },
                 Container::Custom(c) => container::Appearance {
                     background: Some(iced::Background::Color(*c)),
                     ..container::Appearance::default()
@@ -75,6 +97,26 @@ impl container::StyleSheet for Theme {
                         width: 2.0,
                         color: p.window_background_inverse.into(),
                     },
+                },
+                Container::SecondaryRoundedBox => container::Appearance {
+                    text_color: Default::default(),
+                    background: Some(p.secondary.into()),
+                    border: Border {
+                        radius: 8.0.into(),
+                        width: 0.5,
+                        color: p.primary.into(),
+                    },
+                    shadow: Default::default(),
+                },
+                Container::PrimaryRoundedBox => container::Appearance {
+                    text_color: Default::default(),
+                    background: Some(p.primary.into()),
+                    border: Border {
+                        radius: 8.0.into(),
+                        width: 1.0,
+                        color: p.secondary.into(),
+                    },
+                    shadow: Default::default(),
                 },
                 Container::WeekBorder => container::Appearance {
                     text_color: Default::default(),
