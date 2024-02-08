@@ -88,7 +88,7 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
 
     fn view_left_nav_bar(&self) -> Container<'a, Message> {
         let content_col = Column::new()
-            .align_items(iced::Alignment::Center)
+            .align_items(iced::Alignment::Start)
             .push(Space::new(Length::Fill, 60))
             .push(self.vew_home_btn())
             .push(self.vew_gen_btn())
@@ -133,7 +133,7 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
             } else {
                 zebra_ui::components::line::LineStyleSheet::Transparent
             });
-        let lock_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30).style(
+        let lock_btn = Button::new(zebra_ui::image::magic_icon().height(25).width(25).style(
             if self.route == NavRoute::Gen {
                 zebra_ui::style::svg::Svg::Inverse
             } else {
@@ -160,7 +160,7 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
             } else {
                 zebra_ui::components::line::LineStyleSheet::Transparent
             });
-        let lock_btn = Button::new(zebra_ui::image::gear_icon().height(22).width(22).style(
+        let lock_btn = Button::new(zebra_ui::image::gear_icon().height(25).width(25).style(
             if self.route == NavRoute::Settings {
                 zebra_ui::style::svg::Svg::Inverse
             } else {
