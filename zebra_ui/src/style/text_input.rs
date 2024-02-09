@@ -128,7 +128,7 @@ impl text_input::StyleSheet for Theme {
                 alfa_primary
             }
             TextInput::Danger => palette.danger,
-            TextInput::Transparent => iced::Color::TRANSPARENT,
+            TextInput::Transparent => palette.secondary,
         }
     }
 
@@ -141,7 +141,7 @@ impl text_input::StyleSheet for Theme {
         match style {
             TextInput::Primary => palette.primary,
             TextInput::Danger => palette.danger,
-            TextInput::Transparent => iced::Color::TRANSPARENT,
+            TextInput::Transparent => palette.primary,
         }
     }
 
@@ -154,7 +154,7 @@ impl text_input::StyleSheet for Theme {
         match style {
             TextInput::Primary => palette.primary,
             TextInput::Danger => palette.danger,
-            TextInput::Transparent => iced::Color::TRANSPARENT,
+            TextInput::Transparent => palette.window_background,
         }
     }
 }

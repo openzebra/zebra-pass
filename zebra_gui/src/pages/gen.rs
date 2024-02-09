@@ -38,6 +38,7 @@ pub enum GeneratorMessage {
     InputUpercase(bool),
     InputNums(bool),
     InputSymbol(bool),
+    InputEmpty(String),
 }
 
 impl Page for Generator {
@@ -122,6 +123,7 @@ impl Page for Generator {
 
                 Command::none()
             }
+            GeneratorMessage::InputEmpty(_) => Command::none(),
         }
     }
 
@@ -144,24 +146,31 @@ impl Generator {
     }
 
     pub fn view_entropy_gen(&self) -> Container<GeneratorMessage> {
-        let row_pass_box = Row::new()
+        let col_pass_box = Column::new()
             .push(self.view_generator())
-            .align_items(iced::Alignment::Start);
-        let row_slider_box = Row::new()
+            .align_items(iced::Alignment::Center);
+        let col_slider_box = Column::new()
             .push(self.view_slider())
-            .align_items(iced::Alignment::Start);
-        let row_opt_box = Row::new()
+            .align_items(iced::Alignment::Center);
+        let col_opt_box = Column::new()
             .push(self.view_gen_options())
-            .align_items(iced::Alignment::Start);
+            .align_items(iced::Alignment::Center);
         let col = Column::new()
-            .push(row_pass_box)
-            .push(row_slider_box)
-            .push(row_opt_box)
+            .push(col_pass_box)
+            .push(col_slider_box)
+            .push(col_opt_box)
             .align_items(iced::Alignment::Center)
-            .spacing(16)
+            .spacing(8)
             .width(Length::Fill);
+        let row = Row::new()
+            .push(col)
+            .height(300)
+            .align_items(iced::Alignment::Center);
 
-        Container::new(col).width(Length::Fill)
+        Container::new(row)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .style(zebra_ui::style::container::Container::WeekBorder)
     }
 
     pub fn view_slider(&self) -> Container<GeneratorMessage> {
@@ -182,7 +191,7 @@ impl Generator {
             .size(16)
             .padding(8)
             .width(250)
-            // .id(self.input_id.clone())
+            .on_input(GeneratorMessage::InputEmpty)
             .style(zebra_ui::style::text_input::TextInput::Transparent);
         let reload_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30))
             .padding(0)
@@ -232,18 +241,17 @@ impl Generator {
             GeneratorMessage::InputSymbol,
         )
         .text_size(14);
-        let row_h0 = Row::new()
+        let col0 = Column::new()
             .spacing(5)
             .push(lowercase_check_box)
             .push(upercase_check_box);
-        let row_h1 = Row::new()
+        let col1 = Column::new()
             .spacing(5)
-            
             .push(nums_check_box)
             .push(symbols_check_box);
-        let col = Column::new().spacing(16).push(row_h0).push(row_h1);
+        let row = Row::new().spacing(16).push(col0).push(col1);
 
-        Container::new(col)
+        Container::new(row) //.style(zebra_ui::style::container::Container::WeekBorder)
     }
 
     fn short_text(&self) -> String {
