@@ -238,6 +238,7 @@ impl Generator {
             .push(upercase_check_box);
         let row_h1 = Row::new()
             .spacing(5)
+            
             .push(nums_check_box)
             .push(symbols_check_box);
         let col = Column::new().spacing(16).push(row_h0).push(row_h1);
