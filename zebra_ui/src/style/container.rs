@@ -65,7 +65,7 @@ impl container::StyleSheet for Theme {
                     background: Some(p.secondary.into()),
                     border: Border {
                         radius: 16.0.into(),
-                        width: 0.5,
+                        width: 0.0,
                         color: p.primary.into(),
                     },
                     shadow: Default::default(),
@@ -103,7 +103,7 @@ impl container::StyleSheet for Theme {
                     background: Some(p.secondary.into()),
                     border: Border {
                         radius: 8.0.into(),
-                        width: 0.5,
+                        width: 0.0,
                         color: p.primary.into(),
                     },
                     shadow: Default::default(),
