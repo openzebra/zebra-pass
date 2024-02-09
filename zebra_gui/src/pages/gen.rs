@@ -4,7 +4,8 @@
 
 use std::sync::{Arc, Mutex};
 
-use iced::widget::{slider, text_input};
+use crate::rust_i18n::t;
+use iced::widget::{slider, text_input, Checkbox};
 use iced::{Command, Length, Subscription};
 use zebra_lib::core::passgen::PassGen;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
@@ -33,6 +34,10 @@ pub enum GeneratorMessage {
     Refresh,
     SliderChanged(u8),
     InputLength(String),
+    InputLowercase(bool),
+    InputUpercase(bool),
+    InputNums(bool),
+    InputSymbol(bool),
 }
 
 impl Page for Generator {
@@ -93,6 +98,30 @@ impl Page for Generator {
                 }
                 Command::none()
             }
+            GeneratorMessage::InputLowercase(value) => {
+                self.generator.lowercase = value;
+                self.regenerate();
+
+                Command::none()
+            }
+            GeneratorMessage::InputUpercase(value) => {
+                self.generator.upercase = value;
+                self.regenerate();
+
+                Command::none()
+            }
+            GeneratorMessage::InputNums(value) => {
+                self.generator.nums = value;
+                self.regenerate();
+
+                Command::none()
+            }
+            GeneratorMessage::InputSymbol(value) => {
+                self.generator.symbols = value;
+                self.regenerate();
+
+                Command::none()
+            }
         }
     }
 
@@ -121,9 +150,13 @@ impl Generator {
         let row_slider_box = Row::new()
             .push(self.view_slider())
             .align_items(iced::Alignment::Start);
+        let row_opt_box = Row::new()
+            .push(self.view_gen_options())
+            .align_items(iced::Alignment::Start);
         let col = Column::new()
             .push(row_pass_box)
             .push(row_slider_box)
+            .push(row_opt_box)
             .align_items(iced::Alignment::Center)
             .spacing(16)
             .width(Length::Fill);
@@ -169,6 +202,45 @@ impl Generator {
             .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
             .padding(16);
         let col = Column::new().push(border_box);
+
+        Container::new(col)
+    }
+
+    pub fn view_gen_options(&self) -> Container<GeneratorMessage> {
+        // TODO: drop when all flags down.
+        let lowercase_check_box = Checkbox::new(
+            t!("lowercase_opt"),
+            self.generator.lowercase,
+            GeneratorMessage::InputLowercase,
+        )
+        .text_size(14);
+        let upercase_check_box = Checkbox::new(
+            t!("upercase_opt"),
+            self.generator.upercase,
+            GeneratorMessage::InputUpercase,
+        )
+        .text_size(14);
+        let nums_check_box = Checkbox::new(
+            t!("nums_opt"),
+            self.generator.nums,
+            GeneratorMessage::InputNums,
+        )
+        .text_size(14);
+        let symbols_check_box = Checkbox::new(
+            t!("symbols_opt"),
+            self.generator.symbols,
+            GeneratorMessage::InputSymbol,
+        )
+        .text_size(14);
+        let row_h0 = Row::new()
+            .spacing(5)
+            .push(lowercase_check_box)
+            .push(upercase_check_box);
+        let row_h1 = Row::new()
+            .spacing(5)
+            .push(nums_check_box)
+            .push(symbols_check_box);
+        let col = Column::new().spacing(16).push(row_h0).push(row_h1);
 
         Container::new(col)
     }

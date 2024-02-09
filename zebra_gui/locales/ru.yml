@@ -34,4 +34,7 @@ invalid_email: 'Некорректный формат Email'
 empty_email: 'Пустой Email'
 restore_or_create: 'Создать или восстановить'
 unlock_btn: 'Разблокировать'
-
+lowercase_opt: 'Маленькие'
+upercase_opt: 'Большие'
+nums_opt: 'Числа'
+symbols_opt: 'Символы'
