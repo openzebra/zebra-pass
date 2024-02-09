@@ -145,7 +145,7 @@ impl Generator {
     }
 
     pub fn view_generator(&self) -> Container<GeneratorMessage> {
-        let entropy = text_input("", &self.value)
+        let entropy = text_input("", &self.short_text())
             .size(16)
             .padding(8)
             .width(250)
@@ -171,5 +171,13 @@ impl Generator {
         let col = Column::new().push(border_box);
 
         Container::new(col)
+    }
+
+    fn short_text(&self) -> String {
+        if self.value.len() > 22 {
+            format!("{}...", &self.value[..22])
+        } else {
+            self.value.clone()
+        }
     }
 }
