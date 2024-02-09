@@ -251,7 +251,7 @@ impl Generator {
             .push(symbols_check_box);
         let row = Row::new().spacing(16).push(col0).push(col1);
 
-        Container::new(row) //.style(zebra_ui::style::container::Container::WeekBorder)
+        Container::new(row)
     }
 
     fn short_text(&self) -> String {
