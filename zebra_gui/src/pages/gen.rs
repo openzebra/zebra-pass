@@ -140,9 +140,12 @@ impl Page for Generator {
 impl Generator {
     pub fn regenerate(&mut self) {
         let mut rng = rand::thread_rng(); // TODO: change to ChaCha
-        let entropy_bytes = self.generator.gen(self.length as usize, &mut rng).unwrap(); // TODO: remove unwrap.
-
-        self.value = String::from_utf8_lossy(&entropy_bytes).to_string();
+        match self.generator.gen(self.length as usize, &mut rng) {
+            Ok(bytes) => {
+                self.value = String::from_utf8_lossy(&bytes).to_string();
+            }
+            Err(_) => {}
+        }
     }
 
     pub fn view_entropy_gen(&self) -> Container<GeneratorMessage> {
