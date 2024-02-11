@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::rust_i18n::t;
 use iced::widget::{slider, text_input, Checkbox};
-use iced::{Command, Length, Subscription};
+use iced::{clipboard, Command, Length, Subscription};
 use zebra_lib::core::passgen::PassGen;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
@@ -30,7 +30,7 @@ pub struct Generator {
 pub enum GeneratorMessage {
     RouteHome,
     RouteSettings,
-    Copy,
+    CopyValue,
     Refresh,
     SliderChanged(u8),
     InputLength(String),
@@ -79,7 +79,6 @@ impl Page for Generator {
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
-            GeneratorMessage::Copy => Command::none(),
             GeneratorMessage::Refresh => {
                 self.regenerate();
                 Command::none()
@@ -124,6 +123,7 @@ impl Page for Generator {
                 Command::none()
             }
             GeneratorMessage::InputEmpty(_) => Command::none(),
+            GeneratorMessage::CopyValue => clipboard::write::<GlobalMessage>(self.value.clone()),
         }
     }
 
@@ -170,10 +170,7 @@ impl Generator {
             .height(300)
             .align_items(iced::Alignment::Center);
 
-        Container::new(row)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .style(zebra_ui::style::container::Container::WeekBorder)
+        Container::new(row).width(Length::Fill).height(Length::Fill)
     }
 
     pub fn view_slider(&self) -> Container<GeneratorMessage> {
@@ -203,7 +200,7 @@ impl Generator {
         let copy_btn = Button::new(zebra_ui::image::copy_icon().height(25).width(25))
             .padding(0)
             .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(GeneratorMessage::Copy);
+            .on_press(GeneratorMessage::CopyValue);
 
         let box_row: Row<'_, GeneratorMessage> = Row::new()
             .align_items(iced::Alignment::Center)
