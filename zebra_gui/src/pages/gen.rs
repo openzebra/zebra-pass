@@ -6,9 +6,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::components::passgen::PassGenForm;
 use crate::rust_i18n::t;
-use iced::widget::{slider, text_input, Checkbox};
 use iced::{clipboard, Command, Length, Subscription};
-use zebra_lib::core::passgen::PassGen;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
@@ -22,9 +20,6 @@ use super::Page;
 #[derive(Debug)]
 pub struct Generator {
     core: Arc<Mutex<Core>>,
-    value: String,
-    length: u8,
-    generator: PassGen,
 }
 
 #[derive(Debug, Clone)]
@@ -38,18 +33,7 @@ impl Page for Generator {
     type Message = GeneratorMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        let mut rng = rand::thread_rng(); // TODO: change to ChaCha
-        let length = 20u8;
-        let generator = zebra_lib::core::passgen::PassGen::default();
-        let entropy_bytes = generator.gen(length as usize, &mut rng)?;
-        let value = String::from_utf8_lossy(&entropy_bytes).to_string();
-
-        Ok(Self {
-            core,
-            generator,
-            length,
-            value,
-        })
+        Ok(Self { core })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -72,7 +56,7 @@ impl Page for Generator {
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
-            GeneratorMessage::CopyValue => clipboard::write::<GlobalMessage>(self.value.clone()),
+            GeneratorMessage::CopyValue => clipboard::write::<GlobalMessage>("".to_owned()),
         }
     }
 
