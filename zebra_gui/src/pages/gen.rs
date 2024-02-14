@@ -22,8 +22,8 @@ use super::Page;
 pub struct Generator {
     core: Arc<Mutex<Core>>,
     value: String,
-    generator: PassGen,
     length: u8,
+    generator: PassGen,
 }
 
 #[derive(Debug, Clone)]
@@ -216,7 +216,6 @@ impl Generator {
     }
 
     pub fn view_gen_options(&self) -> Container<GeneratorMessage> {
-        // TODO: drop when all flags down.
         let lowercase_check_box = Checkbox::new(
             t!("lowercase_opt"),
             self.generator.lowercase,
