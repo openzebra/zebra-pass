@@ -4,6 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
+use crate::components::passgen::PassGenForm;
 use crate::rust_i18n::t;
 use iced::widget::{slider, text_input, Checkbox};
 use iced::{clipboard, Command, Length, Subscription};
@@ -31,14 +32,6 @@ pub enum GeneratorMessage {
     RouteHome,
     RouteSettings,
     CopyValue,
-    Refresh,
-    SliderChanged(u8),
-    InputLength(String),
-    InputLowercase(bool),
-    InputUpercase(bool),
-    InputNums(bool),
-    InputSymbol(bool),
-    InputEmpty(String),
 }
 
 impl Page for Generator {
@@ -79,50 +72,6 @@ impl Page for Generator {
 
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
-            GeneratorMessage::Refresh => {
-                self.regenerate();
-                Command::none()
-            }
-            GeneratorMessage::SliderChanged(value) => {
-                self.length = value;
-                self.regenerate();
-                Command::none()
-            }
-            GeneratorMessage::InputLength(value) => {
-                match value.parse::<u8>() {
-                    Ok(v) => {
-                        self.length = v;
-                        self.regenerate();
-                    }
-                    Err(_) => {}
-                }
-                Command::none()
-            }
-            GeneratorMessage::InputLowercase(value) => {
-                self.generator.lowercase = value;
-                self.regenerate();
-
-                Command::none()
-            }
-            GeneratorMessage::InputUpercase(value) => {
-                self.generator.upercase = value;
-                self.regenerate();
-
-                Command::none()
-            }
-            GeneratorMessage::InputNums(value) => {
-                self.generator.nums = value;
-                self.regenerate();
-
-                Command::none()
-            }
-            GeneratorMessage::InputSymbol(value) => {
-                self.generator.symbols = value;
-                self.regenerate();
-
-                Command::none()
-            }
-            GeneratorMessage::InputEmpty(_) => Command::none(),
             GeneratorMessage::CopyValue => clipboard::write::<GlobalMessage>(self.value.clone()),
         }
     }
@@ -132,132 +81,21 @@ impl Page for Generator {
             .set_route(NavRoute::Gen)
             .on_home(GeneratorMessage::RouteHome)
             .on_settings(GeneratorMessage::RouteSettings)
-            .view(self.view_entropy_gen())
+            .view(self.view_password_gen())
             .into()
     }
 }
 
 impl Generator {
-    pub fn regenerate(&mut self) {
-        let mut rng = rand::thread_rng(); // TODO: change to ChaCha
-        match self.generator.gen(self.length as usize, &mut rng) {
-            Ok(bytes) => {
-                self.value = String::from_utf8_lossy(&bytes).to_string();
-            }
-            Err(_) => {}
-        }
-    }
+    pub fn view_password_gen(&self) -> Container<GeneratorMessage> {
+        let pass_gen_form = PassGenForm::new(22, |v| {
+            dbg!(v);
+            GeneratorMessage::CopyValue
+        })
+        .unwrap(); // TODO: add Error message page.
 
-    pub fn view_entropy_gen(&self) -> Container<GeneratorMessage> {
-        let col_pass_box = Column::new()
-            .push(self.view_generator())
-            .align_items(iced::Alignment::Center);
-        let col_slider_box = Column::new()
-            .push(self.view_slider())
-            .align_items(iced::Alignment::Center);
-        let col_opt_box = Column::new()
-            .push(self.view_gen_options())
-            .align_items(iced::Alignment::Center);
-        let col = Column::new()
-            .push(col_pass_box)
-            .push(col_slider_box)
-            .push(col_opt_box)
-            .align_items(iced::Alignment::Center)
-            .spacing(8)
-            .width(Length::Fill);
-        let row = Row::new()
-            .push(col)
-            .height(300)
-            .align_items(iced::Alignment::Center);
-
-        Container::new(row).width(Length::Fill).height(Length::Fill)
-    }
-
-    pub fn view_slider(&self) -> Container<GeneratorMessage> {
-        let h_slider = slider(1..=255, self.length, GeneratorMessage::SliderChanged);
-        let input_len = text_input("", &self.length.to_string())
-            .size(12)
-            .padding(4)
-            .width(50)
-            .on_input(GeneratorMessage::InputLength)
-            .style(zebra_ui::style::text_input::TextInput::Primary);
-        let slider_row = Row::new().push(h_slider).push(input_len).spacing(5);
-
-        Container::new(slider_row).width(300)
-    }
-
-    pub fn view_generator(&self) -> Container<GeneratorMessage> {
-        let entropy = text_input("", &self.short_text())
-            .size(16)
-            .padding(8)
-            .width(250)
-            .on_input(GeneratorMessage::InputEmpty)
-            .style(zebra_ui::style::text_input::TextInput::Transparent);
-        let reload_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30))
-            .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(GeneratorMessage::Refresh);
-        let copy_btn = Button::new(zebra_ui::image::copy_icon().height(25).width(25))
-            .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(GeneratorMessage::CopyValue);
-
-        let box_row: Row<'_, GeneratorMessage> = Row::new()
-            .align_items(iced::Alignment::Center)
-            .push(copy_btn)
-            .push(entropy)
-            .push(reload_btn);
-        let border_box = Container::new(box_row)
-            .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
-            .padding(16);
-        let col = Column::new().push(border_box);
-
-        Container::new(col)
-    }
-
-    pub fn view_gen_options(&self) -> Container<GeneratorMessage> {
-        let lowercase_check_box = Checkbox::new(
-            t!("lowercase_opt"),
-            self.generator.lowercase,
-            GeneratorMessage::InputLowercase,
-        )
-        .text_size(14);
-        let upercase_check_box = Checkbox::new(
-            t!("upercase_opt"),
-            self.generator.upercase,
-            GeneratorMessage::InputUpercase,
-        )
-        .text_size(14);
-        let nums_check_box = Checkbox::new(
-            t!("nums_opt"),
-            self.generator.nums,
-            GeneratorMessage::InputNums,
-        )
-        .text_size(14);
-        let symbols_check_box = Checkbox::new(
-            t!("symbols_opt"),
-            self.generator.symbols,
-            GeneratorMessage::InputSymbol,
-        )
-        .text_size(14);
-        let col0 = Column::new()
-            .spacing(5)
-            .push(lowercase_check_box)
-            .push(upercase_check_box);
-        let col1 = Column::new()
-            .spacing(5)
-            .push(nums_check_box)
-            .push(symbols_check_box);
-        let row = Row::new().spacing(16).push(col0).push(col1);
-
-        Container::new(row)
-    }
-
-    fn short_text(&self) -> String {
-        if self.value.len() > 22 {
-            format!("{}...", &self.value[..22])
-        } else {
-            self.value.clone()
-        }
+        Container::new(pass_gen_form)
+            .width(Length::Fill)
+            .height(Length::Fill)
     }
 }

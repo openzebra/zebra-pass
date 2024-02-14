@@ -3,16 +3,21 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use crate::rust_i18n::t;
-use iced::widget::{slider, text_input, Checkbox, Component};
+use iced::widget::{component, slider, text_input, Checkbox, Component};
 use iced::Length;
 use zebra_lib::core::passgen::PassGen;
 use zebra_lib::errors::ZebraErrors;
 use zebra_ui::style::Theme;
 use zebra_ui::widget::*;
 
-pub struct PassGenForm {
-    pub value: String,
+pub struct PassGenForm<CB, Message>
+where
+    Message: Clone,
+    CB: Fn(String) -> Message + 'static,
+{
+    value: String,
     length: u8,
+    on_change: CB,
     generator: PassGen,
 }
 
@@ -29,14 +34,19 @@ pub enum Event {
     InputEmpty(String),
 }
 
-impl PassGenForm {
-    pub fn new(length: u8) -> Result<Self, ZebraErrors> {
+impl<CB, Message> PassGenForm<CB, Message>
+where
+    Message: Clone,
+    CB: Fn(String) -> Message + 'static,
+{
+    pub fn new(length: u8, on_change: CB) -> Result<Self, ZebraErrors> {
         let mut rng = rand::thread_rng(); // TODO: change to ChaCha
         let generator = zebra_lib::core::passgen::PassGen::default();
         let entropy_bytes = generator.gen(length as usize, &mut rng)?;
         let value = String::from_utf8_lossy(&entropy_bytes).to_string();
 
         Ok(Self {
+            on_change,
             length,
             value,
             generator,
@@ -139,24 +149,70 @@ impl PassGenForm {
     }
 }
 
-impl<Message> Component<Message, Theme, Renderer> for PassGenForm
+impl<CB, Message> Component<Message, Theme, Renderer> for PassGenForm<CB, Message>
 where
     Message: Clone,
+    CB: Fn(String) -> Message + 'static,
 {
     type State = ();
     type Event = Event;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
-            Event::InputLength(_v) => None,
-            Event::SliderChanged(v) => None,
-            Event::InputNums(v) => None,
-            Event::InputEmpty(v) => None,
-            Event::InputSymbol(v) => None,
-            Event::InputUpercase(v) => None,
-            Event::InputLowercase(v) => None,
-            Event::Copy => None,
-            Event::Refresh => None,
+            Event::InputLength(v) => {
+                match v.parse::<u8>() {
+                    Ok(v) => {
+                        if v > 0 {
+                            self.length = v;
+                            self.regenerate();
+                        }
+                    }
+                    Err(_) => {}
+                }
+
+                None
+            }
+            Event::SliderChanged(v) => {
+                if v > 0 {
+                    self.length = v;
+                    self.regenerate();
+                }
+
+                None
+            }
+            Event::InputNums(v) => {
+                self.generator.nums = v;
+                self.regenerate();
+
+                None
+            }
+            Event::InputEmpty(_) => None,
+            Event::InputSymbol(v) => {
+                self.generator.symbols = v;
+                self.regenerate();
+
+                None
+            }
+            Event::InputUpercase(v) => {
+                self.generator.upercase = v;
+                self.regenerate();
+
+                None
+            }
+            Event::InputLowercase(v) => {
+                self.generator.lowercase = v;
+                self.regenerate();
+
+                None
+            }
+            Event::Copy => {
+                //// TODO: send copy request
+                None
+            }
+            Event::Refresh => {
+                self.regenerate();
+                None
+            }
         }
     }
 
@@ -185,9 +241,16 @@ where
             .height(300)
             .align_items(iced::Alignment::Center);
 
-        Container::new(row)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .into()
+        Container::new(row).into()
+    }
+}
+
+impl<'a, CB, Message> From<PassGenForm<CB, Message>> for Element<'a, Message>
+where
+    Message: 'a + Clone,
+    CB: Fn(String) -> Message + 'static,
+{
+    fn from(form: PassGenForm<CB, Message>) -> Self {
+        component(form)
     }
 }
