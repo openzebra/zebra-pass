@@ -10,15 +10,15 @@ use zebra_lib::errors::ZebraErrors;
 use zebra_ui::style::Theme;
 use zebra_ui::widget::*;
 
-pub struct PassGenForm<CB, Message>
+pub struct PassGenForm<Message>
 where
     Message: Clone,
-    CB: Fn(String) -> Message + 'static,
 {
     value: String,
     length: u8,
-    on_change: CB,
     generator: PassGen,
+    copy_msg: Option<Message>,
+    change_msg: Option<Message>,
 }
 
 #[derive(Clone)]
@@ -34,23 +34,35 @@ pub enum Event {
     InputEmpty(String),
 }
 
-impl<CB, Message> PassGenForm<CB, Message>
+impl<Message> PassGenForm<Message>
 where
     Message: Clone,
-    CB: Fn(String) -> Message + 'static,
 {
-    pub fn new(length: u8, on_change: CB) -> Result<Self, ZebraErrors> {
+    pub fn new(length: u8) -> Result<Self, ZebraErrors> {
         let mut rng = rand::thread_rng(); // TODO: change to ChaCha
         let generator = zebra_lib::core::passgen::PassGen::default();
         let entropy_bytes = generator.gen(length as usize, &mut rng)?;
         let value = String::from_utf8_lossy(&entropy_bytes).to_string();
 
         Ok(Self {
-            on_change,
             length,
             value,
             generator,
+            copy_msg: None,
+            change_msg: None,
         })
+    }
+
+    pub fn set_copy_message(mut self, msg: Message) -> Self {
+        self.copy_msg = Some(msg);
+
+        self
+    }
+
+    pub fn set_change_message(mut self, msg: Message) -> Self {
+        self.change_msg = Some(msg);
+
+        self
     }
 
     pub fn regenerate(&mut self) {
@@ -149,69 +161,64 @@ where
     }
 }
 
-impl<CB, Message> Component<Message, Theme, Renderer> for PassGenForm<CB, Message>
+impl<Message> Component<Message, Theme, Renderer> for PassGenForm<Message>
 where
     Message: Clone,
-    CB: Fn(String) -> Message + 'static,
 {
     type State = ();
     type Event = Event;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
-            Event::InputLength(v) => {
-                match v.parse::<u8>() {
-                    Ok(v) => {
-                        if v > 0 {
-                            self.length = v;
-                            self.regenerate();
-                        }
+            Event::InputLength(v) => match v.parse::<u8>() {
+                Ok(v) => {
+                    if v > 0 {
+                        self.length = v;
+                        self.regenerate();
+                        self.change_msg.clone()
+                    } else {
+                        None
                     }
-                    Err(_) => {}
                 }
-
-                None
-            }
+                Err(_) => None,
+            },
             Event::SliderChanged(v) => {
                 if v > 0 {
                     self.length = v;
                     self.regenerate();
                 }
 
-                None
+                self.change_msg.clone()
             }
             Event::InputNums(v) => {
                 self.generator.nums = v;
                 self.regenerate();
 
-                None
+                self.change_msg.clone()
             }
             Event::InputEmpty(_) => None,
             Event::InputSymbol(v) => {
                 self.generator.symbols = v;
                 self.regenerate();
 
-                None
+                self.change_msg.clone()
             }
             Event::InputUpercase(v) => {
                 self.generator.upercase = v;
                 self.regenerate();
 
-                None
+                self.change_msg.clone()
             }
             Event::InputLowercase(v) => {
                 self.generator.lowercase = v;
                 self.regenerate();
 
-                None
+                self.change_msg.clone()
             }
-            Event::Copy => {
-                //// TODO: send copy request
-                None
-            }
+            Event::Copy => self.copy_msg.clone(),
             Event::Refresh => {
                 self.regenerate();
-                None
+                self.change_msg.clone()
             }
         }
     }
@@ -245,12 +252,11 @@ where
     }
 }
 
-impl<'a, CB, Message> From<PassGenForm<CB, Message>> for Element<'a, Message>
+impl<'a, Message> From<PassGenForm<Message>> for Element<'a, Message>
 where
     Message: 'a + Clone,
-    CB: Fn(String) -> Message + 'static,
 {
-    fn from(form: PassGenForm<CB, Message>) -> Self {
+    fn from(form: PassGenForm<Message>) -> Self {
         component(form)
     }
 }

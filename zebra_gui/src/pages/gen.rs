@@ -27,6 +27,7 @@ pub enum GeneratorMessage {
     RouteHome,
     RouteSettings,
     CopyValue,
+    PasswordGenerated,
 }
 
 impl Page for Generator {
@@ -72,11 +73,7 @@ impl Page for Generator {
 
 impl Generator {
     pub fn view_password_gen(&self) -> Container<GeneratorMessage> {
-        let pass_gen_form = PassGenForm::new(22, |v| {
-            dbg!(v);
-            GeneratorMessage::CopyValue
-        })
-        .unwrap(); // TODO: add Error message page.
+        let pass_gen_form = PassGenForm::new(22).unwrap(); // TODO: add Error message page.
 
         Container::new(pass_gen_form)
             .width(Length::Fill)
