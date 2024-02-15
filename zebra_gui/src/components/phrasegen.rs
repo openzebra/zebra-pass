@@ -89,11 +89,6 @@ where
     }
 
     pub fn view_content(&self) -> Column<'_, Event> {
-        let title = match &self.error_msg {
-            Some(e) => Text::new(e.clone()),
-            None => Text::new(t!("gen_page_title")),
-        }
-        .size(24);
         let count_pick_list = pick_list(
             self.counts.as_slice(),
             Some(self.count),
@@ -129,10 +124,8 @@ where
 
         Column::new()
             .width(Length::Fill)
-            .height(Length::Fill)
             .align_items(Alignment::Center)
             .padding(10)
-            .push(title)
             .push(Space::new(0, 20))
             .push(header_row)
             .push(Space::new(0, 20))
@@ -168,9 +161,23 @@ where
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
             Event::Copy => None,
-            Event::ReGenerate => None,
-            Event::CountSelected(_count) => None,
-            Event::LanguageSelected(_lang) => None,
+            Event::ReGenerate => {
+                self.regenerate();
+
+                None
+            }
+            Event::CountSelected(count) => {
+                self.count = count;
+                self.regenerate();
+
+                None
+            }
+            Event::LanguageSelected(lang) => {
+                self.dict = lang;
+                self.regenerate();
+
+                None
+            }
         }
     }
 
@@ -178,9 +185,7 @@ where
         &self,
         _state: &Self::State,
     ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
-        let row = Row::new();
-
-        Container::new(row).into()
+        Container::new(self.view_content()).into()
     }
 }
 

@@ -6,6 +6,7 @@ use iced::{alignment::Horizontal, clipboard, Alignment, Command, Length, Subscri
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
 
+use crate::components::phrasegen::PhraseGenForm;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
 use rand;
@@ -127,6 +128,11 @@ impl Page for GenPhrase {
     }
 
     fn view(&self) -> Element<Self::Message> {
+        let title = match &self.error_msg {
+            Some(e) => Text::new(e.clone()),
+            None => Text::new(t!("gen_page_title")),
+        }
+        .size(24);
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
             .width(220)
@@ -162,12 +168,25 @@ impl Page for GenPhrase {
             .push(check_box)
             .align_items(Alignment::Start)
             .width(380);
-        let header_col = self.view_header().push(row_check_box).push(btns_row);
+        let phrase_gen_elem = PhraseGenForm::new(24).unwrap();
+        let phrase_gen_warp = Container::new(phrase_gen_elem);
+        let phrase_gen_col = Row::new()
+            .width(Length::Fill)
+            .align_items(Alignment::Center)
+            .push(phrase_gen_warp);
+        let content_col = Column::new()
+            .align_items(Alignment::Center)
+            .height(Length::Fill)
+            .push(title)
+            .push(phrase_gen_col)
+            .push(row_check_box)
+            .push(btns_row);
+        // let header_col = self.view_header().push(row_check_box).push(btns_row);
 
         let row = Row::new()
             .width(Length::Fill)
             .push(print_col)
-            .push(header_col);
+            .push(content_col);
 
         Container::new(row)
             .height(Length::Fill)
