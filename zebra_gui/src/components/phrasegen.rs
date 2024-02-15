@@ -2,7 +2,6 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use crate::rust_i18n::t;
 use iced::alignment::Horizontal;
 use iced::widget::{component, pick_list, Component, Space};
 use iced::{Alignment, Length};
@@ -11,17 +10,19 @@ use zebra_lib::errors::ZebraErrors;
 use zebra_ui::style::Theme;
 use zebra_ui::widget::*;
 
-pub struct PhraseGenForm<Message>
+pub struct PhraseGenForm<CallBack, Message>
 where
     Message: Clone,
+    // TODO: need remove Vec!
+    CallBack: Fn(Vec<String>) -> Message + 'static,
 {
     words: Vec<String>,
     count: usize,
     counts: [usize; 5],
     dicts: [zebra_lib::bip39::mnemonic::Language; 1],
     dict: zebra_lib::bip39::mnemonic::Language,
-    error_msg: Option<String>,
-    msg: Option<Message>,
+    on_copy: Option<CallBack>,
+    on_change: Option<CallBack>,
 }
 
 #[derive(Clone)]
@@ -32,9 +33,10 @@ pub enum Event {
     LanguageSelected(zebra_lib::bip39::mnemonic::Language),
 }
 
-impl<Message> PhraseGenForm<Message>
+impl<CallBack, Message> PhraseGenForm<CallBack, Message>
 where
     Message: Clone,
+    CallBack: Fn(Vec<String>) -> Message + 'static,
 {
     pub fn new(count: usize) -> Result<Self, ZebraErrors> {
         let mut rng = rand::thread_rng(); // TODO: change to ChaCha
@@ -51,9 +53,21 @@ where
             words,
             count,
             dict,
-            msg: None,
-            error_msg: None,
+            on_copy: None,
+            on_change: None,
         })
+    }
+
+    pub fn set_on_change(mut self, on_change: CallBack) -> Self {
+        self.on_change = Some(on_change);
+
+        self
+    }
+
+    pub fn set_on_copy(mut self, on_copy: CallBack) -> Self {
+        self.on_copy = Some(on_copy);
+
+        self
     }
 
     pub fn view_words_row(&self) -> Column<'_, Event> {
@@ -145,26 +159,33 @@ where
                 self.words = m.get_vec().iter().map(|s| s.to_string()).collect();
             }
             Err(e) => {
-                self.error_msg = Some(e.to_string());
+                dbg!(e); // Remove debug.
             }
         }
     }
 }
 
-impl<Message> Component<Message, Theme, Renderer> for PhraseGenForm<Message>
+impl<CallBack, Message> Component<Message, Theme, Renderer> for PhraseGenForm<CallBack, Message>
 where
     Message: Clone,
+    CallBack: Fn(Vec<String>) -> Message + 'static,
 {
     type State = ();
     type Event = Event;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
-            Event::Copy => None,
+            Event::Copy => match &self.on_copy {
+                Some(cb) => Some(cb(self.words.clone())),
+                None => None,
+            },
             Event::ReGenerate => {
                 self.regenerate();
 
-                None
+                match &self.on_change {
+                    Some(cb) => Some(cb(self.words.clone())),
+                    None => None,
+                }
             }
             Event::CountSelected(count) => {
                 self.count = count;
@@ -189,11 +210,12 @@ where
     }
 }
 
-impl<'a, Message> From<PhraseGenForm<Message>> for Element<'a, Message>
+impl<'a, CallBack, Message> From<PhraseGenForm<CallBack, Message>> for Element<'a, Message>
 where
     Message: 'a + Clone,
+    CallBack: Fn(Vec<String>) -> Message + 'static,
 {
-    fn from(form: PhraseGenForm<Message>) -> Self {
+    fn from(form: PhraseGenForm<CallBack, Message>) -> Self {
         component(form)
     }
 }
