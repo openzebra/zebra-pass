@@ -58,6 +58,7 @@ impl Page for Generator {
                 return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
             }
             GeneratorMessage::CopyValue => clipboard::write::<GlobalMessage>("".to_owned()),
+            GeneratorMessage::PasswordGenerated => Command::none(),
         }
     }
 
