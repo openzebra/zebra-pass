@@ -27,7 +27,6 @@ pub struct GenPhrase {
 pub enum GenPhraseMessage {
     ApproveSeed(bool),
     CopyWords,
-    OnChange,
     Back,
     Next,
 }
@@ -54,10 +53,6 @@ impl Page for GenPhrase {
         self.error_msg = None;
 
         match message {
-            GenPhraseMessage::OnChange => {
-                dbg!("changed");
-                Command::none()
-            }
             GenPhraseMessage::ApproveSeed(v) => {
                 self.is_checked = v;
                 Command::none()
@@ -69,7 +64,13 @@ impl Page for GenPhrase {
                 Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             GenPhraseMessage::Next => {
-                let locked_state = self.phrase_state.lock().unwrap();
+                let locked_state = match self.phrase_state.lock() {
+                    Ok(state) => state,
+                    Err(e) => {
+                        self.error_msg = Some(t!("secret_phrase_invalid", code => e.to_string()));
+                        return Command::none();
+                    }
+                };
                 let words_str = locked_state.words.join(" ");
 
                 match Mnemonic::mnemonic_to_entropy(locked_state.dict, &words_str) {
@@ -91,12 +92,16 @@ impl Page for GenPhrase {
                     }
                 }
             }
-            GenPhraseMessage::CopyWords => {
-                dbg!("copied");
-                Command::none()
-                // let words = v.join(" ");
-                // clipboard::write::<GlobalMessage>(words)
-            }
+            GenPhraseMessage::CopyWords => match self.phrase_state.lock() {
+                Ok(state) => {
+                    let words = state.words.join(" ");
+                    iced::clipboard::write::<GlobalMessage>(words)
+                }
+                Err(e) => {
+                    self.error_msg = Some(e.to_string());
+                    Command::none()
+                }
+            },
         }
     }
 
@@ -141,7 +146,10 @@ impl Page for GenPhrase {
             .push(check_box)
             .align_items(Alignment::Start)
             .width(380);
-        let phrase_gen_elem = PhraseGenForm::new(Arc::clone(&self.phrase_state)).unwrap();
+        // TODO: remove unwra...
+        let phrase_gen_elem = PhraseGenForm::new(Arc::clone(&self.phrase_state))
+            .unwrap()
+            .set_on_copy(GenPhraseMessage::CopyWords);
         let phrase_gen_warp = Container::new(phrase_gen_elem);
         let phrase_gen_col = Row::new()
             .width(Length::Fill)

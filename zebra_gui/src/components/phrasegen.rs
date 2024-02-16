@@ -4,7 +4,7 @@
 
 use iced::alignment::Horizontal;
 use iced::widget::{component, pick_list, Component, Space};
-use iced::{clipboard, Alignment, Length};
+use iced::{Alignment, Length};
 use std::sync::{Arc, Mutex};
 use zebra_lib::bip39::config::MAX_NB_WORDS;
 use zebra_lib::bip39::mnemonic;
@@ -38,7 +38,7 @@ where
     state: Arc<Mutex<PhraseGenState>>,
     counts: [usize; 5],
     dicts: [mnemonic::Language; 1],
-    on_change: Option<Message>,
+    on_copy: Option<Message>,
 }
 
 #[derive(Clone)]
@@ -71,12 +71,12 @@ where
             state,
             dicts,
             counts,
-            on_change: None,
+            on_copy: None,
         })
     }
 
-    pub fn set_on_change(mut self, on_change: Message) -> Self {
-        self.on_change = Some(on_change);
+    pub fn set_on_copy(mut self, on_copy: Message) -> Self {
+        self.on_copy = Some(on_copy);
 
         self
     }
@@ -186,30 +186,30 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
-            Event::Copy => {
-                match self.state.lock() {
-                    Ok(state) => {
-                        clipboard::write::<Message>(state.words.join(" "));
-                    }
-                    Err(e) => {
-                        dbg!(e);
-                    }
-                }
-                return None;
-            }
+            Event::Copy => self.on_copy.clone(),
             Event::ReGenerate => {
                 self.regenerate();
 
                 None
             }
             Event::CountSelected(count) => {
-                self.state.lock().unwrap().count = count; // remove unwrap...
+                match self.state.lock() {
+                    Ok(mut state) => state.count = count,
+                    Err(e) => {
+                        dbg!(e);
+                    }
+                }
                 self.regenerate();
 
                 None
             }
             Event::LanguageSelected(lang) => {
-                self.state.lock().unwrap().dict = lang; // remove unwrap..
+                match self.state.lock() {
+                    Ok(mut state) => state.dict = lang,
+                    Err(e) => {
+                        dbg!(e);
+                    }
+                }
                 self.regenerate();
 
                 None
