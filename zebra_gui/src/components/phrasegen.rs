@@ -4,25 +4,41 @@
 
 use iced::alignment::Horizontal;
 use iced::widget::{component, pick_list, Component, Space};
-use iced::{Alignment, Length};
+use iced::{clipboard, Alignment, Length};
+use std::sync::{Arc, Mutex};
+use zebra_lib::bip39::config::MAX_NB_WORDS;
+use zebra_lib::bip39::mnemonic;
 use zebra_lib::bip39::mnemonic::Mnemonic;
 use zebra_lib::errors::ZebraErrors;
 use zebra_ui::style::Theme;
 use zebra_ui::widget::*;
 
-pub struct PhraseGenForm<CallBack, Message>
+#[derive(Debug)]
+pub struct PhraseGenState {
+    pub dict: mnemonic::Language,
+    pub words: Vec<String>,
+    pub count: usize,
+}
+
+impl<'a> Default for PhraseGenState {
+    fn default() -> Self {
+        Self {
+            count: MAX_NB_WORDS,
+            dict: mnemonic::Language::English,
+            words: Vec::with_capacity(MAX_NB_WORDS),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct PhraseGenForm<Message>
 where
     Message: Clone,
-    // TODO: need remove Vec!
-    CallBack: Fn(Vec<String>) -> Message + 'static,
 {
-    words: Vec<String>,
-    count: usize,
+    state: Arc<Mutex<PhraseGenState>>,
     counts: [usize; 5],
-    dicts: [zebra_lib::bip39::mnemonic::Language; 1],
-    dict: zebra_lib::bip39::mnemonic::Language,
-    on_copy: Option<CallBack>,
-    on_change: Option<CallBack>,
+    dicts: [mnemonic::Language; 1],
+    on_change: Option<Message>,
 }
 
 #[derive(Clone)]
@@ -30,56 +46,51 @@ pub enum Event {
     ReGenerate,
     Copy,
     CountSelected(usize),
-    LanguageSelected(zebra_lib::bip39::mnemonic::Language),
+    LanguageSelected(mnemonic::Language),
 }
 
-impl<CallBack, Message> PhraseGenForm<CallBack, Message>
+impl<Message> PhraseGenForm<Message>
 where
     Message: Clone,
-    CallBack: Fn(Vec<String>) -> Message + 'static,
 {
-    pub fn new(count: usize) -> Result<Self, ZebraErrors> {
-        let mut rng = rand::thread_rng(); // TODO: change to ChaCha
-        let dict = zebra_lib::bip39::mnemonic::Language::English;
-        let m = Mnemonic::gen(&mut rng, count, dict.clone())
-            .or(Err(ZebraErrors::Bip39InvalidMnemonic))?;
-        let words = m.get_vec().iter().map(|s| s.to_string()).collect();
+    pub fn new(state: Arc<Mutex<PhraseGenState>>) -> Result<Self, ZebraErrors> {
         let counts = [12, 15, 18, 21, 24];
-        let dicts = [dict.clone()];
+        let dicts = [zebra_lib::bip39::mnemonic::Language::English];
+        let mut locked_state = state.lock().or(Err(ZebraErrors::SyncStateLock))?;
+        let mut rng = rand::thread_rng(); // TODO: change to ChaCha
+        let m = Mnemonic::gen(&mut rng, locked_state.count, locked_state.dict)
+            .or(Err(ZebraErrors::Bip39InvalidMnemonic))?;
+
+        if locked_state.words.is_empty() {
+            locked_state.words = m.get_vec().iter().map(|s| s.to_string()).collect();
+        }
+
+        drop(locked_state);
 
         Ok(Self {
+            state,
             dicts,
             counts,
-            words,
-            count,
-            dict,
-            on_copy: None,
             on_change: None,
         })
     }
 
-    pub fn set_on_change(mut self, on_change: CallBack) -> Self {
+    pub fn set_on_change(mut self, on_change: Message) -> Self {
         self.on_change = Some(on_change);
 
         self
     }
 
-    pub fn set_on_copy(mut self, on_copy: CallBack) -> Self {
-        self.on_copy = Some(on_copy);
-
-        self
-    }
-
     pub fn view_words_row(&self) -> Column<'_, Event> {
-        let words_row: Vec<Element<'_, Event>> = self
-            .words
+        let words_vec = self.state.lock().unwrap().words.clone(); // TODO: remove unwrap..
+        let words_row: Vec<Element<'_, Event>> = words_vec
             .chunks(4)
             .map(|chunk| {
                 let words_chunk: Vec<Element<'_, Event>> = chunk
                     .iter()
                     .map(|w| {
                         Button::new(
-                            Text::new(w)
+                            Text::new(w.clone()) // TODO: remove it.
                                 .size(14)
                                 .horizontal_alignment(Horizontal::Center),
                         )
@@ -105,7 +116,7 @@ where
     pub fn view_content(&self) -> Column<'_, Event> {
         let count_pick_list = pick_list(
             self.counts.as_slice(),
-            Some(self.count),
+            Some(self.state.lock().unwrap().count), // TODO: remove unwrap..
             Event::CountSelected,
         )
         .text_size(16)
@@ -114,7 +125,7 @@ where
         .style(zebra_ui::style::pick_list::PickList::OutlineLight);
         let language_pick_list = pick_list(
             self.dicts.as_slice(),
-            Some(self.dict),
+            Some(self.state.lock().unwrap().dict), // TODO: remove unwrap..
             Event::LanguageSelected,
         )
         .text_size(16)
@@ -146,17 +157,18 @@ where
             .push(self.view_words_row())
     }
 
-    pub fn regenerate(&mut self) {
+    pub fn regenerate(&self) {
         let mut rng = rand::thread_rng(); // TODO: change to ChaCha
         let m = Mnemonic::gen(
             &mut rng,
-            self.count,
+            self.state.lock().unwrap().count,
             zebra_lib::bip39::mnemonic::Language::English,
         );
 
         match m {
             Ok(m) => {
-                self.words = m.get_vec().iter().map(|s| s.to_string()).collect();
+                self.state.lock().unwrap().words = // TODO: remove unwrap..
+                m.get_vec().iter().map(|s| s.to_string()).collect();
             }
             Err(e) => {
                 dbg!(e); // Remove debug.
@@ -165,36 +177,39 @@ where
     }
 }
 
-impl<CallBack, Message> Component<Message, Theme, Renderer> for PhraseGenForm<CallBack, Message>
+impl<Message> Component<Message, Theme, Renderer> for PhraseGenForm<Message>
 where
     Message: Clone,
-    CallBack: Fn(Vec<String>) -> Message + 'static,
 {
     type State = ();
     type Event = Event;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
-            Event::Copy => match &self.on_copy {
-                Some(cb) => Some(cb(self.words.clone())),
-                None => None,
-            },
+            Event::Copy => {
+                match self.state.lock() {
+                    Ok(state) => {
+                        clipboard::write::<Message>(state.words.join(" "));
+                    }
+                    Err(e) => {
+                        dbg!(e);
+                    }
+                }
+                return None;
+            }
             Event::ReGenerate => {
                 self.regenerate();
 
-                match &self.on_change {
-                    Some(cb) => Some(cb(self.words.clone())),
-                    None => None,
-                }
+                None
             }
             Event::CountSelected(count) => {
-                self.count = count;
+                self.state.lock().unwrap().count = count; // remove unwrap...
                 self.regenerate();
 
                 None
             }
             Event::LanguageSelected(lang) => {
-                self.dict = lang;
+                self.state.lock().unwrap().dict = lang; // remove unwrap..
                 self.regenerate();
 
                 None
@@ -210,12 +225,11 @@ where
     }
 }
 
-impl<'a, CallBack, Message> From<PhraseGenForm<CallBack, Message>> for Element<'a, Message>
+impl<'a, Message> From<PhraseGenForm<Message>> for Element<'a, Message>
 where
     Message: 'a + Clone,
-    CallBack: Fn(Vec<String>) -> Message + 'static,
 {
-    fn from(form: PhraseGenForm<CallBack, Message>) -> Self {
+    fn from(form: PhraseGenForm<Message>) -> Self {
         component(form)
     }
 }

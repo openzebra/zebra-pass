@@ -1,12 +1,12 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use iced::widget::{pick_list, Checkbox, Space};
-use iced::{alignment::Horizontal, clipboard, Alignment, Command, Length, Subscription};
+use iced::widget::Checkbox;
+use iced::{Alignment, Command, Length, Subscription};
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
 
-use crate::components::phrasegen::PhraseGenForm;
+use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
 
@@ -15,22 +15,19 @@ use super::password_setup::{LastRoute, PasswordSetup};
 use super::Page;
 use zebra_ui::widget::*;
 
-pub const COUNT: usize = 24;
-
 #[derive(Debug)]
 pub struct GenPhrase {
-    pub words: Vec<String>,
     pub error_msg: Option<String>,
     is_checked: bool,
-    dict: zebra_lib::bip39::mnemonic::Language,
     core: Arc<Mutex<Core>>,
+    phrase_state: Arc<Mutex<PhraseGenState>>,
 }
 
 #[derive(Debug, Clone)]
 pub enum GenPhraseMessage {
     ApproveSeed(bool),
-    CopyWords(Vec<String>),
-    OnChange(Vec<String>),
+    CopyWords,
+    OnChange,
     Back,
     Next,
 }
@@ -39,13 +36,12 @@ impl Page for GenPhrase {
     type Message = GenPhraseMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        let dict = zebra_lib::bip39::mnemonic::Language::English;
+        let phrase_state = Arc::new(Mutex::new(PhraseGenState::default()));
 
         Ok(Self {
             core,
-            dict,
+            phrase_state,
             error_msg: None,
-            words: Vec::new(),
             is_checked: false,
         })
     }
@@ -58,8 +54,8 @@ impl Page for GenPhrase {
         self.error_msg = None;
 
         match message {
-            GenPhraseMessage::OnChange(v) => {
-                self.words = v;
+            GenPhraseMessage::OnChange => {
+                dbg!("changed");
                 Command::none()
             }
             GenPhraseMessage::ApproveSeed(v) => {
@@ -73,9 +69,10 @@ impl Page for GenPhrase {
                 Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             GenPhraseMessage::Next => {
-                let words_str = self.words.join(" ");
+                let locked_state = self.phrase_state.lock().unwrap();
+                let words_str = locked_state.words.join(" ");
 
-                match Mnemonic::mnemonic_to_entropy(self.dict, &words_str) {
+                match Mnemonic::mnemonic_to_entropy(locked_state.dict, &words_str) {
                     Ok(m) => {
                         let mut password_setup =
                             PasswordSetup::new(Arc::clone(&self.core)).unwrap();
@@ -94,9 +91,11 @@ impl Page for GenPhrase {
                     }
                 }
             }
-            GenPhraseMessage::CopyWords(v) => {
-                let words = v.join(" ");
-                clipboard::write::<GlobalMessage>(words)
+            GenPhraseMessage::CopyWords => {
+                dbg!("copied");
+                Command::none()
+                // let words = v.join(" ");
+                // clipboard::write::<GlobalMessage>(words)
             }
         }
     }
@@ -142,10 +141,7 @@ impl Page for GenPhrase {
             .push(check_box)
             .align_items(Alignment::Start)
             .width(380);
-        let phrase_gen_elem = PhraseGenForm::new(24)
-            .unwrap()
-            .set_on_change(GenPhraseMessage::OnChange);
-        // .set_on_copy(GenPhraseMessage::CopyWords);
+        let phrase_gen_elem = PhraseGenForm::new(Arc::clone(&self.phrase_state)).unwrap();
         let phrase_gen_warp = Container::new(phrase_gen_elem);
         let phrase_gen_col = Row::new()
             .width(Length::Fill)

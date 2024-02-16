@@ -28,8 +28,6 @@ pub struct Locale {
 #[derive(Debug, Clone, Copy)]
 pub enum LocaleMessage {
     Next,
-    Openned,
-    Closed,
     Selected(zebra_lib::settings::language::Language),
 }
 
@@ -74,14 +72,6 @@ impl Page for Locale {
                 core.state.settings.locale = lang;
                 core.state_update().unwrap();
 
-                Command::none()
-            }
-            LocaleMessage::Openned => {
-                dbg!("just opened");
-                Command::none()
-            }
-            LocaleMessage::Closed => {
-                dbg!("just closed");
                 Command::none()
             }
         }
