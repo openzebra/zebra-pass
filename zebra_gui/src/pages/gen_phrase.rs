@@ -146,11 +146,16 @@ impl Page for GenPhrase {
             .push(check_box)
             .align_items(Alignment::Start)
             .width(380);
-        // TODO: remove unwra...
-        let phrase_gen_elem = PhraseGenForm::new(Arc::clone(&self.phrase_state))
-            .unwrap()
-            .set_on_copy(GenPhraseMessage::CopyWords);
-        let phrase_gen_warp = Container::new(phrase_gen_elem);
+        let phrase_gen_warp = match PhraseGenForm::new(Arc::clone(&self.phrase_state)) {
+            Ok(elem) => Container::new(elem.set_on_copy(GenPhraseMessage::CopyWords)),
+            Err(e) => {
+                let err_msg = Text::new(e.to_string())
+                    .size(14)
+                    .style(zebra_ui::style::text::Text::Dabger);
+
+                Container::new(err_msg)
+            }
+        };
         let phrase_gen_col = Row::new()
             .width(Length::Fill)
             .align_items(Alignment::Center)
