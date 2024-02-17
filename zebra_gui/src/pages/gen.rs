@@ -7,6 +7,8 @@ use std::sync::{Arc, Mutex};
 use crate::components::passgen::{PassGenForm, PassGenState};
 use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
 use crate::rust_i18n::t;
+use iced::alignment::Horizontal;
+use iced::widget::Space;
 use iced::{clipboard, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
@@ -23,7 +25,7 @@ const MAX_CHARS_SHOWN: u8 = 22;
 #[derive(Debug)]
 pub enum Tabs {
     Password,
-    bip39,
+    Bip39,
 }
 
 #[derive(Debug)]
@@ -38,6 +40,8 @@ pub struct Generator {
 pub enum GeneratorMessage {
     RouteHome,
     RouteSettings,
+    PasswordTab,
+    PhraseTab,
     CopyPassword,
     CopyWords,
 }
@@ -111,20 +115,67 @@ impl Page for Generator {
                     Command::none()
                 }
             },
+            GeneratorMessage::PasswordTab => {
+                self.tab = Tabs::Password;
+                Command::none()
+            }
+            GeneratorMessage::PhraseTab => {
+                self.tab = Tabs::Bip39;
+                Command::none()
+            }
         }
     }
 
     fn view(&self) -> Element<Self::Message> {
+        let password_btn = Button::new(
+            Text::new(t!("password_gen"))
+                .horizontal_alignment(Horizontal::Center)
+                .width(Length::Fill)
+                .size(16),
+        )
+        .padding(8)
+        .width(200)
+        .on_press_maybe(match self.tab {
+            Tabs::Password => None,
+            Tabs::Bip39 => Some(GeneratorMessage::PasswordTab),
+        })
+        .style(match self.tab {
+            Tabs::Password => zebra_ui::style::button::Button::Primary,
+            Tabs::Bip39 => zebra_ui::style::button::Button::OutlinePrimary,
+        });
+        let bip39_btn = Button::new(
+            Text::new(t!("bip39_gen"))
+                .horizontal_alignment(Horizontal::Center)
+                .width(Length::Fill)
+                .size(16),
+        )
+        .padding(8)
+        .width(200)
+        .on_press_maybe(match self.tab {
+            Tabs::Bip39 => None,
+            Tabs::Password => Some(GeneratorMessage::PhraseTab),
+        })
+        .style(match self.tab {
+            Tabs::Bip39 => zebra_ui::style::button::Button::Primary,
+            Tabs::Password => zebra_ui::style::button::Button::OutlinePrimary,
+        });
+        let row_btns = Row::new().spacing(5).push(password_btn).push(bip39_btn);
         let content = match self.tab {
             Tabs::Password => self.view_password_gen(),
-            Tabs::bip39 => self.view_phrase_gen(),
+            Tabs::Bip39 => self.view_phrase_gen(),
         };
+        let main_col = Column::new()
+            .align_items(iced::Alignment::Center)
+            .push(Space::new(0, 20))
+            .push(row_btns)
+            .push(content);
+        let container = Container::new(main_col);
 
         NavBar::<Self::Message>::new()
             .set_route(NavRoute::Gen)
             .on_home(GeneratorMessage::RouteHome)
             .on_settings(GeneratorMessage::RouteSettings)
-            .view(content)
+            .view(container)
             .into()
     }
 }
@@ -132,7 +183,10 @@ impl Page for Generator {
 impl Generator {
     pub fn view_phrase_gen(&self) -> Container<GeneratorMessage> {
         match PhraseGenForm::new(Arc::clone(&self.phrase_state)) {
-            Ok(elem) => Container::new(elem.set_on_copy(GeneratorMessage::CopyWords)),
+            Ok(elem) => Container::new(elem.set_on_copy(GeneratorMessage::CopyWords))
+                .width(Length::Fill)
+                .height(Length::Fill),
+
             Err(e) => self.view_error(e.to_string()),
         }
     }
