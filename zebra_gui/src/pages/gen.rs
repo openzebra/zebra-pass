@@ -5,6 +5,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::components::passgen::{PassGenForm, PassGenState};
+use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
 use crate::rust_i18n::t;
 use iced::{clipboard, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
@@ -29,6 +30,7 @@ pub enum Tabs {
 pub struct Generator {
     core: Arc<Mutex<Core>>,
     pass_gen_state: Arc<Mutex<PassGenState>>,
+    phrase_state: Arc<Mutex<PhraseGenState>>,
     tab: Tabs,
 }
 
@@ -36,7 +38,8 @@ pub struct Generator {
 pub enum GeneratorMessage {
     RouteHome,
     RouteSettings,
-    CopyValue,
+    CopyPassword,
+    CopyWords,
 }
 
 impl Page for Generator {
@@ -48,11 +51,13 @@ impl Page for Generator {
             value: String::new(),
             length: MAX_CHARS_SHOWN,
         }));
+        let phrase_state = Arc::new(Mutex::new(PhraseGenState::default()));
 
         Ok(Self {
             core,
             tab,
             pass_gen_state,
+            phrase_state,
         })
     }
 
@@ -92,10 +97,17 @@ impl Page for Generator {
                     }
                 }
             }
-            GeneratorMessage::CopyValue => match self.pass_gen_state.lock() {
+            GeneratorMessage::CopyWords => match self.phrase_state.lock() {
+                Ok(state) => clipboard::write::<GlobalMessage>(state.words.join(" ")),
+                Err(e) => {
+                    dbg!("CopyWords", e);
+                    Command::none()
+                }
+            },
+            GeneratorMessage::CopyPassword => match self.pass_gen_state.lock() {
                 Ok(state) => clipboard::write::<GlobalMessage>(state.value.to_owned()),
                 Err(e) => {
-                    dbg!(e);
+                    dbg!("CopyPassword", e);
                     Command::none()
                 }
             },
@@ -103,28 +115,42 @@ impl Page for Generator {
     }
 
     fn view(&self) -> Element<Self::Message> {
+        let content = match self.tab {
+            Tabs::Password => self.view_password_gen(),
+            Tabs::bip39 => self.view_phrase_gen(),
+        };
+
         NavBar::<Self::Message>::new()
             .set_route(NavRoute::Gen)
             .on_home(GeneratorMessage::RouteHome)
             .on_settings(GeneratorMessage::RouteSettings)
-            .view(self.view_password_gen())
+            .view(content)
             .into()
     }
 }
 
 impl Generator {
+    pub fn view_phrase_gen(&self) -> Container<GeneratorMessage> {
+        match PhraseGenForm::new(Arc::clone(&self.phrase_state)) {
+            Ok(elem) => Container::new(elem.set_on_copy(GeneratorMessage::CopyWords)),
+            Err(e) => self.view_error(e.to_string()),
+        }
+    }
+
     pub fn view_password_gen(&self) -> Container<GeneratorMessage> {
         match PassGenForm::new(Arc::clone(&self.pass_gen_state)) {
-            Ok(ctx) => Container::new(ctx.set_copy_message(GeneratorMessage::CopyValue))
+            Ok(ctx) => Container::new(ctx.set_copy_message(GeneratorMessage::CopyPassword))
                 .width(Length::Fill)
                 .height(Length::Fill),
-            Err(e) => {
-                let err_msg = Text::new(e.to_string())
-                    .size(14)
-                    .style(zebra_ui::style::text::Text::Dabger);
-
-                Container::new(err_msg)
-            }
+            Err(e) => self.view_error(e.to_string()),
         }
+    }
+
+    pub fn view_error(&self, error: String) -> Container<GeneratorMessage> {
+        let err_msg = Text::new(error)
+            .size(14)
+            .style(zebra_ui::style::text::Text::Dabger);
+
+        Container::new(err_msg)
     }
 }
