@@ -5,20 +5,25 @@
 use crate::rust_i18n::t;
 use iced::widget::{component, slider, text_input, Checkbox, Component};
 use iced::Length;
+use std::sync::{Arc, Mutex};
 use zebra_lib::core::passgen::PassGen;
 use zebra_lib::errors::ZebraErrors;
 use zebra_ui::style::Theme;
 use zebra_ui::widget::*;
 
+#[derive(Debug)]
+pub struct PassGenState {
+    pub value: String,
+    pub length: u8,
+}
+
 pub struct PassGenForm<Message>
 where
     Message: Clone,
 {
-    value: String,
-    length: u8,
+    state: Arc<Mutex<PassGenState>>,
     generator: PassGen,
     copy_msg: Option<Message>,
-    change_msg: Option<Message>,
 }
 
 #[derive(Clone)]
@@ -38,18 +43,22 @@ impl<Message> PassGenForm<Message>
 where
     Message: Clone,
 {
-    pub fn new(length: u8) -> Result<Self, ZebraErrors> {
+    pub fn new(state: Arc<Mutex<PassGenState>>) -> Result<Self, ZebraErrors> {
+        let mut locked_state = state.lock().unwrap(); // TODO: remove unwrap..
         let mut rng = rand::thread_rng(); // TODO: change to ChaCha
         let generator = zebra_lib::core::passgen::PassGen::default();
-        let entropy_bytes = generator.gen(length as usize, &mut rng)?;
-        let value = String::from_utf8_lossy(&entropy_bytes).to_string();
+        let entropy_bytes = generator.gen(locked_state.length as usize, &mut rng)?;
+
+        if locked_state.value.is_empty() {
+            locked_state.value = String::from_utf8_lossy(&entropy_bytes).to_string();
+        }
+
+        drop(locked_state);
 
         Ok(Self {
-            length,
-            value,
+            state,
             generator,
             copy_msg: None,
-            change_msg: None,
         })
     }
 
@@ -59,26 +68,22 @@ where
         self
     }
 
-    pub fn set_change_message(mut self, msg: Message) -> Self {
-        self.change_msg = Some(msg);
-
-        self
-    }
-
-    pub fn regenerate(&mut self) {
+    pub fn regenerate(&self) {
         let mut rng = rand::thread_rng(); // TODO: change to ChaCha
+        let mut locked_state = self.state.lock().unwrap(); // TODO: remove unwrap..
 
-        match self.generator.gen(self.length as usize, &mut rng) {
+        match self.generator.gen(locked_state.length as usize, &mut rng) {
             Ok(bytes) => {
-                self.value = String::from_utf8_lossy(&bytes).to_string();
+                locked_state.value = String::from_utf8_lossy(&bytes).to_string();
             }
             Err(_) => {}
         }
     }
 
     pub fn view_slider(&self) -> Container<Event> {
-        let h_slider = slider(1..=255, self.length, Event::SliderChanged);
-        let input_len = text_input("", &self.length.to_string())
+        let state = self.state.lock().unwrap(); // TODO: remove unwrap..
+        let h_slider = slider(1..=u8::MAX, state.length, Event::SliderChanged);
+        let input_len = text_input("", &state.length.to_string())
             .size(12)
             .padding(4)
             .width(50)
@@ -153,10 +158,11 @@ where
     }
 
     fn short_text(&self) -> String {
-        if self.value.len() > 22 {
-            format!("{}...", &self.value[..22])
+        let state = self.state.lock().unwrap(); // TODO: remove unwrap..
+        if state.value.len() > 22 {
+            format!("{}...", &state.value[..22])
         } else {
-            self.value.clone()
+            state.value.clone()
         }
     }
 }
@@ -167,15 +173,16 @@ where
 {
     type State = ();
     type Event = Event;
-
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
             Event::InputLength(v) => match v.parse::<u8>() {
                 Ok(v) => {
                     if v > 0 {
-                        self.length = v;
+                        let mut state = self.state.lock().unwrap(); // TODO: remove unwrap..
+                        state.length = v;
                         self.regenerate();
-                        self.change_msg.clone()
+
+                        None
                     } else {
                         None
                     }
@@ -184,41 +191,43 @@ where
             },
             Event::SliderChanged(v) => {
                 if v > 0 {
-                    self.length = v;
+                    let mut state = self.state.lock().unwrap(); // TODO: remove unwrap..
+                    state.length = v;
+                    drop(state);
                     self.regenerate();
                 }
 
-                self.change_msg.clone()
+                None
             }
             Event::InputNums(v) => {
                 self.generator.nums = v;
                 self.regenerate();
 
-                self.change_msg.clone()
+                None
             }
             Event::InputEmpty(_) => None,
             Event::InputSymbol(v) => {
                 self.generator.symbols = v;
                 self.regenerate();
 
-                self.change_msg.clone()
+                None
             }
             Event::InputUpercase(v) => {
                 self.generator.upercase = v;
                 self.regenerate();
 
-                self.change_msg.clone()
+                None
             }
             Event::InputLowercase(v) => {
                 self.generator.lowercase = v;
                 self.regenerate();
 
-                self.change_msg.clone()
+                None
             }
             Event::Copy => self.copy_msg.clone(),
             Event::Refresh => {
                 self.regenerate();
-                self.change_msg.clone()
+                None
             }
         }
     }
