@@ -21,11 +21,22 @@ const LOCK_ICON: &[u8] = include_bytes!("../static/icons/lock.svg");
 const GEAR_ICON: &[u8] = include_bytes!("../static/icons/gear.svg");
 const ZEBRA_LOGO: &[u8] = include_bytes!("../static/imgs/zebra_logo.svg");
 
+const BITWARDEN_LOGO: &[u8] = include_bytes!("../static/icons/bitwarden.svg");
+
 pub fn zebra_print_view() -> Svg {
     let h = Handle::from_memory(PRINT);
     Svg::new(h)
         .height(Length::Fill)
         .width(Length::Shrink)
+        .content_fit(ContentFit::Cover)
+        .style(svg::Svg::Inverse)
+}
+
+pub fn bitwarden_logo_view() -> Svg {
+    let h = Handle::from_memory(BITWARDEN_LOGO);
+    Svg::new(h)
+        .height(Length::Fill)
+        .width(Length::Fill)
         .content_fit(ContentFit::Cover)
         .style(svg::Svg::Inverse)
 }
