@@ -57,9 +57,9 @@ impl Page for Home {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let records = &self.core.lock().unwrap().data;
+        let records = &self.core.lock().unwrap().data; // TODO: remove unwrap..
         let content = Container::new(if records.is_empty() {
-            self.view_no_records()
+            self.view_options()
         } else {
             self.view_records()
         });
@@ -74,7 +74,7 @@ impl Page for Home {
 }
 
 impl Home {
-    pub fn view_no_records(&self) -> Row<HomeMessage> {
+    pub fn view_options(&self) -> Row<HomeMessage> {
         Row::new()
     }
 
