@@ -44,14 +44,14 @@ impl Page for Home {
                 let gen = Generator::new(Arc::clone(&self.core)).unwrap();
                 let route = Routers::Generator(gen);
 
-                return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             HomeMessage::RouteSettings => {
                 // TODO: remove unwrap!
                 let settings = Settings::new(Arc::clone(&self.core)).unwrap();
                 let route = Routers::Settings(settings);
 
-                return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
         }
     }
