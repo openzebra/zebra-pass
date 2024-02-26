@@ -20,6 +20,7 @@ const COPY_ICON: &[u8] = include_bytes!("../static/icons/copy.svg");
 const LOCK_ICON: &[u8] = include_bytes!("../static/icons/lock.svg");
 const GEAR_ICON: &[u8] = include_bytes!("../static/icons/gear.svg");
 const ZEBRA_LOGO: &[u8] = include_bytes!("../static/imgs/zebra_logo.svg");
+const ZEBRA_BAD: &[u8] = include_bytes!("../static/icons/bad-zebra.svg");
 
 const BITWARDEN_LOGO: &[u8] = include_bytes!("../static/icons/bitwarden.svg");
 
@@ -30,6 +31,11 @@ pub fn zebra_print_view() -> Svg {
         .width(Length::Shrink)
         .content_fit(ContentFit::Cover)
         .style(svg::Svg::Inverse)
+}
+
+pub fn bad_zebra_view() -> Svg {
+    let h = Handle::from_memory(ZEBRA_BAD);
+    Svg::new(h).style(svg::Svg::Normal)
 }
 
 pub fn bitwarden_logo_view() -> Svg {

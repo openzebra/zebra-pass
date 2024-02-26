@@ -131,15 +131,13 @@ impl Page for PasswordSetup {
                     let home = Home::new(Arc::clone(&self.core)).unwrap();
                     let route = Routers::Home(home);
 
-                    return Command::perform(std::future::ready(1), |_| {
-                        GlobalMessage::Route(route)
-                    });
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
                 Err(e) => {
                     self.error_msg = e.to_string();
                     self.loading = false;
 
-                    return Command::none();
+                    Command::none()
                 }
             },
             PasswordSetupMessage::Next => {
