@@ -9,6 +9,7 @@ pub enum Text {
     #[default]
     Default,
     Dabger,
+    Info,
     Color(iced::Color),
 }
 
@@ -28,6 +29,9 @@ impl text::StyleSheet for Theme {
         };
         match style {
             Text::Default => Default::default(),
+            Text::Info => text::Appearance {
+                color: palette.info.into(),
+            },
             Text::Dabger => text::Appearance {
                 color: palette.danger.into(),
             },

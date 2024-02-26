@@ -75,9 +75,7 @@ impl Page for Generator {
                 Ok(home) => {
                     let route = Routers::Home(home);
 
-                    return Command::perform(std::future::ready(1), |_| {
-                        GlobalMessage::Route(route)
-                    });
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
                 Err(e) => {
                     // TODO: make error page....
@@ -90,9 +88,7 @@ impl Page for Generator {
                     Ok(settings) => {
                         let route = Routers::Settings(settings);
 
-                        return Command::perform(std::future::ready(1), |_| {
-                            GlobalMessage::Route(route)
-                        });
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                     }
                     Err(e) => {
                         // TODO: make error page....

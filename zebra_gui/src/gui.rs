@@ -24,6 +24,7 @@ pub enum Routers {
     Generator(pages::gen::Generator),
     Settings(pages::settings::Settings),
     Lock(pages::lock::Lock),
+    ErrorPage(pages::error::ErrorPage),
 }
 
 pub struct GUI {
@@ -44,6 +45,7 @@ pub enum GlobalMessage {
     GeneratorMessage(pages::gen::GeneratorMessage),
     SettingsMessage(pages::settings::SettingsMessage),
     LockMessage(pages::lock::LockMessage),
+    ErrorPageMessage(pages::error::ErrorPageMessage),
     Route(Routers),
 }
 
@@ -65,8 +67,9 @@ impl Application for GUI {
 
     fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
         let core = Arc::new(Mutex::new(arg));
-        let tmp = pages::home::Home::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let route = Routers::Home(tmp);
+        // let tmp = pages::error::ErrorPage::from(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let tmp = pages::error::ErrorPage::from("test error message".to_owned());
+        let route = Routers::ErrorPage(tmp);
         // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
         // let route = Routers::Loading(loader);
         let core_ref = Arc::clone(&core);
@@ -125,6 +128,10 @@ impl Application for GUI {
                 Routers::Settings(view) => view.update(msg),
                 _ => Command::none(),
             },
+            GlobalMessage::ErrorPageMessage(msg) => match &mut self.route {
+                Routers::ErrorPage(view) => view.update(msg),
+                _ => Command::none(),
+            },
             GlobalMessage::Route(route) => {
                 self.route = route;
                 Command::none()
@@ -135,6 +142,9 @@ impl Application for GUI {
     fn subscription(&self) -> iced::Subscription<Self::Message> {
         iced::Subscription::batch([match &self.route {
             Routers::Loading(v) => v.subscription().map(|msg| GlobalMessage::LoadMessage(msg)),
+            Routers::ErrorPage(v) => v
+                .subscription()
+                .map(|msg| GlobalMessage::ErrorPageMessage(msg)),
             Routers::Interview(v) => v
                 .subscription()
                 .map(|msg| GlobalMessage::InterviewMessage(msg)),
@@ -179,6 +189,7 @@ impl Application for GUI {
             Routers::Lock(l) => l.view().map(|msg| GlobalMessage::LockMessage(msg)),
             Routers::Generator(l) => l.view().map(|msg| GlobalMessage::GeneratorMessage(msg)),
             Routers::Settings(l) => l.view().map(|msg| GlobalMessage::SettingsMessage(msg)),
+            Routers::ErrorPage(l) => l.view().map(|msg| GlobalMessage::ErrorPageMessage(msg)),
         }
     }
 
