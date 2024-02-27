@@ -11,6 +11,7 @@ use crate::{
 };
 
 use super::{
+    error::ErrorPage,
     gen_phrase::GenPhrase,
     inverview::{Interview, SlideStep},
     restore::Restore,
@@ -44,22 +45,38 @@ impl Page for Options {
 
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
         match message {
-            OptionsMessage::Back => {
-                let mut inverview = Interview::new(Arc::clone(&self.core)).unwrap();
-                inverview.step = SlideStep::Quantom;
-                let route = Routers::Interview(inverview);
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-            }
-            OptionsMessage::Create => {
-                let gen_phrase = GenPhrase::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::GenPhrase(gen_phrase);
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-            }
-            OptionsMessage::Restore => {
-                let restore = Restore::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Restore(restore);
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-            }
+            OptionsMessage::Back => match Interview::new(Arc::clone(&self.core)) {
+                Ok(mut inverview) => {
+                    inverview.step = SlideStep::Quantom;
+
+                    let route = Routers::Interview(inverview);
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
+            OptionsMessage::Create => match GenPhrase::new(Arc::clone(&self.core)) {
+                Ok(gen_phrase) => {
+                    let route = Routers::GenPhrase(gen_phrase);
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
+            OptionsMessage::Restore => match Restore::new(Arc::clone(&self.core)) {
+                Ok(restore) => {
+                    let route = Routers::Restore(restore);
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
         }
     }
 

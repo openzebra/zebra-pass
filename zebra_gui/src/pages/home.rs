@@ -11,6 +11,7 @@ use zebra_ui::widget::*;
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::gui::{GlobalMessage, Routers};
 
+use super::error::ErrorPage;
 use super::gen::Generator;
 use super::settings::Settings;
 use super::Page;
@@ -39,20 +40,30 @@ impl Page for Home {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
-            HomeMessage::RouteGen => {
-                // TODO: remove unwrap!
-                let gen = Generator::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Generator(gen);
+            HomeMessage::RouteGen => match Generator::new(Arc::clone(&self.core)) {
+                Ok(gen) => {
+                    let route = Routers::Generator(gen);
 
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-            }
-            HomeMessage::RouteSettings => {
-                // TODO: remove unwrap!
-                let settings = Settings::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Settings(settings);
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
 
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-            }
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
+            HomeMessage::RouteSettings => match Settings::new(Arc::clone(&self.core)) {
+                Ok(settings) => {
+                    let route = Routers::Settings(settings);
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
         }
     }
 

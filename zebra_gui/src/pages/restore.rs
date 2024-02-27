@@ -14,6 +14,7 @@ use crate::{
 };
 
 use super::{
+    error::ErrorPage,
     options::Options,
     password_setup::{LastRoute, PasswordSetup},
     Page,
@@ -91,12 +92,16 @@ impl Page for Restore {
                     widget::focus_next()
                 }
             }
-            RestoreMessage::Back => {
-                // TODO: remove unwrap!
-                let options = Options::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Options(options);
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-            }
+            RestoreMessage::Back => match Options::new(Arc::clone(&self.core)) {
+                Ok(options) => {
+                    let route = Routers::Options(options);
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
             RestoreMessage::Next => {
                 self.error_indexs = [false; 24];
                 self.err_message = None;
@@ -153,15 +158,13 @@ impl Page for Restore {
                         password_setup.last_route = LastRoute::Restore;
 
                         let route = Routers::PasswordSetup(password_setup);
-                        return Command::perform(std::future::ready(1), |_| {
-                            GlobalMessage::Route(route)
-                        });
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                     }
                     Err(e) => {
                         self.err_message = Some(t!("secret_phrase_invalid", code => e.to_string()));
-                        return Command::none();
+                        Command::none()
                     }
-                };
+                }
             }
             RestoreMessage::InputChanged((index, value)) => {
                 self.err_message = None;

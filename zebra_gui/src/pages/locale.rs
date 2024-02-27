@@ -16,7 +16,7 @@ use zebra_lib::settings::language::Language;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
-use super::{inverview::Interview, Page};
+use super::{error::ErrorPage, inverview::Interview, Page};
 
 #[derive(Debug)]
 pub struct Locale {
@@ -57,23 +57,31 @@ impl Page for Locale {
 
     fn update(&mut self, message: LocaleMessage) -> Command<GlobalMessage> {
         match message {
-            LocaleMessage::Next => {
-                let locale = Interview::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Interview(locale);
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-            }
-            LocaleMessage::Selected(lang) => {
-                // TODO: remove unwrap.
-                let mut core = self.core.lock().unwrap();
+            LocaleMessage::Next => match Interview::new(Arc::clone(&self.core)) {
+                Ok(locale) => {
+                    let route = Routers::Interview(locale);
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
+            LocaleMessage::Selected(lang) => match self.core.lock() {
+                Ok(mut core) => {
+                    self.selected = Some(lang.clone());
 
-                self.selected = Some(lang.clone());
+                    rust_i18n::set_locale(&lang.symbol());
+                    core.state.settings.locale = lang;
+                    core.state_update().unwrap(); // TODO: remove unwrap
 
-                rust_i18n::set_locale(&lang.symbol());
-                core.state.settings.locale = lang;
-                core.state_update().unwrap();
-
-                Command::none()
-            }
+                    Command::none()
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
         }
     }
 

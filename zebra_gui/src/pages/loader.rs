@@ -14,7 +14,7 @@ use zebra_ui::{components::circular::Circular, widget::*};
 
 use crate::gui::{GlobalMessage, Routers};
 
-use super::{home::Home, locale::Locale, lock::Lock, Page};
+use super::{error::ErrorPage, home::Home, locale::Locale, lock::Lock, Page};
 
 #[derive(Debug)]
 pub struct Loader {
@@ -46,27 +46,43 @@ impl Page for Loader {
 
                 if !core.state.inited {
                     drop(core);
-                    let locale = Locale::new(Arc::clone(&self.core)).unwrap();
-                    let route = Routers::Locale(locale);
-                    return Command::perform(std::future::ready(1), |_| {
-                        GlobalMessage::Route(route)
-                    });
+
+                    return match Locale::new(Arc::clone(&self.core)) {
+                        Ok(locale) => {
+                            let route = Routers::Locale(locale);
+                            Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                        }
+                        Err(e) => {
+                            let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                            Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                        }
+                    };
                 }
 
                 if core.is_unlock() {
                     drop(core);
-                    let home = Home::new(Arc::clone(&self.core)).unwrap();
-                    let route = Routers::Home(home);
-                    return Command::perform(std::future::ready(1), |_| {
-                        GlobalMessage::Route(route)
-                    });
+                    match Home::new(Arc::clone(&self.core)) {
+                        Ok(home) => {
+                            let route = Routers::Home(home);
+                            Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                        }
+                        Err(e) => {
+                            let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                            Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                        }
+                    }
                 } else {
                     drop(core);
-                    let lock = Lock::new(Arc::clone(&self.core)).unwrap();
-                    let route = Routers::Lock(lock);
-                    return Command::perform(std::future::ready(1), |_| {
-                        GlobalMessage::Route(route)
-                    });
+                    match Lock::new(Arc::clone(&self.core)) {
+                        Ok(lock) => {
+                            let route = Routers::Lock(lock);
+                            Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                        }
+                        Err(e) => {
+                            let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                            Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                        }
+                    }
                 }
             }
         }

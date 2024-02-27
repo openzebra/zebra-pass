@@ -67,9 +67,8 @@ impl Application for GUI {
 
     fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
         let core = Arc::new(Mutex::new(arg));
-        // let tmp = pages::error::ErrorPage::from(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let tmp = pages::error::ErrorPage::from("test error message".to_owned());
-        let route = Routers::ErrorPage(tmp);
+        let tmp = pages::home::Home::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let route = Routers::Home(tmp);
         // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
         // let route = Routers::Loading(loader);
         let core_ref = Arc::clone(&core);

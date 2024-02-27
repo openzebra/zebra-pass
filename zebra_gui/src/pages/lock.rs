@@ -17,7 +17,7 @@ use zebra_ui::{components::circular, widget::*};
 
 use crate::gui::GlobalMessage;
 
-use super::{home::Home, options::Options, Page};
+use super::{error::ErrorPage, home::Home, options::Options, Page};
 
 #[derive(Debug)]
 pub struct Lock {
@@ -95,12 +95,18 @@ impl Page for Lock {
                     GlobalMessage::LockMessage(LockMessage::OnFinishLoading(r))
                 })
             }
-            LockMessage::OnOptions => {
-                let options = Options::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Options(options);
+            LockMessage::OnOptions => match Options::new(Arc::clone(&self.core)) {
+                Ok(options) => {
+                    let route = Routers::Options(options);
 
-                return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
-            }
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
             LockMessage::OnPasswordInput(v) => {
                 self.err_message = String::new();
                 self.password = v;
@@ -122,14 +128,18 @@ impl Page for Lock {
                 }
             }
             LockMessage::OnFinishLoading(result) => match result {
-                Ok(_) => {
-                    let home = Home::new(Arc::clone(&self.core)).unwrap();
-                    let route = Routers::Home(home);
+                Ok(_) => match Home::new(Arc::clone(&self.core)) {
+                    Ok(home) => {
+                        let route = Routers::Home(home);
 
-                    return Command::perform(std::future::ready(1), |_| {
-                        GlobalMessage::Route(route)
-                    });
-                }
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                    Err(e) => {
+                        let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                },
                 Err(e) => {
                     self.loading = false;
                     self.err_message = e.to_string();

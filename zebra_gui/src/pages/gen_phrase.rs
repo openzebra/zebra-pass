@@ -10,6 +10,7 @@ use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
 
+use super::error::ErrorPage;
 use super::options::Options;
 use super::password_setup::{LastRoute, PasswordSetup};
 use super::Page;
@@ -57,12 +58,16 @@ impl Page for GenPhrase {
                 self.is_checked = v;
                 Command::none()
             }
-            GenPhraseMessage::Back => {
-                // TODO: remove unwrap!
-                let options = Options::new(Arc::clone(&self.core)).unwrap();
-                let route = Routers::Options(options);
-                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-            }
+            GenPhraseMessage::Back => match Options::new(Arc::clone(&self.core)) {
+                Ok(options) => {
+                    let route = Routers::Options(options);
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
             GenPhraseMessage::Next => {
                 let locked_state = match self.phrase_state.lock() {
                     Ok(state) => state,
@@ -82,13 +87,11 @@ impl Page for GenPhrase {
                         password_setup.last_route = LastRoute::Gen;
 
                         let route = Routers::PasswordSetup(password_setup);
-                        return Command::perform(std::future::ready(1), |_| {
-                            GlobalMessage::Route(route)
-                        });
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                     }
                     Err(e) => {
                         self.error_msg = Some(t!("secret_phrase_invalid", code => e.to_string()));
-                        return Command::none();
+                        Command::none()
                     }
                 }
             }

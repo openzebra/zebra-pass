@@ -11,7 +11,7 @@ use iced::{alignment::Horizontal, widget::Space, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
-use super::{locale::Locale, options::Options, Page};
+use super::{error::ErrorPage, locale::Locale, options::Options, Page};
 
 #[derive(Debug, Default)]
 pub enum SlideStep {
@@ -58,18 +58,28 @@ impl Page for Interview {
                     self.step = SlideStep::Quantom;
                     Command::none()
                 }
-                SlideStep::Quantom => {
-                    let options = Options::new(Arc::clone(&self.core)).unwrap();
-                    let route = Routers::Options(options);
-                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-                }
+                SlideStep::Quantom => match Options::new(Arc::clone(&self.core)) {
+                    Ok(options) => {
+                        let route = Routers::Options(options);
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                    Err(e) => {
+                        let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                },
             },
             InterviewMessage::Back => match self.step {
-                SlideStep::ZebraView => {
-                    let locale = Locale::new(Arc::clone(&self.core)).unwrap();
-                    let route = Routers::Locale(locale);
-                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-                }
+                SlideStep::ZebraView => match Locale::new(Arc::clone(&self.core)) {
+                    Ok(locale) => {
+                        let route = Routers::Locale(locale);
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                    Err(e) => {
+                        let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                },
                 SlideStep::Rust => {
                     self.step = SlideStep::ZebraView;
                     Command::none()

@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use super::{gen_phrase::GenPhrase, home::Home, restore::Restore, Page};
+use super::{error::ErrorPage, gen_phrase::GenPhrase, home::Home, restore::Restore, Page};
 use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
@@ -127,12 +127,18 @@ impl Page for PasswordSetup {
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage> {
         match message {
             PasswordSetupMessage::SetupFinish(result) => match result {
-                Ok(_) => {
-                    let home = Home::new(Arc::clone(&self.core)).unwrap();
-                    let route = Routers::Home(home);
+                Ok(_) => match Home::new(Arc::clone(&self.core)) {
+                    Ok(home) => {
+                        let route = Routers::Home(home);
 
-                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-                }
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                    Err(e) => {
+                        let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                },
                 Err(e) => {
                     self.error_msg = e.to_string();
                     self.loading = false;

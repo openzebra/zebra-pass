@@ -6,6 +6,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::components::passgen::{PassGenForm, PassGenState};
 use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
+use crate::pages::error::ErrorPage;
 use crate::rust_i18n::t;
 use iced::alignment::Horizontal;
 use iced::widget::Space;
@@ -78,37 +79,37 @@ impl Page for Generator {
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
                 Err(e) => {
-                    // TODO: make error page....
-                    dbg!(e);
-                    Command::none()
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
-            GeneratorMessage::RouteSettings => {
-                match Settings::new(Arc::clone(&self.core)) {
-                    Ok(settings) => {
-                        let route = Routers::Settings(settings);
+            GeneratorMessage::RouteSettings => match Settings::new(Arc::clone(&self.core)) {
+                Ok(settings) => {
+                    let route = Routers::Settings(settings);
 
-                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
-                    }
-                    Err(e) => {
-                        // TODO: make error page....
-                        dbg!(e);
-                        Command::none()
-                    }
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
-            }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
             GeneratorMessage::CopyWords => match self.phrase_state.lock() {
                 Ok(state) => clipboard::write::<GlobalMessage>(state.words.join(" ")),
                 Err(e) => {
-                    dbg!("CopyWords", e);
-                    Command::none()
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
             GeneratorMessage::CopyPassword => match self.pass_gen_state.lock() {
                 Ok(state) => clipboard::write::<GlobalMessage>(state.value.to_owned()),
                 Err(e) => {
-                    dbg!("CopyPassword", e);
-                    Command::none()
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
             GeneratorMessage::PasswordTab => {
