@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::rust_i18n::t;
 use iced::widget::Space;
-use iced::{Command, Length, Subscription};
+use iced::{alignment, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
@@ -27,6 +27,7 @@ pub struct Home {
 pub enum HomeMessage {
     RouteGen,
     RouteSettings,
+    AddRecord,
 }
 
 impl Page for Home {
@@ -66,6 +67,11 @@ impl Page for Home {
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
+            HomeMessage::AddRecord => {
+                dbg!("add");
+
+                Command::none()
+            }
         }
     }
 
@@ -94,14 +100,17 @@ impl Home {
             .padding(16)
             .push(title);
 
+        // TODO: add more options for import..
         let add_btn = Button::new(zebra_ui::image::add_icon().height(70).width(70))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent);
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press(HomeMessage::AddRecord);
         let options_row = Row::new()
             .align_items(iced::Alignment::Center)
             .height(Length::Fill)
             .push(add_btn);
         let options = Container::new(options_row)
+            .align_x(alignment::Horizontal::Center)
             .padding(8)
             .height(250)
             .width(400)
