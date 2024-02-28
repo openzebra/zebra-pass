@@ -4,6 +4,8 @@
 
 use std::sync::{Arc, Mutex};
 
+use crate::rust_i18n::t;
+use iced::widget::Space;
 use iced::{Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
@@ -85,18 +87,38 @@ impl Page for Home {
 }
 
 impl Home {
-    pub fn view_options(&self) -> Row<HomeMessage> {
-        Row::new()
+    pub fn view_options(&self) -> Container<HomeMessage> {
+        let title = Text::new(t!("no_records_title")).size(21);
+        let row = Row::new()
+            .height(Length::Fill)
+            .align_items(iced::Alignment::Start)
+            .padding(16)
+            .push(title);
+        let options_row = Row::new().height(Length::Fill);
+        let options = Container::new(options_row)
+            .padding(8)
+            .height(150)
+            .width(250)
+            .style(zebra_ui::style::container::Container::Bordered);
+        let col = Column::new()
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .align_items(iced::Alignment::Center)
+            .push(row)
+            .push(options);
+
+        Container::new(col).width(Length::Fill).height(Length::Fill)
     }
 
-    pub fn view_records(&self) -> Row<HomeMessage> {
+    pub fn view_records(&self) -> Container<HomeMessage> {
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)
             .alfa(LINE_ALFA_CHANNEL)
             .style(zebra_ui::components::line::LineStyleSheet::Secondary);
         let left_search_col = Column::new().height(Length::Fill).width(200);
+        let row = Row::new().push(left_search_col).push(vline);
 
-        Row::new().push(left_search_col).push(vline)
+        Container::new(row)
     }
 }
