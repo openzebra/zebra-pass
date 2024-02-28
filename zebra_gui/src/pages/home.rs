@@ -90,15 +90,21 @@ impl Home {
     pub fn view_options(&self) -> Container<HomeMessage> {
         let title = Text::new(t!("no_records_title")).size(21);
         let row = Row::new()
-            .height(Length::Fill)
             .align_items(iced::Alignment::Start)
             .padding(16)
             .push(title);
-        let options_row = Row::new().height(Length::Fill);
+
+        let add_btn = Button::new(zebra_ui::image::add_icon().height(70).width(70))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent);
+        let options_row = Row::new()
+            .align_items(iced::Alignment::Center)
+            .height(Length::Fill)
+            .push(add_btn);
         let options = Container::new(options_row)
             .padding(8)
-            .height(150)
-            .width(250)
+            .height(250)
+            .width(400)
             .style(zebra_ui::style::container::Container::Bordered);
         let col = Column::new()
             .width(Length::Fill)

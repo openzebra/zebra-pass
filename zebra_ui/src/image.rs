@@ -13,6 +13,7 @@ const APP_ICON: &[u8] = include_bytes!("../static/imgs/logo.webp");
 const BACK_ICON: &[u8] = include_bytes!("../static/icons/back.svg");
 const FORWARD_ICON: &[u8] = include_bytes!("../static/icons/forward.svg");
 const RUST_ICON: &[u8] = include_bytes!("../static/imgs/rust.svg");
+const ADD_ICON: &[u8] = include_bytes!("../static/icons/add.svg");
 const HOOVES_ICON: &[u8] = include_bytes!("../static/icons/hooves.svg");
 const RELOAD_ICON: &[u8] = include_bytes!("../static/icons/reload.svg");
 const MAGIC_ICON: &[u8] = include_bytes!("../static/icons/magic.svg");
@@ -80,6 +81,15 @@ pub fn zebra_hooves() -> Svg {
 
 pub fn magic_icon() -> Svg {
     let h = Handle::from_memory(MAGIC_ICON);
+    Svg::new(h)
+        .height(Length::Fill)
+        .height(Length::Fill)
+        .content_fit(ContentFit::Cover)
+        .style(svg::Svg::Primary)
+}
+
+pub fn add_icon() -> Svg {
+    let h = Handle::from_memory(ADD_ICON);
     Svg::new(h)
         .height(Length::Fill)
         .height(Length::Fill)
