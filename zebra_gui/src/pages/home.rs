@@ -13,6 +13,7 @@ use zebra_ui::widget::*;
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::gui::{GlobalMessage, Routers};
 
+use super::add_record::AddRecordPage;
 use super::error::ErrorPage;
 use super::gen::Generator;
 use super::settings::Settings;
@@ -67,11 +68,18 @@ impl Page for Home {
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
-            HomeMessage::AddRecord => {
-                dbg!("add");
+            HomeMessage::AddRecord => match AddRecordPage::new(Arc::clone(&self.core)) {
+                Ok(add_record) => {
+                    let route = Routers::AddRecord(add_record);
 
-                Command::none()
-            }
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
         }
     }
 
