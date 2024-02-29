@@ -231,7 +231,7 @@ impl Page for PasswordSetup {
                     }
                 };
 
-                return Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route));
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             PasswordSetupMessage::ApprovePolicy(v) => {
                 if !self.loading {
@@ -378,28 +378,20 @@ impl PasswordSetup {
     }
 
     pub fn view_info<'a>(&self) -> Container<'a, PasswordSetupMessage> {
-        let server_sync_check_box = Checkbox::new(
-            t!("server_sync_check_box"),
-            self.server_sync,
-            PasswordSetupMessage::ApproveServerSync,
-        )
-        .text_size(14);
+        let server_sync_check_box = Checkbox::new(t!("server_sync_check_box"), self.server_sync)
+            .on_toggle(PasswordSetupMessage::ApproveServerSync)
+            .text_size(14);
         let server_sync_row = Row::new()
             .push(server_sync_check_box)
             .width(Length::Fill)
             .align_items(iced::Alignment::Start);
-        let email_restore_check_box = Checkbox::new(
-            t!("email_restore_checkbox"),
-            self.email_restore,
-            PasswordSetupMessage::ApproveEmailRestore,
-        )
-        .text_size(14);
-        let phrase_salt_check_box = Checkbox::new(
-            t!("secret_phrase_salt"),
-            self.enabled_salt,
-            PasswordSetupMessage::EnableSalt,
-        )
-        .text_size(14);
+        let email_restore_check_box =
+            Checkbox::new(t!("email_restore_checkbox"), self.email_restore)
+                .on_toggle(PasswordSetupMessage::ApproveEmailRestore)
+                .text_size(14);
+        let phrase_salt_check_box = Checkbox::new(t!("secret_phrase_salt"), self.enabled_salt)
+            .on_toggle(PasswordSetupMessage::EnableSalt)
+            .text_size(14);
         let email_restore_row = Row::new()
             .push(email_restore_check_box)
             .width(Length::Fill)
@@ -452,14 +444,14 @@ impl PasswordSetup {
             .size(16)
             .width(250)
             .padding(8)
-            .password()
+            .secure(true)
             .style(zebra_ui::style::text_input::TextInput::Primary);
         let mut confirm_passowrd =
             text_input(&t!("placeholder_confirm_password"), &self.confirm_password)
                 .size(16)
                 .padding(8)
                 .width(250)
-                .password()
+                .secure(true)
                 .style(zebra_ui::style::text_input::TextInput::Primary);
 
         if !self.loading {
@@ -476,12 +468,9 @@ impl PasswordSetup {
             .spacing(5)
             .push(passowrd)
             .push(confirm_passowrd);
-        let check_box = Checkbox::new(
-            t!("accept_privacy_policy"),
-            self.approved,
-            PasswordSetupMessage::ApprovePolicy,
-        )
-        .text_size(11);
+        let check_box = Checkbox::new(t!("accept_privacy_policy"), self.approved)
+            .on_toggle(PasswordSetupMessage::ApprovePolicy)
+            .text_size(11);
         let chec_row = Row::new()
             .push(check_box)
             .width(250)

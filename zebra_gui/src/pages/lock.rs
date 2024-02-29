@@ -169,7 +169,7 @@ impl Page for Lock {
                 .on_submit(LockMessage::OnSubmit);
         }
         if !self.show {
-            passowrd = passowrd.password();
+            passowrd = passowrd.secure(true);
         }
 
         let submit_btn = Button::new(

@@ -95,26 +95,18 @@ where
     }
 
     pub fn view_gen_options(&self) -> Container<Event> {
-        let lowercase_check_box = Checkbox::new(
-            t!("lowercase_opt"),
-            self.generator.lowercase,
-            Event::InputLowercase,
-        )
-        .text_size(14);
-        let upercase_check_box = Checkbox::new(
-            t!("upercase_opt"),
-            self.generator.upercase,
-            Event::InputUpercase,
-        )
-        .text_size(14);
-        let nums_check_box =
-            Checkbox::new(t!("nums_opt"), self.generator.nums, Event::InputNums).text_size(14);
-        let symbols_check_box = Checkbox::new(
-            t!("symbols_opt"),
-            self.generator.symbols,
-            Event::InputSymbol,
-        )
-        .text_size(14);
+        let lowercase_check_box = Checkbox::new(t!("lowercase_opt"), self.generator.lowercase)
+            .on_toggle(Event::InputLowercase)
+            .text_size(14);
+        let upercase_check_box = Checkbox::new(t!("upercase_opt"), self.generator.upercase)
+            .on_toggle(Event::InputUpercase)
+            .text_size(14);
+        let nums_check_box = Checkbox::new(t!("nums_opt"), self.generator.nums)
+            .on_toggle(Event::InputNums)
+            .text_size(14);
+        let symbols_check_box = Checkbox::new(t!("symbols_opt"), self.generator.symbols)
+            .on_toggle(Event::InputSymbol)
+            .text_size(14);
         let col0 = Column::new()
             .spacing(5)
             .push(lowercase_check_box)

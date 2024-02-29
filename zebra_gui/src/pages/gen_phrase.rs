@@ -140,11 +140,8 @@ impl Page for GenPhrase {
             .style(zebra_ui::style::button::Button::Transparent)
             .on_press(GenPhraseMessage::Back);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
-        let check_box = Checkbox::new(
-            t!("approve_seed_remember"),
-            self.is_checked,
-            GenPhraseMessage::ApproveSeed,
-        );
+        let check_box = Checkbox::new(t!("approve_seed_remember"), self.is_checked)
+            .on_toggle(GenPhraseMessage::ApproveSeed);
         let row_check_box = Row::new()
             .push(check_box)
             .align_items(Alignment::Start)

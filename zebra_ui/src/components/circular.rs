@@ -311,18 +311,19 @@ where
                     builder.arc(canvas::path::Arc {
                         center: frame.center(),
                         radius: track_radius,
-                        start_angle: start,
-                        end_angle: start
+                        start_angle: start.into(),
+                        end_angle: (start
                             + MIN_RADIANS
-                            + WRAP_RADIANS * (self.easing.y_at_x(progress)),
+                            + WRAP_RADIANS * (self.easing.y_at_x(progress)))
+                        .into(),
                     });
                 }
                 Animation::Contracting { progress, .. } => {
                     builder.arc(canvas::path::Arc {
                         center: frame.center(),
                         radius: track_radius,
-                        start_angle: start + WRAP_RADIANS * (self.easing.y_at_x(progress)),
-                        end_angle: start + MIN_RADIANS + WRAP_RADIANS,
+                        start_angle: (start + WRAP_RADIANS * (self.easing.y_at_x(progress))).into(),
+                        end_angle: (start + MIN_RADIANS + WRAP_RADIANS).into(),
                     });
                 }
             }
