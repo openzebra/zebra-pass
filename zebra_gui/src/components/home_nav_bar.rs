@@ -11,6 +11,7 @@ pub enum NavRoute {
     Home,
     Gen,
     Settings,
+    None,
 }
 
 pub struct NavBar<Message: Clone> {

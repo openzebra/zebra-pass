@@ -11,6 +11,7 @@ use zebra_ui::widget::*;
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::gui::{GlobalMessage, Routers};
 
+use super::add_record::AddRecordPage;
 use super::error::ErrorPage;
 use super::gen::Generator;
 use super::home::Home;
@@ -25,6 +26,7 @@ pub struct Settings {
 pub enum SettingsMessage {
     RouteHome,
     RouteGen,
+    AddRecord,
 }
 
 impl Page for Settings {
@@ -64,6 +66,19 @@ impl Page for Settings {
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
+
+            SettingsMessage::AddRecord => match AddRecordPage::new(Arc::clone(&self.core)) {
+                Ok(add_record) => {
+                    let route = Routers::AddRecord(add_record);
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
         }
     }
 
@@ -79,6 +94,7 @@ impl Page for Settings {
             .set_route(NavRoute::Settings)
             .on_home(SettingsMessage::RouteHome)
             .on_gen(SettingsMessage::RouteGen)
+            .on_add(SettingsMessage::AddRecord)
             .view(content)
             .into()
     }

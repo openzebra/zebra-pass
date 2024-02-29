@@ -15,6 +15,7 @@ use crate::gui::{GlobalMessage, Routers};
 
 use super::error::ErrorPage;
 use super::gen::Generator;
+use super::home::Home;
 use super::settings::Settings;
 use super::Page;
 
@@ -24,7 +25,11 @@ pub struct AddRecordPage {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum AddRecordPageMessage {}
+pub enum AddRecordPageMessage {
+    RouteGen,
+    RouteHome,
+    RouteSettings,
+}
 
 impl Page for AddRecordPage {
     type Message = AddRecordPageMessage;
@@ -38,17 +43,54 @@ impl Page for AddRecordPage {
     }
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
-        Command::none()
+        match message {
+            AddRecordPageMessage::RouteGen => match Generator::new(Arc::clone(&self.core)) {
+                Ok(gen) => {
+                    let route = Routers::Generator(gen);
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
+            AddRecordPageMessage::RouteSettings => match Settings::new(Arc::clone(&self.core)) {
+                Ok(settings) => {
+                    let route = Routers::Settings(settings);
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
+            AddRecordPageMessage::RouteHome => match Home::new(Arc::clone(&self.core)) {
+                Ok(home) => {
+                    let route = Routers::Home(home);
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
+        }
     }
 
     fn view(&self) -> Element<Self::Message> {
         let content = self.add_form();
 
         NavBar::<Self::Message>::new()
-            .set_route(NavRoute::Home)
-            // .on_gen(HomeMessage::RouteGen)
-            // .on_settings(HomeMessage::RouteSettings)
-            // .on_add(HomeMessage::AddRecord)
+            .set_route(NavRoute::None)
+            .on_gen(AddRecordPageMessage::RouteGen)
+            .on_settings(AddRecordPageMessage::RouteSettings)
+            .on_home(AddRecordPageMessage::RouteHome)
             .view(content)
             .into()
     }

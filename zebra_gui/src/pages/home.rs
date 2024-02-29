@@ -5,7 +5,6 @@
 use std::sync::{Arc, Mutex};
 
 use crate::rust_i18n::t;
-use iced::widget::Space;
 use iced::{alignment, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;

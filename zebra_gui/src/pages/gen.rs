@@ -17,6 +17,7 @@ use zebra_ui::widget::*;
 use crate::components::home_nav_bar::{NavBar, NavRoute};
 use crate::gui::{GlobalMessage, Routers};
 
+use super::add_record::AddRecordPage;
 use super::home::Home;
 use super::settings::Settings;
 use super::Page;
@@ -41,6 +42,7 @@ pub struct Generator {
 pub enum GeneratorMessage {
     RouteHome,
     RouteSettings,
+    AddRecord,
     PasswordTab,
     PhraseTab,
     CopyPassword,
@@ -87,6 +89,18 @@ impl Page for Generator {
             GeneratorMessage::RouteSettings => match Settings::new(Arc::clone(&self.core)) {
                 Ok(settings) => {
                     let route = Routers::Settings(settings);
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
+            GeneratorMessage::AddRecord => match AddRecordPage::new(Arc::clone(&self.core)) {
+                Ok(add_record) => {
+                    let route = Routers::AddRecord(add_record);
 
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
@@ -172,6 +186,7 @@ impl Page for Generator {
             .set_route(NavRoute::Gen)
             .on_home(GeneratorMessage::RouteHome)
             .on_settings(GeneratorMessage::RouteSettings)
+            .on_add(GeneratorMessage::AddRecord)
             .view(container)
             .into()
     }
