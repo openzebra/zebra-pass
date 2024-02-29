@@ -17,6 +17,7 @@ pub struct NavBar<Message: Clone> {
     on_home: Option<Message>,
     on_gen: Option<Message>,
     on_settings: Option<Message>,
+    on_add: Option<Message>,
     route: NavRoute,
 }
 
@@ -27,11 +28,18 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
             on_home: None,
             on_gen: None,
             on_settings: None,
+            on_add: None,
         }
     }
 
     pub fn set_route(mut self, route: NavRoute) -> Self {
         self.route = route;
+
+        self
+    }
+
+    pub fn on_add(mut self, msg: Message) -> Self {
+        self.on_add = Some(msg);
 
         self
     }
@@ -81,7 +89,20 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
 
     fn view_header(&self) -> Container<'a, Message> {
         let zebra_logo = Container::new(zebra_ui::image::zebra_logo_view()).width(125);
-        let header_row = Row::new().push(zebra_logo);
+        let add_btn = Button::new(zebra_ui::image::add_icon().height(30).width(30))
+            .padding(0)
+            .style(zebra_ui::style::button::Button::Transparent)
+            .on_press_maybe(self.on_add.clone());
+        let row_btns = Row::new()
+            .push(add_btn)
+            .height(Length::Fill)
+            .align_items(iced::Alignment::Center);
+        let nav_panel = Container::new(row_btns)
+            .padding(8)
+            .align_x(iced::alignment::Horizontal::Right)
+            .align_y(iced::alignment::Vertical::Center)
+            .width(Length::Fill);
+        let header_row = Row::new().push(zebra_logo).push(nav_panel);
 
         Container::new(header_row).width(Length::Fill).height(60)
     }

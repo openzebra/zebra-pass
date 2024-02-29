@@ -87,6 +87,7 @@ impl Page for Home {
             .set_route(NavRoute::Home)
             .on_gen(HomeMessage::RouteGen)
             .on_settings(HomeMessage::RouteSettings)
+            .on_add(HomeMessage::AddRecord)
             .view(content)
             .into()
     }
