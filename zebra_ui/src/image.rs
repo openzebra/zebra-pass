@@ -14,6 +14,8 @@ const BACK_ICON: &[u8] = include_bytes!("../static/icons/back.svg");
 const FORWARD_ICON: &[u8] = include_bytes!("../static/icons/forward.svg");
 const RUST_ICON: &[u8] = include_bytes!("../static/imgs/rust.svg");
 const ADD_ICON: &[u8] = include_bytes!("../static/icons/add.svg");
+const OPEN_EYE_ICON: &[u8] = include_bytes!("../static/icons/open_eye.svg");
+const CLOSE_EYE_ICON: &[u8] = include_bytes!("../static/icons/close_eye.svg");
 const HOOVES_ICON: &[u8] = include_bytes!("../static/icons/hooves.svg");
 const RELOAD_ICON: &[u8] = include_bytes!("../static/icons/reload.svg");
 const MAGIC_ICON: &[u8] = include_bytes!("../static/icons/magic.svg");
@@ -41,6 +43,24 @@ pub fn bad_zebra_view() -> Svg {
 
 pub fn bitwarden_logo_view() -> Svg {
     let h = Handle::from_memory(BITWARDEN_LOGO);
+    Svg::new(h)
+        .height(Length::Fill)
+        .width(Length::Fill)
+        .content_fit(ContentFit::Cover)
+        .style(svg::Svg::Inverse)
+}
+
+pub fn close_eye_icon() -> Svg {
+    let h = Handle::from_memory(CLOSE_EYE_ICON);
+    Svg::new(h)
+        .height(Length::Fill)
+        .width(Length::Fill)
+        .content_fit(ContentFit::Cover)
+        .style(svg::Svg::Inverse)
+}
+
+pub fn open_eye_icon() -> Svg {
+    let h = Handle::from_memory(OPEN_EYE_ICON);
     Svg::new(h)
         .height(Length::Fill)
         .width(Length::Fill)
