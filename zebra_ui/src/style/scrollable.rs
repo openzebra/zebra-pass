@@ -12,6 +12,7 @@ use iced::{
 
 #[derive(Default, Clone)]
 pub struct Scrollable {}
+
 impl scrollable::StyleSheet for Theme {
     type Style = Scrollable;
 
@@ -25,22 +26,22 @@ impl scrollable::StyleSheet for Theme {
                 text_color: palette.success.into(),
                 background: Some(palette.light.into()),
                 border: Border {
-                    color: palette.primary,
-                    width: 2.0,
+                    color: palette.window_background_inverse,
+                    width: 1.0,
                     radius: 8.0.into(),
                 },
                 shadow: Shadow {
-                    color: palette.primary,
+                    color: palette.secondary,
                     offset: Default::default(),
-                    blur_radius: 16.0,
+                    blur_radius: 0.0,
                 },
             },
-            gap: Some(palette.danger.into()),
+            gap: Some(iced::Color::TRANSPARENT.into()),
             scrollbar: scrollable::Scrollbar {
                 background: Some(palette.secondary.into()),
                 border: Border {
                     color: palette.primary,
-                    width: 2.0,
+                    width: 0.0,
                     radius: 8.0.into(),
                 },
                 scroller: Scroller {
