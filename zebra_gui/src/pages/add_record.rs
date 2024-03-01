@@ -5,7 +5,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::rust_i18n::t;
-use iced::widget::Space;
+use iced::widget::{text_input, Space};
 use iced::{alignment, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
@@ -24,11 +24,12 @@ pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum AddRecordPageMessage {
     RouteGen,
     RouteHome,
     RouteSettings,
+    HanldeInputName(String),
 }
 
 impl Page for AddRecordPage {
@@ -44,6 +45,12 @@ impl Page for AddRecordPage {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
+            AddRecordPageMessage::HanldeInputName(v) => {
+                dbg!(v);
+
+                Command::none()
+            }
+
             AddRecordPageMessage::RouteGen => match Generator::new(Arc::clone(&self.core)) {
                 Ok(gen) => {
                     let route = Routers::Generator(gen);
@@ -97,6 +104,22 @@ impl Page for AddRecordPage {
 }
 
 impl AddRecordPage {
+    pub fn input(&self) -> Container<AddRecordPageMessage> {
+        let label = Text::new("name").size(13);
+        let input = text_input("", "")
+            .size(16)
+            .width(250)
+            .padding(8)
+            .secure(true)
+            .on_input(AddRecordPageMessage::HanldeInputName)
+            .style(zebra_ui::style::text_input::TextInput::Transparent);
+        let col = Column::new().push(label).push(input);
+
+        Container::new(col)
+            .padding(3)
+            .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
+    }
+
     pub fn add_form(&self) -> Container<AddRecordPageMessage> {
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(1.0))
@@ -104,7 +127,10 @@ impl AddRecordPage {
             .alfa(LINE_ALFA_CHANNEL)
             .style(zebra_ui::components::line::LineStyleSheet::Secondary);
         let left_search_col = Column::new().height(Length::Fill).width(200);
-        let row = Row::new().push(left_search_col).push(vline);
+        let row = Row::new()
+            .push(left_search_col)
+            .push(vline)
+            .push(self.input());
 
         Container::new(row)
     }

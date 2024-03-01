@@ -69,8 +69,8 @@ impl Application for GUI {
 
     fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
         let core = Arc::new(Mutex::new(arg));
-        let tmp = pages::locale::Locale::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let route = Routers::Locale(tmp);
+        let tmp = pages::add_record::AddRecordPage::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let route = Routers::AddRecord(tmp);
         // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
         // let route = Routers::Loading(loader);
         let core_ref = Arc::clone(&core);
