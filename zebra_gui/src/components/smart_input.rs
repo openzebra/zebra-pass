@@ -3,7 +3,6 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use iced::widget::{component, text_input, Component};
-use std::sync::{Arc, Mutex};
 use zebra_lib::errors::ZebraErrors;
 use zebra_ui::style::Theme;
 use zebra_ui::widget::*;
@@ -22,7 +21,6 @@ pub struct SmartInput<Message>
 where
     Message: Clone,
 {
-    state: Arc<Mutex<SmartInputState>>,
     on_copy: Option<Message>,
 }
 
@@ -36,11 +34,8 @@ impl<Message> SmartInput<Message>
 where
     Message: Clone,
 {
-    pub fn new(state: Arc<Mutex<SmartInputState>>) -> Result<Self, ZebraErrors> {
-        Ok(Self {
-            state,
-            on_copy: None,
-        })
+    pub fn new() -> Result<Self, ZebraErrors> {
+        Ok(Self { on_copy: None })
     }
 
     pub fn set_on_copy(mut self, on_copy: Message) -> Self {
@@ -80,7 +75,7 @@ impl<Message> Component<Message, Theme, Renderer> for SmartInput<Message>
 where
     Message: Clone,
 {
-    type State = ();
+    type State = SmartInputState;
     type Event = Event;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
