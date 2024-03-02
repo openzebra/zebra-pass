@@ -4,3 +4,4 @@
 pub mod home_nav_bar;
 pub mod passgen;
 pub mod phrasegen;
+pub mod smart_input;
