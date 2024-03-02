@@ -32,6 +32,7 @@ pub enum AddRecordPageMessage {
     RouteGen,
     RouteHome,
     RouteSettings,
+    ReloadPassword,
     HanldeInputName(String),
 }
 
@@ -72,6 +73,11 @@ impl Page for AddRecordPage {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
+            AddRecordPageMessage::ReloadPassword => {
+                dbg!("shoud ope modal.");
+
+                Command::none()
+            }
             AddRecordPageMessage::HanldeInputName(v) => {
                 dbg!(v);
 
@@ -143,7 +149,7 @@ impl Page for AddRecordPage {
 
 impl AddRecordPage {
     pub fn login_form(&self) -> Container<AddRecordPageMessage> {
-        let title = Text::new("ITEM INFORMATION")
+        let title = Text::new(t!("add_form_title"))
             .size(16)
             .width(Length::Fill)
             .horizontal_alignment(iced::alignment::Horizontal::Left);
@@ -154,7 +160,8 @@ impl AddRecordPage {
         let username_input = SmartInput::new(Arc::clone(&self.username_input_state));
         let username_input = Container::new(username_input);
 
-        let password_input = SmartInput::new(Arc::clone(&self.password_input_state));
+        let password_input = SmartInput::new(Arc::clone(&self.password_input_state))
+            .set_reload(AddRecordPageMessage::ReloadPassword);
         let password_input = Container::new(password_input);
 
         let main_col = Column::new()
