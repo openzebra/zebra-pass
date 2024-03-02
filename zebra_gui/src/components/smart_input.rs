@@ -3,16 +3,23 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use iced::widget::{component, text_input, Component};
-use zebra_lib::errors::ZebraErrors;
 use zebra_ui::style::Theme;
 use zebra_ui::widget::*;
 
 #[derive(Debug)]
-pub struct SmartInputState {}
+pub struct SmartInputState {
+    secured: bool,
+    placeholder: String,
+    value: String,
+}
 
 impl<'a> Default for SmartInputState {
     fn default() -> Self {
-        Self {}
+        Self {
+            secured: false,
+            placeholder: String::new(),
+            value: String::new(),
+        }
     }
 }
 
@@ -34,8 +41,8 @@ impl<Message> SmartInput<Message>
 where
     Message: Clone,
 {
-    pub fn new() -> Result<Self, ZebraErrors> {
-        Ok(Self { on_copy: None })
+    pub fn new() -> Self {
+        Self { on_copy: None }
     }
 
     pub fn set_on_copy(mut self, on_copy: Message) -> Self {
@@ -43,13 +50,35 @@ where
 
         self
     }
+}
 
-    pub fn view_input(&self) -> Container<'_, Event> {
+impl<Message> Component<Message, Theme, Renderer> for SmartInput<Message>
+where
+    Message: Clone,
+{
+    type State = SmartInputState;
+    type Event = Event;
+
+    fn update(&mut self, state: &mut Self::State, event: Self::Event) -> Option<Message> {
+        match event {
+            Event::Copy => self.on_copy.clone(),
+            Event::HandleInput(v) => {
+                state.value = v;
+
+                None
+            }
+        }
+    }
+
+    fn view(
+        &self,
+        state: &Self::State,
+    ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
         let label = Text::new("name").size(12);
-        let input = text_input("", "")
+        let input = text_input(&state.placeholder, &state.value)
             .size(14)
             .padding(4)
-            .secure(true)
+            .secure(state.secured)
             .on_input(Event::HandleInput)
             .style(zebra_ui::style::text_input::TextInput::Transparent);
         let col = Column::new().push(label).push(input);
@@ -68,32 +97,7 @@ where
         Container::new(row)
             .padding(3)
             .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
-    }
-}
-
-impl<Message> Component<Message, Theme, Renderer> for SmartInput<Message>
-where
-    Message: Clone,
-{
-    type State = SmartInputState;
-    type Event = Event;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
-        match event {
-            Event::Copy => self.on_copy.clone(),
-            Event::HandleInput(v) => {
-                dbg!(v);
-
-                None
-            }
-        }
-    }
-
-    fn view(
-        &self,
-        _state: &Self::State,
-    ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
-        self.view_input().into()
+            .into()
     }
 }
 
