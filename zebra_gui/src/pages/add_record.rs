@@ -9,8 +9,9 @@ use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
-use crate::components::smart_input::SmartInput;
+use crate::components::smart_input::{self, SmartInput, SmartInputState};
 use crate::gui::{GlobalMessage, Routers};
+use crate::rust_i18n::t;
 
 use super::error::ErrorPage;
 use super::gen::Generator;
@@ -21,6 +22,7 @@ use super::Page;
 #[derive(Debug)]
 pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
+    name_input_state: Arc<Mutex<SmartInputState>>,
 }
 
 #[derive(Debug, Clone)]
@@ -28,14 +30,24 @@ pub enum AddRecordPageMessage {
     RouteGen,
     RouteHome,
     RouteSettings,
-    HanldeInputName(String),
+    HanldeInputName(smart_input::Event),
 }
 
 impl Page for AddRecordPage {
     type Message = AddRecordPageMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        Ok(Self { core })
+        let name_input_state = Arc::new(Mutex::new(SmartInputState {
+            secured: false,
+            placeholder: String::new(),
+            value: String::new(),
+            label: t!("Name"),
+        }));
+
+        Ok(Self {
+            core,
+            name_input_state,
+        })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -110,12 +122,14 @@ impl AddRecordPage {
             .alfa(LINE_ALFA_CHANNEL)
             .style(zebra_ui::components::line::LineStyleSheet::Secondary);
         let left_search_col = Column::new().height(Length::Fill).width(200);
-        let smart_input: SmartInput<AddRecordPageMessage> = SmartInput::new();
-        let smart_input_content = Container::new(smart_input);
+        let smart_input = SmartInput::new(Arc::clone(&self.name_input_state))
+            .set_copy(AddRecordPageMessage::RouteHome)
+            .set_reload(AddRecordPageMessage::RouteGen);
+        let smart_input = Container::new(smart_input);
         let row = Row::new()
             .push(left_search_col)
             .push(vline)
-            .push(smart_input_content);
+            .push(smart_input);
 
         Container::new(row)
     }
