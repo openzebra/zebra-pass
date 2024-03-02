@@ -3,7 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use std::sync::{Arc, Mutex};
 
-use iced::widget::{component, text_input, Component};
+use iced::widget::{component, text_input, Component, Space};
 use zebra_ui::style::Theme;
 use zebra_ui::widget::*;
 
@@ -150,6 +150,8 @@ where
                 .style(zebra_ui::style::button::Button::Transparent);
             row = row.push(reload_btn);
         }
+
+        row = row.push(Space::new(5, 0));
 
         Container::new(row)
             .padding(3)

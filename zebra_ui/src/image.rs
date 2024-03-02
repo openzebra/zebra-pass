@@ -56,7 +56,7 @@ pub fn close_eye_icon() -> Svg {
         .height(Length::Fill)
         .width(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+        .style(svg::Svg::Primary)
 }
 
 pub fn open_eye_icon() -> Svg {
@@ -65,7 +65,7 @@ pub fn open_eye_icon() -> Svg {
         .height(Length::Fill)
         .width(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+        .style(svg::Svg::Primary)
 }
 
 pub fn zebra_logo_view() -> Svg {

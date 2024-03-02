@@ -23,6 +23,8 @@ use super::Page;
 pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
     name_input_state: Arc<Mutex<SmartInputState>>,
+    username_input_state: Arc<Mutex<SmartInputState>>,
+    password_input_state: Arc<Mutex<SmartInputState>>,
 }
 
 #[derive(Debug, Clone)]
@@ -41,12 +43,26 @@ impl Page for AddRecordPage {
             secured: false,
             placeholder: String::new(),
             value: String::new(),
-            label: t!("Name"),
+            label: t!("add_form_name"),
+        }));
+        let username_input_state = Arc::new(Mutex::new(SmartInputState {
+            secured: false,
+            placeholder: String::new(),
+            value: String::new(),
+            label: t!("add_form_username"),
+        }));
+        let password_input_state = Arc::new(Mutex::new(SmartInputState {
+            secured: true,
+            placeholder: String::new(),
+            value: String::new(),
+            label: t!("add_form_password"),
         }));
 
         Ok(Self {
             core,
             name_input_state,
+            username_input_state,
+            password_input_state,
         })
     }
 
@@ -127,13 +143,29 @@ impl Page for AddRecordPage {
 
 impl AddRecordPage {
     pub fn login_form(&self) -> Container<AddRecordPageMessage> {
-        let smart_input = SmartInput::new(Arc::clone(&self.name_input_state));
-        let smart_input = Container::new(smart_input);
+        let title = Text::new("ITEM INFORMATION")
+            .size(16)
+            .width(Length::Fill)
+            .horizontal_alignment(iced::alignment::Horizontal::Left);
+
+        let name_input = SmartInput::new(Arc::clone(&self.name_input_state));
+        let name_input = Container::new(name_input);
+
+        let username_input = SmartInput::new(Arc::clone(&self.username_input_state));
+        let username_input = Container::new(username_input);
+
+        let password_input = SmartInput::new(Arc::clone(&self.password_input_state));
+        let password_input = Container::new(password_input);
+
         let main_col = Column::new()
             .padding(16)
+            .spacing(8)
             .width(Length::Fill)
             .align_items(iced::Alignment::Center)
-            .push(smart_input);
+            .push(title)
+            .push(name_input)
+            .push(username_input)
+            .push(password_input);
 
         Container::new(main_col)
     }
