@@ -9,7 +9,7 @@ use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
-use crate::components::smart_input::{self, SmartInput, SmartInputState};
+use crate::components::smart_input::{SmartInput, SmartInputState};
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
 
@@ -30,7 +30,7 @@ pub enum AddRecordPageMessage {
     RouteGen,
     RouteHome,
     RouteSettings,
-    HanldeInputName(smart_input::Event),
+    HanldeInputName(String),
 }
 
 impl Page for AddRecordPage {
@@ -102,35 +102,39 @@ impl Page for AddRecordPage {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let content = self.add_form();
-
-        NavBar::<Self::Message>::new()
-            .set_route(NavRoute::None)
-            .on_gen(AddRecordPageMessage::RouteGen)
-            .on_settings(AddRecordPageMessage::RouteSettings)
-            .on_home(AddRecordPageMessage::RouteHome)
-            .view(content)
-            .into()
-    }
-}
-
-impl AddRecordPage {
-    pub fn add_form(&self) -> Container<AddRecordPageMessage> {
+        let login_form = self.login_form();
         let vline = zebra_ui::components::line::Line::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)
             .alfa(LINE_ALFA_CHANNEL)
             .style(zebra_ui::components::line::LineStyleSheet::Secondary);
         let left_search_col = Column::new().height(Length::Fill).width(200);
-        let smart_input = SmartInput::new(Arc::clone(&self.name_input_state))
-            .set_copy(AddRecordPageMessage::RouteHome)
-            .set_reload(AddRecordPageMessage::RouteGen);
-        let smart_input = Container::new(smart_input);
-        let row = Row::new()
+        let content_row = Row::new()
             .push(left_search_col)
             .push(vline)
+            .push(login_form);
+        let main_container = Container::new(content_row).width(Length::Fill);
+
+        NavBar::<Self::Message>::new()
+            .set_route(NavRoute::None)
+            .on_gen(AddRecordPageMessage::RouteGen)
+            .on_settings(AddRecordPageMessage::RouteSettings)
+            .on_home(AddRecordPageMessage::RouteHome)
+            .view(main_container)
+            .into()
+    }
+}
+
+impl AddRecordPage {
+    pub fn login_form(&self) -> Container<AddRecordPageMessage> {
+        let smart_input = SmartInput::new(Arc::clone(&self.name_input_state));
+        let smart_input = Container::new(smart_input);
+        let main_col = Column::new()
+            .padding(16)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Center)
             .push(smart_input);
 
-        Container::new(row)
+        Container::new(main_col)
     }
 }
