@@ -1,7 +1,6 @@
 //! -- Copyright (c) 2024 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use crate::style::Theme;
 use crate::widget::Renderer;
 
 use iced::advanced::layout::{self, Layout};
@@ -154,22 +153,23 @@ pub trait StyleSheet {
     fn appearance(&self, style: &Self::Style) -> Appearance;
 }
 
-impl StyleSheet for Theme {
-    type Style = LineStyleSheet;
-
-    fn appearance(&self, style: &Self::Style) -> Appearance {
-        let palette = match self {
-            Theme::Dark(p) => p,
-            Theme::Light(p) => p,
-        };
-        let color = match style {
-            LineStyleSheet::Inverse => palette.window_background_inverse,
-            LineStyleSheet::Primary => palette.primary,
-            LineStyleSheet::Secondary => palette.secondary,
-            LineStyleSheet::Transparent => Color::TRANSPARENT,
-            LineStyleSheet::Custom(c) => *c,
-        };
-
-        Appearance { color }
-    }
-}
+// TODO: make it theme
+// impl StyleSheet for Theme {
+//     type Style = LineStyleSheet;
+//
+//     fn appearance(&self, style: &Self::Style) -> Appearance {
+//         let palette = match self {
+//             Theme::Dark(p) => p,
+//             Theme::Light(p) => p,
+//         };
+//         let color = match style {
+//             LineStyleSheet::Inverse => palette.window_background_inverse,
+//             LineStyleSheet::Primary => palette.primary,
+//             LineStyleSheet::Secondary => palette.secondary,
+//             LineStyleSheet::Transparent => Color::TRANSPARENT,
+//             LineStyleSheet::Custom(c) => *c,
+//         };
+//
+//         Appearance { color }
+//     }
+// }

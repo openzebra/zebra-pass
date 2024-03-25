@@ -1,7 +1,6 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use crate::style::Theme;
 use crate::widget::Renderer;
 
 use iced::advanced::layout;
@@ -385,19 +384,20 @@ pub trait StyleSheet {
     fn appearance(&self, style: &Self::Style) -> Appearance;
 }
 
-impl StyleSheet for Theme {
-    type Style = ();
-
-    fn appearance(&self, _style: &Self::Style) -> Appearance {
-        let palette = match self {
-            Theme::Dark(p) => p,
-            Theme::Light(p) => p,
-        };
-
-        Appearance {
-            background: None,
-            track_color: iced::Color::TRANSPARENT,
-            bar_color: palette.window_background_inverse,
-        }
-    }
-}
+// TODO: make theme
+// impl StyleSheet for Theme {
+//     type Style = ();
+//
+//     fn appearance(&self, _style: &Self::Style) -> Appearance {
+//         let palette = match self {
+//             Theme::Dark(p) => p,
+//             Theme::Light(p) => p,
+//         };
+//
+//         Appearance {
+//             background: None,
+//             track_color: iced::Color::TRANSPARENT,
+//             bar_color: palette.window_background_inverse,
+//         }
+//     }
+// }

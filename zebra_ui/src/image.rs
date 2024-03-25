@@ -3,7 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::{ContentFit, Length};
 
-use crate::{style::svg, widget::Svg};
+use crate::widget::Svg;
 use iced::{widget::svg::Handle, window::icon};
 
 const PRINT: &[u8] = include_bytes!("../static/imgs/zebra_print.svg");
@@ -33,12 +33,13 @@ pub fn zebra_print_view() -> Svg<'static> {
         .height(Length::Fill)
         .width(Length::Shrink)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+    // .style(svg::Svg::Inverse)
 }
 
 pub fn bad_zebra_view() -> Svg<'static> {
     let h = Handle::from_memory(ZEBRA_BAD);
-    Svg::new(h).style(svg::Svg::Normal)
+    Svg::new(h)
+    // .style(svg::Svg::Normal)
 }
 
 pub fn bitwarden_logo_view() -> Svg<'static> {
@@ -47,7 +48,7 @@ pub fn bitwarden_logo_view() -> Svg<'static> {
         .height(Length::Fill)
         .width(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+    // .style(svg::Svg::Inverse)
 }
 
 pub fn close_eye_icon() -> Svg<'static> {
@@ -56,7 +57,7 @@ pub fn close_eye_icon() -> Svg<'static> {
         .height(Length::Fill)
         .width(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Primary)
+    // .style(svg::Svg::Primary)
 }
 
 pub fn open_eye_icon() -> Svg<'static> {
@@ -65,7 +66,7 @@ pub fn open_eye_icon() -> Svg<'static> {
         .height(Length::Fill)
         .width(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Primary)
+    // .style(svg::Svg::Primary)
 }
 
 pub fn zebra_logo_view() -> Svg<'static> {
@@ -74,7 +75,7 @@ pub fn zebra_logo_view() -> Svg<'static> {
         .height(Length::Fill)
         .width(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+    // .style(svg::Svg::Inverse)
 }
 
 pub fn zebra_app_icon() -> icon::Icon {
@@ -87,7 +88,7 @@ pub fn zebra_heat() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+    // .style(svg::Svg::Inverse)
 }
 
 pub fn zebra_hooves() -> Svg<'static> {
@@ -96,7 +97,7 @@ pub fn zebra_hooves() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Fill)
-        .style(svg::Svg::Inverse)
+    // .style(svg::Svg::Inverse)
 }
 
 pub fn magic_icon() -> Svg<'static> {
@@ -105,7 +106,7 @@ pub fn magic_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Primary)
+    // .style(svg::Svg::Primary)
 }
 
 pub fn add_icon() -> Svg<'static> {
@@ -114,7 +115,7 @@ pub fn add_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Primary)
+    // .style(svg::Svg::Primary)
 }
 
 pub fn reload_icon() -> Svg<'static> {
@@ -123,7 +124,7 @@ pub fn reload_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Primary)
+    // .style(svg::Svg::Primary)
 }
 
 pub fn copy_icon() -> Svg<'static> {
@@ -132,7 +133,7 @@ pub fn copy_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Primary)
+    // .style(svg::Svg::Primary)
 }
 
 pub fn rust_logo() -> Svg<'static> {
@@ -141,7 +142,7 @@ pub fn rust_logo() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+    // .style(svg::Svg::Inverse)
 }
 
 pub fn atom() -> Svg<'static> {
@@ -150,21 +151,19 @@ pub fn atom() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+    // .style(svg::Svg::Inverse)
 }
 
 pub fn lock_icon() -> Svg<'static> {
     let h = Handle::from_memory(LOCK_ICON);
-    Svg::new(h)
-        .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+    Svg::new(h).content_fit(ContentFit::Cover)
+    // .style(svg::Svg::Inverse)
 }
 
 pub fn gear_icon() -> Svg<'static> {
     let h = Handle::from_memory(GEAR_ICON);
-    Svg::new(h)
-        .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Inverse)
+    Svg::new(h).content_fit(ContentFit::Cover)
+    // .style(svg::Svg::Inverse)
 }
 
 pub fn back_icon() -> Svg<'static> {
@@ -173,7 +172,7 @@ pub fn back_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Primary)
+    // .style(svg::Svg::Primary)
 }
 
 pub fn forward_icon() -> Svg<'static> {
@@ -182,5 +181,5 @@ pub fn forward_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(svg::Svg::Primary)
+    // .style(svg::Svg::Primary)
 }
