@@ -5,7 +5,7 @@ extern crate rust_i18n;
 
 use error::GUIError;
 use gui::GUI;
-use iced::{window, Application, Settings, Size};
+use iced::{window, Settings, Size};
 use rust_i18n::i18n;
 use zebra_lib::core::core::Core;
 
