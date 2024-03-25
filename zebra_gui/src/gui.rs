@@ -10,8 +10,6 @@ use iced::advanced::Application;
 use iced::{executor, Command, Element, Theme};
 use zebra_lib::{core::core, settings::appearance::Themes};
 
-use zebra_ui::color::ZebraPalette;
-
 #[derive(Debug)]
 pub enum Routers {
     Loading(pages::loader::Loader),
@@ -210,12 +208,12 @@ impl Application for GUI {
     fn theme(&self) -> Self::Theme {
         // TODO: Remove unwrap.
         match self.core.lock().unwrap().state.settings.appearance.theme {
-            Themes::Dark => Theme::Dark(ZebraPalette::DARK),
-            Themes::Light => Theme::Light(ZebraPalette::LIGHT),
+            Themes::Dark => Theme::Dark,
+            Themes::Light => Theme::Light,
             Themes::Auto => match dark_light::detect() {
-                dark_light::Mode::Dark => Theme::Dark(ZebraPalette::DARK),
-                dark_light::Mode::Light => Theme::Light(ZebraPalette::LIGHT),
-                dark_light::Mode::Default => Theme::Dark(ZebraPalette::DARK),
+                dark_light::Mode::Dark => Theme::Dark,
+                dark_light::Mode::Light => Theme::Light,
+                dark_light::Mode::Default => Theme::Dark,
             },
         }
     }

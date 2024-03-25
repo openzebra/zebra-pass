@@ -62,9 +62,9 @@ impl Application for GUIError {
 
     fn theme(&self) -> Self::Theme {
         match dark_light::detect() {
-            dark_light::Mode::Dark => Theme::Dark(ZebraPalette::DARK),
-            dark_light::Mode::Light => Theme::Light(ZebraPalette::LIGHT),
-            dark_light::Mode::Default => Theme::Dark(ZebraPalette::DARK),
+            dark_light::Mode::Dark => Theme::Dark,
+            dark_light::Mode::Light => Theme::Light,
+            dark_light::Mode::Default => Theme::Dark,
         }
     }
 }
