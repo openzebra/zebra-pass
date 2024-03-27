@@ -384,20 +384,16 @@ pub trait StyleSheet {
     fn appearance(&self, style: &Self::Style) -> Appearance;
 }
 
-// TODO: make theme
-// impl StyleSheet for Theme {
-//     type Style = ();
-//
-//     fn appearance(&self, _style: &Self::Style) -> Appearance {
-//         let palette = match self {
-//             Theme::Dark(p) => p,
-//             Theme::Light(p) => p,
-//         };
-//
-//         Appearance {
-//             background: None,
-//             track_color: iced::Color::TRANSPARENT,
-//             bar_color: palette.window_background_inverse,
-//         }
-//     }
-// }
+impl StyleSheet for iced::Theme {
+    type Style = ();
+
+    fn appearance(&self, _style: &Self::Style) -> Appearance {
+        let palette = self.extended_palette();
+
+        Appearance {
+            background: None,
+            track_color: palette.background.weak.color,
+            bar_color: palette.primary.base.color,
+        }
+    }
+}

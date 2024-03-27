@@ -149,11 +149,11 @@ impl Page for Generator {
         .on_press_maybe(match self.tab {
             Tabs::Password => None,
             Tabs::Bip39 => Some(GeneratorMessage::PasswordTab),
-        })
-        .style(match self.tab {
-            Tabs::Password => zebra_ui::style::button::Button::Primary,
-            Tabs::Bip39 => zebra_ui::style::button::Button::OutlinePrimary,
         });
+        // .style(match self.tab {
+        //     Tabs::Password => zebra_ui::style::button::Button::Primary,
+        //     Tabs::Bip39 => zebra_ui::style::button::Button::OutlinePrimary,
+        // });
         let bip39_btn = Button::new(
             Text::new(t!("bip39_gen"))
                 .horizontal_alignment(Horizontal::Center)
@@ -162,13 +162,13 @@ impl Page for Generator {
         )
         .padding(8)
         .width(200)
+        // .style(match self.tab {
+        //     Tabs::Bip39 => zebra_ui::style::button::Button::Primary,
+        //     Tabs::Password => zebra_ui::style::button::Button::OutlinePrimary,
+        // })
         .on_press_maybe(match self.tab {
             Tabs::Bip39 => None,
             Tabs::Password => Some(GeneratorMessage::PhraseTab),
-        })
-        .style(match self.tab {
-            Tabs::Bip39 => zebra_ui::style::button::Button::Primary,
-            Tabs::Password => zebra_ui::style::button::Button::OutlinePrimary,
         });
         let row_btns = Row::new().spacing(5).push(password_btn).push(bip39_btn);
         let content = match self.tab {
@@ -214,8 +214,8 @@ impl Generator {
 
     pub fn view_error(&self, error: String) -> Container<GeneratorMessage> {
         let err_msg = Text::new(error)
-            .size(14)
-            .style(zebra_ui::style::text::Text::Dabger);
+            // .style(zebra_ui::style::text::Text::Dabger)
+            .size(14);
 
         Container::new(err_msg)
     }

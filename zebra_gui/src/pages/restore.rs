@@ -232,20 +232,20 @@ impl Page for Restore {
             .horizontal_alignment(Horizontal::Center);
         let forward_icon = zebra_ui::image::forward_icon()
             .height(50)
-            .width(50)
-            .style(zebra_ui::style::svg::Svg::Primary);
+            // .style(zebra_ui::style::svg::Svg::Primary)
+            .width(50);
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            // .style(zebra_ui::style::button::Button::Transparent)
             .on_press(RestoreMessage::Back);
         let forward_btn = Button::new(forward_icon)
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            // .style(zebra_ui::style::button::Button::Transparent)
             .on_press(RestoreMessage::Next);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let error_message = Text::new(self.err_message.clone().unwrap_or(String::new()))
             .size(16)
-            .style(zebra_ui::style::text::Text::Dabger)
+            // .style(zebra_ui::style::text::Text::Dabger)
             .horizontal_alignment(Horizontal::Center);
         let content_col = Column::new()
             .width(Length::Fill)
@@ -280,8 +280,8 @@ impl Restore {
         )
         .text_size(16)
         .padding(4)
-        .width(80)
-        .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        // .style(zebra_ui::style::pick_list::PickList::OutlineLight)
+        .width(80);
         let language_pick_list = pick_list(
             self.dicts.as_slice(),
             Some(self.dict),
@@ -289,8 +289,8 @@ impl Restore {
         )
         .text_size(16)
         .padding(4)
-        .width(150)
-        .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        // .style(zebra_ui::style::pick_list::PickList::OutlineLight)
+        .width(150);
 
         Row::new()
             .push(count_pick_list)
@@ -314,10 +314,10 @@ impl Restore {
                         text_input(&placeholder, w)
                             .size(14)
                             .width(90)
-                            .style(match self.error_indexs[element_index] {
-                                true => zebra_ui::style::text_input::TextInput::Danger,
-                                false => zebra_ui::style::text_input::TextInput::Primary,
-                            })
+                            // .style(match self.error_indexs[element_index] {
+                            //     true => zebra_ui::style::text_input::TextInput::Danger,
+                            //     false => zebra_ui::style::text_input::TextInput::Primary,
+                            // })
                             .on_input(move |v| RestoreMessage::InputChanged((element_index, v)))
                             .on_paste(move |v| RestoreMessage::InputPaste((element_index, v)))
                             .into()

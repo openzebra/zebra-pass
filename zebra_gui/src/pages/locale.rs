@@ -93,10 +93,10 @@ impl Page for Locale {
         )
         .text_size(20)
         .padding(5)
-        .width(220)
+        .width(220);
         // .on_opened(LocaleMessage::Openned)
         // .on_closed(LocaleMessage::Closed)
-        .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        // .style(zebra_ui::style::pick_list::PickList::OutlineLight);
 
         let zebra_print = zebra_ui::image::zebra_print_view();
         let title = Text::new(t!("welcome"))
@@ -104,7 +104,7 @@ impl Page for Locale {
             .horizontal_alignment(Horizontal::Center);
         let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            // .style(zebra_ui::style::button::Button::Transparent)
             .on_press(LocaleMessage::Next);
 
         let print_col = Column::new()

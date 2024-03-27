@@ -5,7 +5,6 @@ use crate::rust_i18n::t;
 use iced::advanced::Application;
 use iced::{executor, Command, Element};
 use iced::{Alignment, Length, Theme};
-use zebra_ui::color::ZebraPalette;
 use zebra_ui::widget::*;
 
 pub struct GUIError {

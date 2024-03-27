@@ -91,7 +91,7 @@ impl Page for Options {
             .horizontal_alignment(Horizontal::Center);
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            // .style(zebra_ui::style::button::Button::Transparent)
             .on_press(OptionsMessage::Back);
         let col = Column::new()
             .height(Length::Fill)
@@ -123,8 +123,8 @@ impl Options {
         )
         .padding(8)
         .width(200)
-        .on_press(OptionsMessage::Create)
-        .style(zebra_ui::style::button::Button::OutlinePrimary);
+        // .style(zebra_ui::style::button::Button::OutlinePrimary)
+        .on_press(OptionsMessage::Create);
         let restore_btn = Button::new(
             Text::new(t!("restore_btn"))
                 .horizontal_alignment(Horizontal::Center)
@@ -133,8 +133,8 @@ impl Options {
         )
         .padding(8)
         .width(200)
-        .on_press(OptionsMessage::Restore)
-        .style(zebra_ui::style::button::Button::OutlinePrimary);
+        // .style(zebra_ui::style::button::Button::OutlinePrimary)
+        .on_press(OptionsMessage::Restore);
         let zebra_hooves = zebra_ui::image::zebra_hooves()
             .width(68)
             .height(Length::Fill);
@@ -153,7 +153,7 @@ impl Options {
 
         Container::new(options_col)
             .height(252)
+            // .style(zebra_ui::style::container::Container::Bordered)
             .width(350)
-            .style(zebra_ui::style::container::Container::Bordered)
     }
 }

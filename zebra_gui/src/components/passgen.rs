@@ -5,10 +5,10 @@
 use crate::rust_i18n::t;
 use iced::widget::{component, slider, text_input, Checkbox, Component};
 use iced::Length;
+use iced::Theme;
 use std::sync::{Arc, Mutex};
 use zebra_lib::core::passgen::PassGen;
 use zebra_lib::errors::ZebraErrors;
-use zebra_ui::style::Theme;
 use zebra_ui::widget::*;
 
 #[derive(Debug)]
@@ -87,8 +87,8 @@ where
             .size(12)
             .padding(4)
             .width(50)
-            .on_input(Event::InputLength)
-            .style(zebra_ui::style::text_input::TextInput::Primary);
+            // .style(zebra_ui::style::text_input::TextInput::Primary)
+            .on_input(Event::InputLength);
         let slider_row = Row::new().push(h_slider).push(input_len).spacing(5);
 
         Container::new(slider_row).width(300)
@@ -125,15 +125,15 @@ where
             .size(16)
             .padding(8)
             .width(250)
-            .on_input(Event::InputEmpty)
-            .style(zebra_ui::style::text_input::TextInput::Transparent);
+            // .style(zebra_ui::style::text_input::TextInput::Transparent)
+            .on_input(Event::InputEmpty);
         let reload_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            // .style(zebra_ui::style::button::Button::Transparent)
             .on_press(Event::Refresh);
         let copy_btn = Button::new(zebra_ui::image::copy_icon().height(25).width(25))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            // .style(zebra_ui::style::button::Button::Transparent)
             .on_press(Event::Copy);
 
         let box_row: Row<'_, Event> = Row::new()
@@ -142,7 +142,7 @@ where
             .push(entropy)
             .push(reload_btn);
         let border_box = Container::new(box_row)
-            .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
+            // .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
             .padding(16);
         let col = Column::new().push(border_box);
 

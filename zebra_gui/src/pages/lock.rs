@@ -154,14 +154,14 @@ impl Page for Lock {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let error_message = Text::new(&self.err_message)
             .size(14)
-            .style(zebra_ui::style::text::Text::Dabger)
+            // .style(zebra_ui::style::text::Text::Dabger)
             .horizontal_alignment(Horizontal::Center);
         let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
             .size(16)
             .padding(8)
             .width(250)
-            .id(self.input_id.clone())
-            .style(zebra_ui::style::text_input::TextInput::Primary);
+            // .style(zebra_ui::style::text_input::TextInput::Primary)
+            .id(self.input_id.clone());
 
         if !self.loading {
             passowrd = passowrd
@@ -181,8 +181,8 @@ impl Page for Lock {
         .padding(8)
         .width(250)
         .height(38)
-        .on_press(LockMessage::OnSubmit)
-        .style(zebra_ui::style::button::Button::OutlinePrimary);
+        // .style(zebra_ui::style::button::Button::OutlinePrimary)
+        .on_press(LockMessage::OnSubmit);
         let loading_btn = Button::new(
             Column::new()
                 .push(circular::Circular::new().size(20.0))
@@ -191,15 +191,15 @@ impl Page for Lock {
         )
         .padding(8)
         .height(38)
-        .width(250)
-        .style(zebra_ui::style::button::Button::OutlinePrimary);
+        // .style(zebra_ui::style::button::Button::OutlinePrimary)
+        .width(250);
         let options_btn = Button::new(Text::new(t!("restore_or_create")).size(14))
+            // .style(zebra_ui::style::button::Button::Ref)
             .on_press_maybe(if self.loading {
                 None
             } else {
                 Some(LockMessage::OnOptions)
-            })
-            .style(zebra_ui::style::button::Button::Ref);
+            });
         let options_col = Column::new()
             .width(250)
             .push(options_btn)

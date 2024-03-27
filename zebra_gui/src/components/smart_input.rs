@@ -4,7 +4,7 @@
 use std::sync::{Arc, Mutex};
 
 use iced::widget::{component, text_input, Component, Space};
-use zebra_ui::style::Theme;
+use iced::Theme;
 use zebra_ui::widget::*;
 
 #[derive(Debug)]
@@ -115,8 +115,8 @@ where
             .size(14)
             .padding(4)
             .secure(state.secured && !self.showed_secure_flag)
-            .on_input(Event::HandleInput)
-            .style(zebra_ui::style::text_input::TextInput::Transparent);
+            // .style(zebra_ui::style::text_input::TextInput::Transparent)
+            .on_input(Event::HandleInput);
         let col = Column::new().push(label).push(input);
         let mut row = Row::new().align_items(iced::Alignment::Center).push(col);
 
@@ -130,24 +130,24 @@ where
             .width(25);
             let eye_btn = Button::new(icon)
                 .padding(0)
-                .on_press(Event::ShowHideSecure)
-                .style(zebra_ui::style::button::Button::Transparent);
+                // .style(zebra_ui::style::button::Button::Transparent)
+                .on_press(Event::ShowHideSecure);
             row = row.push(eye_btn);
         }
 
         if self.on_copy.is_some() {
             let copy_btn = Button::new(zebra_ui::image::copy_icon().height(25).width(25))
                 .padding(0)
-                .on_press(Event::Copy)
-                .style(zebra_ui::style::button::Button::Transparent);
+                // .style(zebra_ui::style::button::Button::Transparent)
+                .on_press(Event::Copy);
             row = row.push(copy_btn);
         }
 
         if self.on_reload.is_some() {
             let reload_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30))
                 .padding(0)
-                .on_press(Event::Reload)
-                .style(zebra_ui::style::button::Button::Transparent);
+                // .style(zebra_ui::style::button::Button::Transparent)
+                .on_press(Event::Reload);
             row = row.push(reload_btn);
         }
 
@@ -155,7 +155,7 @@ where
 
         Container::new(row)
             .padding(3)
-            .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
+            // .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
             .into()
     }
 }

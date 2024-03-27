@@ -305,24 +305,26 @@ impl Page for PasswordSetup {
         let title = Text::new(t!("setup_account_and_password"))
             .size(34)
             .horizontal_alignment(Horizontal::Center);
-        let forward_icon = zebra_ui::image::forward_icon().height(50).width(50).style(
-            if self.approved
-                && self.password == self.confirm_password
-                && !self.password.is_empty()
-                && !self.confirm_password.is_empty()
-            {
-                zebra_ui::style::svg::Svg::Primary
-            } else {
-                zebra_ui::style::svg::Svg::PrimaryDisabled
-            },
-        );
+        let forward_icon = zebra_ui::image::forward_icon().height(50).width(50);
+
+        //     .style(
+        //     if self.approved
+        //         && self.password == self.confirm_password
+        //         && !self.password.is_empty()
+        //         && !self.confirm_password.is_empty()
+        //     {
+        //         zebra_ui::style::svg::Svg::Primary
+        //     } else {
+        //         zebra_ui::style::svg::Svg::PrimaryDisabled
+        //     },
+        // );
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            // .style(zebra_ui::style::button::Button::Transparent)
             .on_press(PasswordSetupMessage::Back);
         let forward_btn = Button::new(forward_icon)
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            // .style(zebra_ui::style::button::Button::Transparent)
             .on_press_maybe(
                 if self.approved
                     && self.password == self.confirm_password
@@ -371,7 +373,7 @@ impl PasswordSetup {
     pub fn view_error<'a>(&self) -> Container<'a, PasswordSetupMessage> {
         let error_message = Text::new(t!("mnemonic_is_not_inited"))
             .size(16)
-            .style(zebra_ui::style::text::Text::Dabger)
+            // .style(zebra_ui::style::text::Text::Dabger)
             .horizontal_alignment(Horizontal::Center);
 
         Container::new(Column::new().push(error_message))
@@ -398,12 +400,12 @@ impl PasswordSetup {
             .align_items(iced::Alignment::Start);
         let mut email_input = text_input(&t!("placeholder_email"), &self.email)
             .size(14)
-            .width(Length::Fill)
-            .style(zebra_ui::style::text_input::TextInput::Primary);
+            // .style(zebra_ui::style::text_input::TextInput::Primary)
+            .width(Length::Fill);
         let mut salt_input = text_input(&t!("placeholder_salt"), &self.salt)
             .size(14)
-            .width(Length::Fill)
-            .style(zebra_ui::style::text_input::TextInput::Primary);
+            // .style(zebra_ui::style::text_input::TextInput::Primary)
+            .width(Length::Fill);
 
         if self.enabled_salt && !self.loading {
             salt_input = salt_input.on_input(PasswordSetupMessage::OnSaltInput);
@@ -429,30 +431,28 @@ impl PasswordSetup {
             .push(email_input)
             .push(salt_row)
             .push(salt_input);
-        Container::new(options_col)
-            .height(160)
-            .width(320)
-            .style(zebra_ui::style::container::Container::Bordered)
+        Container::new(options_col).height(160).width(320)
+        // .style(zebra_ui::style::container::Container::Bordered)
     }
 
     pub fn view_content(&self) -> Container<'_, PasswordSetupMessage> {
         let info = self.view_info();
         let error_msg = Text::new(&self.error_msg)
-            .style(zebra_ui::style::text::Text::Dabger)
+            // .style(zebra_ui::style::text::Text::Dabger)
             .size(14);
         let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
             .size(16)
             .width(250)
             .padding(8)
-            .secure(true)
-            .style(zebra_ui::style::text_input::TextInput::Primary);
+            // .style(zebra_ui::style::text_input::TextInput::Primary)
+            .secure(true);
         let mut confirm_passowrd =
             text_input(&t!("placeholder_confirm_password"), &self.confirm_password)
                 .size(16)
                 .padding(8)
                 .width(250)
-                .secure(true)
-                .style(zebra_ui::style::text_input::TextInput::Primary);
+                // .style(zebra_ui::style::text_input::TextInput::Primary)
+                .secure(true);
 
         if !self.loading {
             passowrd = passowrd

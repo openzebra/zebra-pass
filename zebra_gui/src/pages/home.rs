@@ -111,7 +111,7 @@ impl Home {
         // TODO: add more options for import..
         let add_btn = Button::new(zebra_ui::image::add_icon().height(70).width(70))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            // .style(zebra_ui::style::button::Button::Transparent)
             .on_press(HomeMessage::AddRecord);
         let options_row = Row::new()
             .align_items(iced::Alignment::Center)
@@ -121,8 +121,8 @@ impl Home {
             .align_x(alignment::Horizontal::Center)
             .padding(8)
             .height(250)
-            .width(400)
-            .style(zebra_ui::style::container::Container::Bordered);
+            // .style(zebra_ui::style::container::Container::Bordered)
+            .width(400);
         let col = Column::new()
             .width(Length::Fill)
             .height(Length::Fill)
