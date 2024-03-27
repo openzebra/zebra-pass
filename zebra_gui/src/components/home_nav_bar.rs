@@ -65,20 +65,23 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
 
     pub fn view(&self, content: Container<'a, Message>) -> Container<'a, Message> {
         let header = self.view_header();
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(1.0))
-            .height(Length::Fill)
-            // .style(zebra_ui::components::line::LineStyleSheet::Secondary);
-            .alfa(LINE_ALFA_CHANNEL);
-        let hline = zebra_ui::components::line::Line::new()
+            .height(Length::Fill);
+        let vline1 = zebra_ui::components::line::Linear::new()
+            .width(Length::Fixed(1.0))
+            .height(Length::Fill);
+        // .style(zebra_ui::components::line::LineStyleSheet::Secondary);
+        // .alfa(LINE_ALFA_CHANNEL);
+        let hline = zebra_ui::components::line::Linear::new()
             .height(Length::Fixed(1.0))
-            .width(Length::Fill)
-            // .style(zebra_ui::components::line::LineStyleSheet::Secondary)
-            .alfa(LINE_ALFA_CHANNEL);
+            .width(Length::Fill);
+        // .style(zebra_ui::components::line::LineStyleSheet::Secondary)
+        // .alfa(LINE_ALFA_CHANNEL);
 
         let main_row = Row::new()
             .push(self.view_left_nav_bar())
-            .push(vline.clone())
+            .push(vline1)
             .push(vline)
             .push(content);
         let main_col = Column::new().push(header).push(hline).push(main_row);
@@ -120,7 +123,7 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
     }
 
     fn vew_home_btn(&self) -> Row<'a, Message> {
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(3.0))
             // .style(if self.route == NavRoute::Home {
             //     zebra_ui::components::line::LineStyleSheet::Inverse
@@ -149,7 +152,7 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
     }
 
     fn vew_gen_btn(&self) -> Row<'a, Message> {
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(3.0))
             // .style(if self.route == NavRoute::Gen {
             //     zebra_ui::components::line::LineStyleSheet::Inverse
@@ -178,7 +181,7 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
     }
 
     fn vew_settings_btn(&self) -> Row<'a, Message> {
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(3.0))
             // .style(if self.route == NavRoute::Settings {
             //     zebra_ui::components::line::LineStyleSheet::Inverse

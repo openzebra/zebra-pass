@@ -9,7 +9,7 @@ use iced::{alignment, Command, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::widget::*;
 
-use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
+use crate::components::home_nav_bar::{NavBar, NavRoute};
 use crate::gui::{GlobalMessage, Routers};
 
 use super::add_record::AddRecordPage;
@@ -134,11 +134,9 @@ impl Home {
     }
 
     pub fn view_records(&self) -> Container<HomeMessage> {
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(1.0))
-            .height(Length::Fill)
-            .alfa(LINE_ALFA_CHANNEL)
-            .style(zebra_ui::components::line::LineStyleSheet::Secondary);
+            .height(Length::Fill);
         let left_search_col = Column::new().height(Length::Fill).width(200);
         let row = Row::new().push(left_search_col).push(vline);
 
