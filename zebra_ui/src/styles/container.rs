@@ -6,7 +6,7 @@ use iced::{Border, Color, Theme};
 
 use crate::config::BORDER_RADIUS;
 
-pub fn bordered(theme: &Theme, _status: Status) -> Appearance {
+pub fn primary_bordered(theme: &Theme, _status: Status) -> Appearance {
     let palette = theme.extended_palette();
 
     Appearance {
@@ -14,7 +14,7 @@ pub fn bordered(theme: &Theme, _status: Status) -> Appearance {
         border: Border {
             width: 1.0,
             radius: BORDER_RADIUS.into(),
-            color: palette.background.strong.color,
+            color: palette.primary.strong.color,
         },
         ..Appearance::default()
     }

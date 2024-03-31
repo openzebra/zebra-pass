@@ -157,7 +157,7 @@ impl Options {
 
         Container::new(options_col)
             .height(252)
-            .style(zebra_ui::styles::container::bordered)
+            .style(zebra_ui::styles::container::primary_bordered)
             .width(350)
     }
 }
