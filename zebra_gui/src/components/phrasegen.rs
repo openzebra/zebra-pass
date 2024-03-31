@@ -3,7 +3,10 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use iced::alignment::Horizontal;
-use iced::widget::{component, pick_list, Button, Column, Component, Container, Row, Space, Text};
+use iced::overlay::menu;
+use iced::widget::{
+    component, pick_list, scrollable, Button, Column, Component, Container, Row, Space, Text,
+};
 use iced::{Alignment, Element, Length};
 use iced::{Renderer, Theme};
 use std::sync::{Arc, Mutex};
@@ -93,7 +96,7 @@ where
                                 .size(14)
                                 .horizontal_alignment(Horizontal::Center),
                         )
-                        // .style(zebra_ui::style::button::Button::Primary)
+                        .style(zebra_ui::styles::button::outline_primary)
                         .width(90)
                         .height(30)
                         .into()
@@ -120,7 +123,13 @@ where
         )
         .text_size(16)
         .padding(4)
-        // .style(zebra_ui::style::pick_list::PickList::OutlineLight)
+        .style(pick_list::Style {
+            field: Box::new(zebra_ui::styles::pick_list::primary_field),
+            menu: menu::Style {
+                list: Box::new(zebra_ui::styles::menu::primary_menu),
+                scrollable: Box::new(scrollable::default),
+            },
+        })
         .width(80);
         let language_pick_list = pick_list(
             self.dicts.as_slice(),
@@ -129,16 +138,32 @@ where
         )
         .text_size(16)
         .padding(4)
-        // .style(zebra_ui::style::pick_list::PickList::OutlineLight)
+        .style(pick_list::Style {
+            field: Box::new(zebra_ui::styles::pick_list::primary_field),
+            menu: menu::Style {
+                list: Box::new(zebra_ui::styles::menu::primary_menu),
+                scrollable: Box::new(scrollable::default),
+            },
+        })
         .width(150);
-        let reload_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30))
-            .padding(0)
-            // .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(Event::ReGenerate);
-        let copy_btn = Button::new(zebra_ui::image::copy_icon().height(30).width(30))
-            .padding(0)
-            // .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(Event::Copy);
+        let reload_btn = Button::new(
+            zebra_ui::image::reload_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(Event::ReGenerate);
+        let copy_btn = Button::new(
+            zebra_ui::image::copy_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(Event::Copy);
         let header_row = Row::new()
             .spacing(10)
             .push(reload_btn)

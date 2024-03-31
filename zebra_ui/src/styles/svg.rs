@@ -19,6 +19,19 @@ pub fn primary_hover(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
+pub fn primary_disabled(theme: &Theme, status: Status) -> Appearance {
+    let palette = theme.extended_palette();
+
+    match status {
+        Status::Idle => Appearance {
+            color: Some(palette.primary.weak.color),
+        },
+        Status::Hovered => Appearance {
+            color: Some(palette.primary.weak.color),
+        },
+    }
+}
+
 pub fn bg_inverse(theme: &Theme, status: Status) -> Appearance {
     let palette = theme.extended_palette();
 

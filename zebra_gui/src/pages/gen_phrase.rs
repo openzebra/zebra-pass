@@ -121,22 +121,22 @@ impl Page for GenPhrase {
             .push(zebra_print);
         let forward_icon = zebra_ui::image::forward_icon()
             .height(50)
-            // .style(if self.is_checked {
-            //     zebra_ui::style::svg::Svg::Primary
-            // } else {
-            //     zebra_ui::style::svg::Svg::PrimaryDisabled
-            // })
+            .style(if self.is_checked {
+                zebra_ui::styles::svg::primary_hover
+            } else {
+                zebra_ui::styles::svg::primary_disabled
+            })
             .width(50);
         let forward_btn = Button::new(forward_icon)
             .padding(0)
-            // .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press_maybe(match self.is_checked {
                 true => Some(GenPhraseMessage::Next),
                 false => None,
             });
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            // .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(GenPhraseMessage::Back);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let check_box = Checkbox::new(t!("approve_seed_remember"), self.is_checked)
@@ -149,7 +149,7 @@ impl Page for GenPhrase {
             Ok(elem) => Container::new(elem.set_on_copy(GenPhraseMessage::CopyWords)),
             Err(e) => {
                 let err_msg = Text::new(e.to_string())
-                    // .style(zebra_ui::style::text::Text::Dabger)
+                    .style(zebra_ui::styles::text::danger)
                     .size(14);
 
                 Container::new(err_msg)

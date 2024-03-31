@@ -4,8 +4,6 @@
 use iced::widget::{Button, Column, Container, Row};
 use iced::{widget::Space, Length};
 
-pub const LINE_ALFA_CHANNEL: f32 = 0.4;
-
 #[derive(PartialEq)]
 pub enum NavRoute {
     Home,
