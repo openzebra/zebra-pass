@@ -326,10 +326,10 @@ impl Restore {
                         text_input(&placeholder, w)
                             .size(14)
                             .width(90)
-                            // .style(match self.error_indexs[element_index] {
-                            //     true => zebra_ui::style::text_input::TextInput::Danger,
-                            //     false => zebra_ui::style::text_input::TextInput::Primary,
-                            // })
+                            .style(match self.error_indexs[element_index] {
+                                true => zebra_ui::styles::input::danger,
+                                false => zebra_ui::styles::input::primary,
+                            })
                             .on_input(move |v| RestoreMessage::InputChanged((element_index, v)))
                             .on_paste(move |v| RestoreMessage::InputPaste((element_index, v)))
                             .into()
