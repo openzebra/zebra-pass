@@ -20,11 +20,14 @@ use super::{
     password_setup::{LastRoute, PasswordSetup},
     Page,
 };
-use iced::widget::{pick_list, text_input, Button, Column, Container, Row, Space, Text};
 use iced::{alignment::Horizontal, Command, Length, Subscription};
 use iced::{
     keyboard::{self, key::Named},
     Element,
+};
+use iced::{
+    overlay::menu,
+    widget::{pick_list, scrollable, text_input, Button, Column, Container, Row, Space, Text},
 };
 
 #[derive(Debug)]
@@ -230,22 +233,19 @@ impl Page for Restore {
         let title = Text::new(t!("restore_page_title"))
             .size(24)
             .horizontal_alignment(Horizontal::Center);
-        let forward_icon = zebra_ui::image::forward_icon()
-            .height(50)
-            // .style(zebra_ui::style::svg::Svg::Primary)
-            .width(50);
+        let forward_icon = zebra_ui::image::forward_icon().height(50).width(50);
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            // .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(RestoreMessage::Back);
         let forward_btn = Button::new(forward_icon)
             .padding(0)
-            // .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(RestoreMessage::Next);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let error_message = Text::new(self.err_message.clone().unwrap_or(String::new()))
             .size(16)
-            // .style(zebra_ui::style::text::Text::Dabger)
+            .style(zebra_ui::styles::text::danger)
             .horizontal_alignment(Horizontal::Center);
         let content_col = Column::new()
             .width(Length::Fill)
@@ -280,7 +280,13 @@ impl Restore {
         )
         .text_size(16)
         .padding(4)
-        // .style(zebra_ui::style::pick_list::PickList::OutlineLight)
+        .style(pick_list::Style {
+            field: Box::new(zebra_ui::styles::pick_list::primary_field),
+            menu: menu::Style {
+                list: Box::new(zebra_ui::styles::menu::primary_menu),
+                scrollable: Box::new(scrollable::default),
+            },
+        })
         .width(80);
         let language_pick_list = pick_list(
             self.dicts.as_slice(),
@@ -289,7 +295,13 @@ impl Restore {
         )
         .text_size(16)
         .padding(4)
-        // .style(zebra_ui::style::pick_list::PickList::OutlineLight)
+        .style(pick_list::Style {
+            field: Box::new(zebra_ui::styles::pick_list::primary_field),
+            menu: menu::Style {
+                list: Box::new(zebra_ui::styles::menu::primary_menu),
+                scrollable: Box::new(scrollable::default),
+            },
+        })
         .width(150);
 
         Row::new()

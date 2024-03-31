@@ -6,3 +6,4 @@ pub mod container;
 pub mod menu;
 pub mod pick_list;
 pub mod svg;
+pub mod text;
