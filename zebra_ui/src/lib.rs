@@ -4,5 +4,7 @@
 
 pub mod color;
 pub mod components;
+pub mod config;
 pub mod image;
 pub mod styles;
+pub mod theme;

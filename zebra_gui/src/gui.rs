@@ -208,12 +208,18 @@ impl Application for GUI {
     fn theme(&self) -> Self::Theme {
         // TODO: Remove unwrap.
         match self.core.lock().unwrap().state.settings.appearance.theme {
-            Themes::Dark => Theme::Dark,
-            Themes::Light => Theme::Light,
+            Themes::Dark => Theme::Custom(Arc::new(zebra_ui::theme::dark_custom_theme())),
+            Themes::Light => Theme::Custom(Arc::new(zebra_ui::theme::light_custom_theme())),
             Themes::Auto => match dark_light::detect() {
-                dark_light::Mode::Dark => Theme::Dark,
-                dark_light::Mode::Light => Theme::Light,
-                dark_light::Mode::Default => Theme::Dark,
+                dark_light::Mode::Dark => {
+                    Theme::Custom(Arc::new(zebra_ui::theme::dark_custom_theme()))
+                }
+                dark_light::Mode::Light => {
+                    Theme::Custom(Arc::new(zebra_ui::theme::light_custom_theme()))
+                }
+                dark_light::Mode::Default => {
+                    Theme::Custom(Arc::new(zebra_ui::theme::dark_custom_theme()))
+                }
             },
         }
     }

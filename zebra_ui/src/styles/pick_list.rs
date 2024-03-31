@@ -7,6 +7,8 @@ use iced::{
     Border, Theme,
 };
 
+use crate::config::BORDER_RADIUS;
+
 pub fn primary_field(theme: &Theme, status: Status) -> Appearance {
     let palette = theme.extended_palette();
 
@@ -16,7 +18,7 @@ pub fn primary_field(theme: &Theme, status: Status) -> Appearance {
         placeholder_color: palette.background.strong.color,
         handle_color: palette.background.weak.text,
         border: Border {
-            radius: 16.0.into(),
+            radius: BORDER_RADIUS.into(),
             width: 1.0,
             color: palette.background.strong.color,
         },
@@ -33,7 +35,7 @@ pub fn primary_field(theme: &Theme, status: Status) -> Appearance {
         },
         Status::Opened => Appearance {
             border: Border {
-                radius: [16.0, 16.0, 0.0, 0.0].into(),
+                radius: [BORDER_RADIUS, BORDER_RADIUS, 0.0, 0.0].into(),
                 color: palette.primary.strong.color,
                 width: 1.0,
             },
