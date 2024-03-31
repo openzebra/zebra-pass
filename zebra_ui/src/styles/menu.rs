@@ -4,15 +4,17 @@
 
 use iced::{overlay::menu::Appearance, Border, Theme};
 
+use crate::config::BORDER_RADIUS;
+
 pub fn primary_menu(theme: &Theme) -> Appearance {
     let palette = theme.extended_palette();
 
     Appearance {
-        background: palette.background.weak.color.into(),
+        background: palette.background.base.color.into(),
         border: Border {
             width: 1.0,
-            radius: 0.0.into(),
-            color: palette.background.strong.color,
+            radius: [0.0, 0.0, BORDER_RADIUS, BORDER_RADIUS].into(),
+            color: palette.primary.base.color,
         },
         text_color: palette.background.weak.text,
         selected_text_color: palette.primary.strong.text,

@@ -181,5 +181,5 @@ pub fn forward_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Primary)
+        .style(super::styles::svg::primary_hover)
 }

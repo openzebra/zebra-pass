@@ -108,7 +108,7 @@ impl Page for Locale {
             .horizontal_alignment(Horizontal::Center);
         let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
             .padding(0)
-            // .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(LocaleMessage::Next);
 
         let print_col = Column::new()

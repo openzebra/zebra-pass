@@ -13,7 +13,7 @@ pub fn primary_field(theme: &Theme, status: Status) -> Appearance {
     let palette = theme.extended_palette();
 
     let active = Appearance {
-        text_color: palette.background.strong.text,
+        text_color: palette.background.base.text,
         background: palette.background.base.color.into(),
         placeholder_color: palette.background.strong.color,
         handle_color: palette.background.weak.text,
