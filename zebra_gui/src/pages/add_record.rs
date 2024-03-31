@@ -4,9 +4,9 @@
 
 use std::sync::{Arc, Mutex};
 
-use iced::{Command, Length, Subscription};
+use iced::widget::{Column, Container, Row, Text};
+use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
 
 use crate::components::home_nav_bar::{NavBar, NavRoute};
 use crate::components::smart_input::{SmartInput, SmartInputState};

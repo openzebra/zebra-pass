@@ -8,7 +8,7 @@ use std::{
 };
 
 use crate::gui::GlobalMessage;
-use iced::{Command, Subscription};
+use iced::{Command, Element, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
 pub mod add_record;
@@ -36,5 +36,5 @@ pub trait Page {
 
     fn update(&mut self, message: Self::Message) -> Command<GlobalMessage>;
 
-    fn view(&self) -> zebra_ui::widget::Element<Self::Message>;
+    fn view(&self) -> Element<Self::Message>;
 }

@@ -7,9 +7,12 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
-use iced::{alignment::Horizontal, widget::Space, Command, Length, Subscription};
+use iced::{alignment::Horizontal, Command, Length, Subscription};
+use iced::{
+    widget::{Button, Column, Container, Row, Space, Text},
+    Element,
+};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
 
 use super::{error::ErrorPage, locale::Locale, options::Options, Page};
 

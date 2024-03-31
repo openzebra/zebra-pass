@@ -3,9 +3,9 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::rust_i18n::t;
 use iced::advanced::Application;
+use iced::widget::{Column, Row, Text};
 use iced::{executor, Command, Element};
 use iced::{Alignment, Length, Theme};
-use zebra_ui::widget::*;
 
 pub struct GUIError {
     error: String,

@@ -17,8 +17,11 @@ use super::{
     restore::Restore,
     Page,
 };
-use iced::{alignment::Horizontal, widget::Space, Command, Length, Subscription};
-use zebra_ui::widget::*;
+use iced::{alignment::Horizontal, Command, Length, Subscription};
+use iced::{
+    widget::{Button, Column, Container, Row, Space, Text},
+    Element,
+};
 
 #[derive(Debug)]
 pub struct Options {

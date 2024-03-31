@@ -19,13 +19,12 @@ use super::{
     password_setup::{LastRoute, PasswordSetup},
     Page,
 };
-use iced::keyboard::{self, key::Named};
+use iced::widget::{pick_list, text_input, Button, Column, Container, Row, Space, Text};
+use iced::{alignment::Horizontal, Command, Length, Subscription};
 use iced::{
-    alignment::Horizontal,
-    widget::{self, pick_list, text_input, Space},
-    Command, Length, Subscription,
+    keyboard::{self, key::Named},
+    Element,
 };
-use zebra_ui::widget::*;
 
 #[derive(Debug)]
 pub struct Restore {
@@ -87,9 +86,9 @@ impl Page for Restore {
         match message {
             RestoreMessage::TabPressed(shift) => {
                 if shift {
-                    widget::focus_previous()
+                    iced::widget::focus_previous()
                 } else {
-                    widget::focus_next()
+                    iced::widget::focus_next()
                 }
             }
             RestoreMessage::Back => match Options::new(Arc::clone(&self.core)) {

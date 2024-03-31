@@ -5,13 +5,9 @@
 use std::sync::{Arc, Mutex};
 
 use crate::rust_i18n::t;
-use iced::{
-    alignment,
-    widget::{Column, Space},
-    window, Length, Subscription,
-};
+use iced::widget::{Button, Column, Container, Row, Space, Text};
+use iced::{alignment, window, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
 
 use crate::gui::GlobalMessage;
 

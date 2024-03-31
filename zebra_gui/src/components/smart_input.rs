@@ -3,9 +3,8 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use std::sync::{Arc, Mutex};
 
-use iced::widget::{component, text_input, Component, Space};
-use iced::Theme;
-use zebra_ui::widget::*;
+use iced::widget::{component, text_input, Button, Column, Component, Container, Row, Space, Text};
+use iced::{Element, Renderer, Theme};
 
 #[derive(Debug)]
 pub struct SmartInputState {

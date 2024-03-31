@@ -3,7 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::{ContentFit, Length};
 
-use crate::widget::Svg;
+use iced::widget::Svg;
 use iced::{widget::svg::Handle, window::icon};
 
 const PRINT: &[u8] = include_bytes!("../static/imgs/zebra_print.svg");

@@ -3,13 +3,15 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use crate::rust_i18n::t;
-use iced::widget::{component, slider, text_input, Checkbox, Component};
-use iced::Length;
+use iced::widget::{
+    component, slider, text_input, Button, Checkbox, Column, Component, Container, Row,
+};
+use iced::Renderer;
 use iced::Theme;
+use iced::{Element, Length};
 use std::sync::{Arc, Mutex};
 use zebra_lib::core::passgen::PassGen;
 use zebra_lib::errors::ZebraErrors;
-use zebra_ui::widget::*;
 
 #[derive(Debug)]
 pub struct PassGenState {

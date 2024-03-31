@@ -3,15 +3,14 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use iced::alignment::Horizontal;
-use iced::widget::{component, pick_list, Component, Space};
-use iced::Theme;
-use iced::{Alignment, Length};
+use iced::widget::{component, pick_list, Button, Column, Component, Container, Row, Space, Text};
+use iced::{Alignment, Element, Length};
+use iced::{Renderer, Theme};
 use std::sync::{Arc, Mutex};
 use zebra_lib::bip39::config::MAX_NB_WORDS;
 use zebra_lib::bip39::mnemonic;
 use zebra_lib::bip39::mnemonic::Mnemonic;
 use zebra_lib::errors::ZebraErrors;
-use zebra_ui::widget::*;
 
 #[derive(Debug)]
 pub struct PhraseGenState {

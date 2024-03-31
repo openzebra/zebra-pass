@@ -9,10 +9,9 @@ use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
 use crate::pages::error::ErrorPage;
 use crate::rust_i18n::t;
 use iced::alignment::Horizontal;
-use iced::widget::Space;
-use iced::{clipboard, Command, Length, Subscription};
+use iced::widget::{Button, Column, Container, Row, Space, Text};
+use iced::{clipboard, Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
 
 use crate::components::home_nav_bar::{NavBar, NavRoute};
 use crate::gui::{GlobalMessage, Routers};

@@ -1,8 +1,8 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use iced::widget::Checkbox;
-use iced::{Alignment, Command, Length, Subscription};
+use iced::widget::{Button, Checkbox, Column, Container, Row, Text};
+use iced::{Alignment, Command, Element, Length, Subscription};
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
 
@@ -14,7 +14,6 @@ use super::error::ErrorPage;
 use super::options::Options;
 use super::password_setup::{LastRoute, PasswordSetup};
 use super::Page;
-use zebra_ui::widget::*;
 
 #[derive(Debug)]
 pub struct GenPhrase {

@@ -5,15 +5,13 @@
 use std::sync::{Arc, Mutex};
 
 use crate::{gui::Routers, rust_i18n::t};
+use iced::widget::{text_input, Button, Column, Container, Row, Space, Text};
+use iced::Element;
 use iced::{
-    alignment::Horizontal,
-    event,
-    keyboard::key::Named,
-    widget::{text_input, Space},
-    Command, Event, Length, Subscription,
+    alignment::Horizontal, event, keyboard::key::Named, Command, Event, Length, Subscription,
 };
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::{components::circular, widget::*};
+use zebra_ui::components::circular;
 
 use crate::gui::GlobalMessage;
 

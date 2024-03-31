@@ -7,12 +7,12 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
-use iced::keyboard::{self, key::Named};
 use iced::widget::{self, Checkbox};
+use iced::widget::{text_input, Button, Column, Container, Row, Space, Text};
+use iced::{alignment::Horizontal, Command, Length, Subscription};
 use iced::{
-    alignment::Horizontal,
-    widget::{text_input, Space},
-    Command, Length, Subscription,
+    keyboard::{self, key::Named},
+    Element,
 };
 use std::sync::{Arc, Mutex};
 use zebra_lib::{
@@ -24,7 +24,6 @@ use zebra_lib::{
     },
     errors::ZebraErrors,
 };
-use zebra_ui::widget::*;
 
 #[derive(Debug)]
 pub enum LastRoute {

@@ -1,8 +1,8 @@
 //! -- Copyright (c) 2024 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use iced::widget::{Button, Column, Container, Row};
 use iced::{widget::Space, Length};
-use zebra_ui::widget::*;
 
 pub const LINE_ALFA_CHANNEL: f32 = 0.4;
 

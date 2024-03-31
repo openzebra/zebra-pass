@@ -7,15 +7,13 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
+use iced::{alignment::Horizontal, overlay::menu, Command, Length, Subscription};
 use iced::{
-    alignment::Horizontal,
-    overlay::menu,
-    widget::{pick_list, scrollable, Space},
-    Command, Length, Subscription,
+    widget::{pick_list, scrollable, Button, Column, Container, Row, Space, Text},
+    Element,
 };
 use zebra_lib::settings::language::Language;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
 
 use super::{error::ErrorPage, inverview::Interview, Page};
 
