@@ -9,7 +9,8 @@ use crate::{
 };
 use iced::{
     alignment::Horizontal,
-    widget::{pick_list, Space},
+    overlay::menu,
+    widget::{pick_list, scrollable, Space},
     Command, Length, Subscription,
 };
 use zebra_lib::settings::language::Language;
@@ -93,10 +94,14 @@ impl Page for Locale {
         )
         .text_size(20)
         .padding(5)
-        .width(220);
-        // .on_opened(LocaleMessage::Openned)
-        // .on_closed(LocaleMessage::Closed)
-        // .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        .width(220)
+        .style(pick_list::Style {
+            field: Box::new(zebra_ui::styles::pick_list::primary_field),
+            menu: menu::Style {
+                list: Box::new(zebra_ui::styles::menu::primary_menu),
+                scrollable: Box::new(scrollable::default),
+            },
+        });
 
         let zebra_print = zebra_ui::image::zebra_print_view();
         let title = Text::new(t!("welcome"))

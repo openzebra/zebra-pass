@@ -211,9 +211,9 @@ impl Application for GUI {
             Themes::Dark => Theme::Dark,
             Themes::Light => Theme::Light,
             Themes::Auto => match dark_light::detect() {
-                dark_light::Mode::Dark => Theme::Dark,
-                dark_light::Mode::Light => Theme::Light,
-                dark_light::Mode::Default => Theme::Dark,
+                dark_light::Mode::Dark => Theme::Dracula,
+                dark_light::Mode::Light => Theme::KanagawaDragon,
+                dark_light::Mode::Default => Theme::SolarizedDark,
             },
         }
     }
