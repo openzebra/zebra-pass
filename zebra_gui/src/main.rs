@@ -19,8 +19,8 @@ i18n!("zebra_gui/locales", fallback = "en");
 fn main() -> iced::Result {
     let window = window::Settings {
         size: Size {
-            width: 750.0,
-            height: 450.0,
+            width: 850.0,
+            height: 550.0,
         },
         resizable: false,
         icon: Some(zebra_ui::image::zebra_app_icon()),

@@ -5,6 +5,7 @@
 pub mod color;
 pub mod components;
 pub mod image;
+pub mod styles;
 
 pub mod widget {
     pub type Renderer = iced::Renderer;
