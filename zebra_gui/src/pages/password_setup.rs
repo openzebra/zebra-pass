@@ -24,6 +24,7 @@ use zebra_lib::{
     },
     errors::ZebraErrors,
 };
+use zebra_ui::config::PRINT_WIDTH;
 
 #[derive(Debug)]
 pub enum LastRoute {
@@ -298,7 +299,7 @@ impl Page for PasswordSetup {
     fn view(&self) -> Element<Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let title = Text::new(t!("setup_account_and_password"))

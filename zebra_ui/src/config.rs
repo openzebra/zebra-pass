@@ -1,7 +1,11 @@
 //! -- Copyright (c) 2024 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+
 pub const BORDER_RADIUS: f32 = 8.0;
+pub const WIN_WIDTH: f32 = 850.0;
+pub const WIN_HEIGHT: f32 = 550.0;
+pub const PRINT_WIDTH: f32 = WIN_WIDTH / 3.0;
 
 pub mod dark {
     use iced::{color, Color};

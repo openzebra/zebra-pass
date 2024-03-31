@@ -13,6 +13,7 @@ use iced::{
     Element,
 };
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_ui::config::PRINT_WIDTH;
 
 use super::{error::ErrorPage, locale::Locale, options::Options, Page};
 
@@ -98,7 +99,7 @@ impl Page for Interview {
     fn view(&self) -> Element<Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let row = Row::new()

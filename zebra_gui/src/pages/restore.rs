@@ -7,6 +7,7 @@ use zebra_lib::{
     core::core::Core,
     errors::ZebraErrors,
 };
+use zebra_ui::config::PRINT_WIDTH;
 
 use crate::{
     gui::{GlobalMessage, Routers},
@@ -223,7 +224,7 @@ impl Page for Restore {
     fn view(&self) -> Element<Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let title = Text::new(t!("restore_page_title"))

@@ -5,6 +5,7 @@ use iced::widget::{Button, Checkbox, Column, Container, Row, Text};
 use iced::{Alignment, Command, Element, Length, Subscription};
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
+use zebra_ui::config::PRINT_WIDTH;
 
 use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
 use crate::gui::{GlobalMessage, Routers};
@@ -115,7 +116,7 @@ impl Page for GenPhrase {
         .size(24);
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let forward_icon = zebra_ui::image::forward_icon()

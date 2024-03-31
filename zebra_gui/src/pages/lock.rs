@@ -12,6 +12,7 @@ use iced::{
 };
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use zebra_ui::components::circular;
+use zebra_ui::config::PRINT_WIDTH;
 
 use crate::gui::GlobalMessage;
 
@@ -204,7 +205,7 @@ impl Page for Lock {
             .align_items(iced::Alignment::Start);
         let lock_icon = zebra_ui::image::lock_icon().width(100).height(100);
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let payload_col = Column::new()

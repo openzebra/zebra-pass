@@ -14,6 +14,7 @@ use iced::{
 };
 use zebra_lib::settings::language::Language;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_ui::config::PRINT_WIDTH;
 
 use super::{error::ErrorPage, inverview::Interview, Page};
 
@@ -111,7 +112,7 @@ impl Page for Locale {
             .on_press(LocaleMessage::Next);
 
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let payload_col = Column::new()

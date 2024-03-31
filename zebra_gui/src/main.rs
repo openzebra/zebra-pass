@@ -8,6 +8,7 @@ use gui::GUI;
 use iced::{advanced::Application, window, Settings, Size};
 use rust_i18n::i18n;
 use zebra_lib::core::core::Core;
+use zebra_ui::config::{WIN_HEIGHT, WIN_WIDTH};
 
 mod components;
 mod error;
@@ -19,8 +20,8 @@ i18n!("zebra_gui/locales", fallback = "en");
 fn main() -> iced::Result {
     let window = window::Settings {
         size: Size {
-            width: 850.0,
-            height: 550.0,
+            width: WIN_WIDTH,
+            height: WIN_HEIGHT,
         },
         resizable: false,
         icon: Some(zebra_ui::image::zebra_app_icon()),
