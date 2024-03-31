@@ -36,7 +36,7 @@ pub fn outline_primary(theme: &Theme, status: Status) -> Appearance {
             background: Some(palette.primary.weak.color.into()),
             text_color: palette.background.base.color,
             border: Border {
-                color: palette.primary.weak.color,
+                color: palette.primary.base.color,
                 width: 1.0,
                 radius: BORDER_RADIUS.into(),
             },
