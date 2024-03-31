@@ -18,3 +18,13 @@ pub fn primary_hover(theme: &Theme, status: Status) -> Appearance {
         },
     }
 }
+
+pub fn bg_inverse(theme: &Theme, status: Status) -> Appearance {
+    let palette = theme.extended_palette();
+
+    match status {
+        _ => Appearance {
+            color: Some(palette.background.base.text),
+        },
+    }
+}

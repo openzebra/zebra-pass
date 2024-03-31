@@ -33,13 +33,12 @@ pub fn zebra_print_view() -> Svg<'static> {
         .height(Length::Fill)
         .width(Length::Shrink)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Inverse)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn bad_zebra_view() -> Svg<'static> {
     let h = Handle::from_memory(ZEBRA_BAD);
-    Svg::new(h)
-    // .style(svg::Svg::Normal)
+    Svg::new(h).style(super::styles::svg::bg_inverse)
 }
 
 pub fn bitwarden_logo_view() -> Svg<'static> {
@@ -48,7 +47,7 @@ pub fn bitwarden_logo_view() -> Svg<'static> {
         .height(Length::Fill)
         .width(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Inverse)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn close_eye_icon() -> Svg<'static> {
@@ -57,7 +56,7 @@ pub fn close_eye_icon() -> Svg<'static> {
         .height(Length::Fill)
         .width(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Primary)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn open_eye_icon() -> Svg<'static> {
@@ -75,7 +74,7 @@ pub fn zebra_logo_view() -> Svg<'static> {
         .height(Length::Fill)
         .width(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Inverse)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn zebra_app_icon() -> icon::Icon {
@@ -88,7 +87,7 @@ pub fn zebra_heat() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Inverse)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn zebra_hooves() -> Svg<'static> {
@@ -97,7 +96,7 @@ pub fn zebra_hooves() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Fill)
-    // .style(svg::Svg::Inverse)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn magic_icon() -> Svg<'static> {
@@ -106,7 +105,7 @@ pub fn magic_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Primary)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn add_icon() -> Svg<'static> {
@@ -115,7 +114,7 @@ pub fn add_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Primary)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn reload_icon() -> Svg<'static> {
@@ -124,7 +123,7 @@ pub fn reload_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Primary)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn copy_icon() -> Svg<'static> {
@@ -142,7 +141,7 @@ pub fn rust_logo() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Inverse)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn atom() -> Svg<'static> {
@@ -151,19 +150,21 @@ pub fn atom() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Inverse)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn lock_icon() -> Svg<'static> {
     let h = Handle::from_memory(LOCK_ICON);
-    Svg::new(h).content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Inverse)
+    Svg::new(h)
+        .content_fit(ContentFit::Cover)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn gear_icon() -> Svg<'static> {
     let h = Handle::from_memory(GEAR_ICON);
-    Svg::new(h).content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Inverse)
+    Svg::new(h)
+        .content_fit(ContentFit::Cover)
+        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn back_icon() -> Svg<'static> {
@@ -172,7 +173,7 @@ pub fn back_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Primary)
+        .style(super::styles::svg::primary_hover)
 }
 
 pub fn forward_icon() -> Svg<'static> {
