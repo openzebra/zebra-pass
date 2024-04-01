@@ -2,45 +2,32 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::advanced::layout;
-use iced::advanced::renderer::{self, Quad};
-use iced::advanced::widget::tree::{self, Tree};
-use iced::advanced::{self, Clipboard, Layout, Shell, Widget};
-use iced::event;
+use iced::advanced::renderer;
+use iced::advanced::widget::tree::Tree;
+use iced::advanced::{self, Layout, Widget};
 use iced::mouse;
-use iced::time::Instant;
-use iced::window::{self, RedrawRequest};
-use iced::{Background, Color, Element, Event, Length, Rectangle, Size};
+use iced::Element;
+use iced::Theme;
+use iced::{Background, Color, Length, Rectangle, Size};
 
-use super::easing::Easing;
-
-use std::time::Duration;
-
-pub struct Linear<Theme>
-where
-    Theme: StyleSheet,
-{
+pub struct Linear<'a, Theme> {
     width: Length,
     height: Length,
-    style: Theme::Style,
-    easing: Easing,
-    cycle_duration: Duration,
+    style: Style<'a, Theme>,
+    alfa: f32,
 }
 
-impl<'a, Theme> Linear<Theme>
-where
-    Theme: StyleSheet,
-{
+impl<'a, Theme> Linear<'a, Theme> {
     /// Creates a new [`Linear`] with the given content.
-    pub fn new() -> Self {
-        let easing = Easing::builder()
-            .cubic_bezier_to([0.2, 0.0], [0.0, 1.0], [1.0, 1.0])
-            .build();
+    pub fn new() -> Self
+    where
+        Theme: DefaultStyle + 'a,
+    {
         Linear {
-            easing,
             width: Length::Fixed(100.0),
             height: Length::Fixed(4.0),
-            style: Theme::Style::default(),
-            cycle_duration: Duration::from_millis(600),
+            style: Box::new(Theme::default_style),
+            alfa: 1.0,
         }
     }
 
@@ -56,107 +43,23 @@ where
         self
     }
 
-    /// Sets the style variant of this [`Linear`].
-    pub fn style(mut self, style: impl Into<Theme::Style>) -> Self {
-        self.style = style.into();
+    pub fn style(mut self, style: impl Fn(&Theme) -> Appearance + 'a) -> Self {
+        self.style = Box::new(style);
         self
     }
 
-    /// Sets the motion easing of this [`Linear`].
-    pub fn easing(mut self, easing: Easing) -> Self {
-        self.easing = easing;
-        self
-    }
+    pub fn alfa(mut self, alfa: f32) -> Self {
+        self.alfa = alfa;
 
-    /// Sets the cycle duration of this [`Linear`].
-    pub fn cycle_duration(mut self, duration: Duration) -> Self {
-        self.cycle_duration = duration / 2;
         self
     }
 }
 
-impl<'a, Theme> Default for Linear<Theme>
-where
-    Theme: StyleSheet,
-{
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-#[derive(Clone, Copy)]
-enum State {
-    Expanding { start: Instant, progress: f32 },
-    Contracting { start: Instant, progress: f32 },
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self::Expanding {
-            start: Instant::now(),
-            progress: 0.0,
-        }
-    }
-}
-
-impl State {
-    fn next(&self, now: Instant) -> Self {
-        match self {
-            Self::Expanding { .. } => Self::Contracting {
-                start: now,
-                progress: 0.0,
-            },
-            Self::Contracting { .. } => Self::Expanding {
-                start: now,
-                progress: 0.0,
-            },
-        }
-    }
-
-    fn start(&self) -> Instant {
-        match self {
-            Self::Expanding { start, .. } | Self::Contracting { start, .. } => *start,
-        }
-    }
-
-    fn timed_transition(&self, cycle_duration: Duration, now: Instant) -> Self {
-        let elapsed = now.duration_since(self.start());
-
-        match elapsed {
-            elapsed if elapsed > cycle_duration => self.next(now),
-            _ => self.with_elapsed(cycle_duration, elapsed),
-        }
-    }
-
-    fn with_elapsed(&self, cycle_duration: Duration, elapsed: Duration) -> Self {
-        let progress = elapsed.as_secs_f32() / cycle_duration.as_secs_f32();
-        match self {
-            Self::Expanding { start, .. } => Self::Expanding {
-                start: *start,
-                progress,
-            },
-            Self::Contracting { start, .. } => Self::Contracting {
-                start: *start,
-                progress,
-            },
-        }
-    }
-}
-
-impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Linear<Theme>
+impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Linear<'a, Theme>
 where
     Message: Clone + 'a,
-    Theme: StyleSheet + 'a,
     Renderer: advanced::Renderer + 'a,
 {
-    fn tag(&self) -> tree::Tag {
-        tree::Tag::of::<State>()
-    }
-
-    fn state(&self) -> tree::State {
-        tree::State::new(State::default())
-    }
-
     fn size(&self) -> Size<Length> {
         Size {
             width: self.width,
@@ -173,31 +76,9 @@ where
         layout::atomic(limits, self.width, self.height)
     }
 
-    fn on_event(
-        &mut self,
-        tree: &mut Tree,
-        event: Event,
-        _layout: Layout<'_>,
-        _cursor: mouse::Cursor,
-        _renderer: &Renderer,
-        _clipboard: &mut dyn Clipboard,
-        shell: &mut Shell<'_, Message>,
-        _viewport: &Rectangle,
-    ) -> event::Status {
-        let state = tree.state.downcast_mut::<State>();
-
-        if let Event::Window(_, window::Event::RedrawRequested(now)) = event {
-            *state = state.timed_transition(self.cycle_duration, now);
-
-            shell.request_redraw(RedrawRequest::NextFrame);
-        }
-
-        event::Status::Ignored
-    }
-
     fn draw(
         &self,
-        tree: &Tree,
+        _tree: &Tree,
         renderer: &mut Renderer,
         theme: &Theme,
         _style: &renderer::Style,
@@ -206,8 +87,9 @@ where
         _viewport: &Rectangle,
     ) {
         let bounds = layout.bounds();
-        let custom_style = theme.appearance(&self.style);
-        let state = tree.state.downcast_ref::<State>();
+        let mut styling = (self.style)(theme);
+
+        styling.bar_color.a = self.alfa;
 
         renderer.fill_quad(
             renderer::Quad {
@@ -219,85 +101,48 @@ where
                 },
                 ..renderer::Quad::default()
             },
-            Background::Color(custom_style.track_color),
+            Background::Color(styling.bar_color),
         );
-
-        match state {
-            State::Expanding { progress, .. } => renderer.fill_quad(
-                renderer::Quad {
-                    bounds: Rectangle {
-                        x: bounds.x,
-                        y: bounds.y,
-                        width: self.easing.y_at_x(*progress) * bounds.width,
-                        height: bounds.height,
-                    },
-                    ..renderer::Quad::default()
-                },
-                Background::Color(custom_style.bar_color),
-            ),
-
-            State::Contracting { progress, .. } => renderer.fill_quad(
-                Quad {
-                    bounds: Rectangle {
-                        x: bounds.x + self.easing.y_at_x(*progress) * bounds.width,
-                        y: bounds.y,
-                        width: (1.0 - self.easing.y_at_x(*progress)) * bounds.width,
-                        height: bounds.height,
-                    },
-                    ..renderer::Quad::default()
-                },
-                Background::Color(custom_style.bar_color),
-            ),
-        }
     }
 }
 
-impl<'a, Message, Theme, Renderer> From<Linear<Theme>> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme> From<Linear<'a, Theme>> for Element<'a, Message, Theme>
 where
     Message: Clone + 'a,
-    Theme: StyleSheet + 'a,
-    Renderer: iced::advanced::Renderer + 'a,
+    Theme: 'a,
 {
-    fn from(linear: Linear<Theme>) -> Self {
-        Self::new(linear)
+    fn from(button: Linear<'a, Theme>) -> Self {
+        Self::new(button)
     }
 }
+
+pub type Style<'a, Theme> = Box<dyn Fn(&Theme) -> Appearance + 'a>;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Appearance {
-    /// The track [`Color`] of the progress indicator.
-    pub track_color: Color,
-    /// The bar [`Color`] of the progress indicator.
     pub bar_color: Color,
 }
 
-impl Default for Appearance {
+impl std::default::Default for Appearance {
     fn default() -> Self {
         Self {
-            track_color: Color::TRANSPARENT,
             bar_color: Color::BLACK,
         }
     }
 }
 
-/// A set of rules that dictate the style of an indicator.
-pub trait StyleSheet {
-    /// The supported style of the [`StyleSheet`].
-    type Style: Default;
-
-    /// Produces the active [`Appearance`] of a indicator.
-    fn appearance(&self, style: &Self::Style) -> Appearance;
+pub trait DefaultStyle {
+    fn default_style(&self) -> Appearance;
 }
 
-impl StyleSheet for iced::Theme {
-    type Style = ();
+impl DefaultStyle for Theme {
+    fn default_style(&self) -> Appearance {
+        crate::styles::line::line_inverse(self)
+    }
+}
 
-    fn appearance(&self, _style: &Self::Style) -> Appearance {
-        let palette = self.extended_palette();
-
-        Appearance {
-            track_color: palette.background.weak.color,
-            bar_color: palette.primary.base.color,
-        }
+impl DefaultStyle for Appearance {
+    fn default_style(&self) -> Appearance {
+        *self
     }
 }

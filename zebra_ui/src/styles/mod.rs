@@ -4,6 +4,7 @@
 pub mod button;
 pub mod container;
 pub mod input;
+pub mod line;
 pub mod menu;
 pub mod pick_list;
 pub mod svg;
