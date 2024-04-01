@@ -39,8 +39,12 @@ pub fn primary(theme: &Theme, status: Status) -> Appearance {
             ..active
         },
         Status::Disabled => Appearance {
-            background: Background::Color(palette.primary.weak.color),
             value: active.placeholder,
+            border: Border {
+                radius: BORDER_RADIUS.into(),
+                width: 1.0,
+                color: disbaled_color(palette.primary.weak.color),
+            },
             ..active
         },
     }
@@ -106,4 +110,10 @@ pub fn transparent_primary(theme: &Theme, _status: Status) -> Appearance {
     };
 
     active
+}
+
+fn disbaled_color(mut color: Color) -> Color {
+    color.a = 0.5;
+
+    color
 }
