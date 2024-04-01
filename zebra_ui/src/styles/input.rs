@@ -85,3 +85,22 @@ pub fn danger(theme: &Theme, status: Status) -> Appearance {
         },
     }
 }
+
+pub fn transparent_primary(theme: &Theme, _status: Status) -> Appearance {
+    let palette = theme.extended_palette();
+
+    let active = Appearance {
+        background: Background::Color(Color::TRANSPARENT),
+        border: Border {
+            radius: 0.0.into(),
+            width: 0.0,
+            color: Color::TRANSPARENT,
+        },
+        icon: Color::TRANSPARENT,
+        placeholder: palette.background.weak.color,
+        value: palette.primary.base.color,
+        selection: Color::TRANSPARENT,
+    };
+
+    active
+}

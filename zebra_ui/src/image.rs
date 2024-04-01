@@ -123,7 +123,6 @@ pub fn reload_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-        .style(super::styles::svg::bg_inverse)
 }
 
 pub fn copy_icon() -> Svg<'static> {
@@ -132,7 +131,6 @@ pub fn copy_icon() -> Svg<'static> {
         .height(Length::Fill)
         .height(Length::Fill)
         .content_fit(ContentFit::Cover)
-    // .style(svg::Svg::Primary)
 }
 
 pub fn rust_logo() -> Svg<'static> {

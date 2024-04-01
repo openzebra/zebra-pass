@@ -9,7 +9,7 @@ use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
 use crate::components::home_nav_bar::{NavBar, NavRoute};
-use crate::components::smart_input::{SmartInput, SmartInputState};
+use crate::components::smart_input::SmartInput;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
 
@@ -22,9 +22,6 @@ use super::Page;
 #[derive(Debug)]
 pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
-    name_input_state: Arc<Mutex<SmartInputState>>,
-    username_input_state: Arc<Mutex<SmartInputState>>,
-    password_input_state: Arc<Mutex<SmartInputState>>,
 }
 
 #[derive(Debug, Clone)]
@@ -40,31 +37,26 @@ impl Page for AddRecordPage {
     type Message = AddRecordPageMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        let name_input_state = Arc::new(Mutex::new(SmartInputState {
-            secured: false,
-            placeholder: String::new(),
-            value: String::new(),
-            label: t!("add_form_name"),
-        }));
-        let username_input_state = Arc::new(Mutex::new(SmartInputState {
-            secured: false,
-            placeholder: String::new(),
-            value: String::new(),
-            label: t!("add_form_username"),
-        }));
-        let password_input_state = Arc::new(Mutex::new(SmartInputState {
-            secured: true,
-            placeholder: String::new(),
-            value: String::new(),
-            label: t!("add_form_password"),
-        }));
+        // let name_input_state = Arc::new(Mutex::new(SmartInputState {
+        //     secured: false,
+        //     placeholder: String::new(),
+        //     value: String::new(),
+        //     label: Some(t!("add_form_name")),
+        // }));
+        // let username_input_state = Arc::new(Mutex::new(SmartInputState {
+        //     secured: false,
+        //     placeholder: String::new(),
+        //     value: String::new(),
+        //     label: Some(t!("add_form_username")),
+        // }));
+        // let password_input_state = Arc::new(Mutex::new(SmartInputState {
+        //     secured: true,
+        //     placeholder: String::new(),
+        //     value: String::new(),
+        //     label: Some(t!("add_form_password")),
+        // }));
 
-        Ok(Self {
-            core,
-            name_input_state,
-            username_input_state,
-            password_input_state,
-        })
+        Ok(Self { core })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -154,14 +146,13 @@ impl AddRecordPage {
             .width(Length::Fill)
             .horizontal_alignment(iced::alignment::Horizontal::Left);
 
-        let name_input = SmartInput::new(Arc::clone(&self.name_input_state));
+        let name_input = SmartInput::new();
         let name_input = Container::new(name_input);
 
-        let username_input = SmartInput::new(Arc::clone(&self.username_input_state));
+        let username_input = SmartInput::new();
         let username_input = Container::new(username_input);
 
-        let password_input = SmartInput::new(Arc::clone(&self.password_input_state))
-            .set_reload(AddRecordPageMessage::ReloadPassword);
+        let password_input = SmartInput::new().set_reload(AddRecordPageMessage::ReloadPassword);
         let password_input = Container::new(password_input);
 
         let main_col = Column::new()

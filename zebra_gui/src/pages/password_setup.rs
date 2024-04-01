@@ -3,6 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use super::{error::ErrorPage, gen_phrase::GenPhrase, home::Home, restore::Restore, Page};
+use crate::components::smart_input::SmartInput;
 use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
@@ -37,8 +38,6 @@ pub struct PasswordSetup {
     pub last_route: LastRoute,
     error_msg: String,
     salt: String,
-    password: String,
-    confirm_password: String,
     email: String,
     approved: bool,
     server_sync: bool,
@@ -47,6 +46,8 @@ pub struct PasswordSetup {
     loading: bool,
     core: Arc<Mutex<Core>>,
     mnemonic: Option<Arc<Mnemonic>>,
+    password: String,
+    confirm_password: String,
 }
 
 #[derive(Debug, Clone)]
@@ -87,20 +88,22 @@ impl Page for PasswordSetup {
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let mnemonic = None;
         let last_route = LastRoute::Gen;
-        let password = String::new();
         let salt = String::new();
-        let confirm_password = String::new();
         let approved = false;
         let server_sync = true;
         let email_restore = true;
         let email = String::new();
         let enabled_salt = false;
-        let loading = false;
+        let loading = true;
         let error_msg = String::new();
+        let confirm_password = String::new();
+        let password = String::new();
 
         Ok(Self {
             email,
             loading,
+            password,
+            confirm_password,
             error_msg,
             enabled_salt,
             salt,
@@ -110,8 +113,6 @@ impl Page for PasswordSetup {
             approved,
             mnemonic,
             last_route,
-            password,
-            confirm_password,
         })
     }
 
@@ -442,34 +443,46 @@ impl PasswordSetup {
         let error_msg = Text::new(&self.error_msg)
             .style(zebra_ui::styles::text::danger)
             .size(14);
-        let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
-            .size(16)
-            .width(250)
-            .padding(8)
-            .style(zebra_ui::styles::input::primary)
-            .secure(true);
-        let mut confirm_passowrd =
-            text_input(&t!("placeholder_confirm_password"), &self.confirm_password)
-                .size(16)
-                .padding(8)
-                .width(250)
-                .style(zebra_ui::styles::input::primary)
-                .secure(true);
+        // let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
+        //     .size(16)
+        //     .width(250)
+        //     .padding(8)
+        //     .style(zebra_ui::styles::input::primary)
+        //     .secure(true);
+        // let mut confirm_passowrd =
+        //     text_input(&t!("placeholder_confirm_password"), &self.confirm_password)
+        //         .size(16)
+        //         .padding(8)
+        //         .width(250)
+        //         .style(zebra_ui::styles::input::primary)
+        //         .secure(true);
+
+        let mut passowrd_input = SmartInput::new()
+            .padding(10)
+            .set_secure(true)
+            .set_placeholder(t!("placeholder_password"));
+        let mut confirm_passowrd_input = SmartInput::new()
+            .padding(10)
+            .set_secure(true)
+            .set_placeholder(t!("placeholder_confirm_password"));
 
         if !self.loading {
-            passowrd = passowrd
+            passowrd_input = passowrd_input
                 .on_submit(PasswordSetupMessage::Next)
                 .on_input(PasswordSetupMessage::OnPasswordInputed);
 
-            confirm_passowrd = confirm_passowrd
+            confirm_passowrd_input = confirm_passowrd_input
                 .on_input(PasswordSetupMessage::OnConfirmPasswordInputed)
                 .on_submit(PasswordSetupMessage::Next);
         }
 
+        let passowrd_input = Container::new(passowrd_input).width(250);
+        let confirm_passowrd_input = Container::new(confirm_passowrd_input).width(250);
+
         let in_col = Column::new()
             .spacing(5)
-            .push(passowrd)
-            .push(confirm_passowrd);
+            .push(passowrd_input)
+            .push(confirm_passowrd_input);
         let check_box = Checkbox::new(t!("accept_privacy_policy"), self.approved)
             .on_toggle(PasswordSetupMessage::ApprovePolicy)
             .text_size(11);
