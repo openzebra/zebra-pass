@@ -8,6 +8,7 @@ use crate::pages::Page;
 use super::pages;
 use iced::advanced::Application;
 use iced::{executor, Command, Element, Theme};
+use zebra_lib::bip39::mnemonic::Mnemonic;
 use zebra_lib::{core::core, settings::appearance::Themes};
 
 #[derive(Debug)]
@@ -68,10 +69,13 @@ impl Application for GUI {
 
     fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
         let core = Arc::new(Mutex::new(arg));
-        // let tmp = pages::add_record::AddRecordPage::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        // let route = Routers::AddRecord(tmp);
-        let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let route = Routers::Loading(loader);
+        let mut tmp = pages::password_setup::PasswordSetup::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let mut rng = rand::thread_rng();
+        let m = Mnemonic::gen(&mut rng, 24, zebra_lib::bip39::mnemonic::Language::English).unwrap();
+        tmp.set_mnemonic(m);
+        let route = Routers::PasswordSetup(tmp);
+        // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        // let route = Routers::Loading(loader);
         let core_ref = Arc::clone(&core);
 
         (
