@@ -94,7 +94,7 @@ impl Page for PasswordSetup {
         let email_restore = true;
         let email = String::new();
         let enabled_salt = false;
-        let loading = true;
+        let loading = false;
         let error_msg = String::new();
         let confirm_password = String::new();
         let password = String::new();
@@ -443,20 +443,6 @@ impl PasswordSetup {
         let error_msg = Text::new(&self.error_msg)
             .style(zebra_ui::styles::text::danger)
             .size(14);
-        // let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
-        //     .size(16)
-        //     .width(250)
-        //     .padding(8)
-        //     .style(zebra_ui::styles::input::primary)
-        //     .secure(true);
-        // let mut confirm_passowrd =
-        //     text_input(&t!("placeholder_confirm_password"), &self.confirm_password)
-        //         .size(16)
-        //         .padding(8)
-        //         .width(250)
-        //         .style(zebra_ui::styles::input::primary)
-        //         .secure(true);
-
         let mut passowrd_input = SmartInput::new()
             .padding(10)
             .set_secure(true)

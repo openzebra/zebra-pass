@@ -18,6 +18,7 @@ where
     placeholder: String,
     value: String,
     label: Option<String>,
+    font_size: u16,
 }
 
 #[derive(Debug, Clone)]
@@ -38,9 +39,11 @@ where
         let placeholder = String::new();
         let value = String::new();
         let label = None;
+        let font_size = 14;
 
         Self {
             padding,
+            font_size,
             label,
             secured,
             value,
@@ -55,6 +58,12 @@ where
 
     pub fn set_secure(mut self, flag: bool) -> Self {
         self.secured = flag;
+
+        self
+    }
+
+    pub fn set_font_size(mut self, amount: u16) -> Self {
+        self.font_size = amount;
 
         self
     }
@@ -127,7 +136,7 @@ where
         _state: &Self::State,
     ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
         let mut input = text_input(&self.placeholder, &self.value)
-            .size(14)
+            .size(self.font_size)
             .padding(self.padding)
             .secure(self.secured && !self.showed_secure_flag)
             .style(zebra_ui::styles::input::transparent_primary);
@@ -152,7 +161,11 @@ where
             } else {
                 zebra_ui::image::close_eye_icon()
             }
-            .style(zebra_ui::styles::svg::primary_hover)
+            .style(if self.on_input.is_some() {
+                zebra_ui::styles::svg::primary_hover
+            } else {
+                zebra_ui::styles::svg::primary_disabled
+            })
             .height(25)
             .width(25);
             let eye_btn = Button::new(icon)
@@ -169,7 +182,11 @@ where
         if self.on_copy.is_some() {
             let copy_btn = Button::new(
                 zebra_ui::image::copy_icon()
-                    .style(zebra_ui::styles::svg::primary_hover)
+                    .style(if self.on_input.is_some() {
+                        zebra_ui::styles::svg::primary_hover
+                    } else {
+                        zebra_ui::styles::svg::primary_disabled
+                    })
                     .height(25)
                     .width(25),
             )
@@ -186,7 +203,11 @@ where
         if self.on_reload.is_some() {
             let reload_btn = Button::new(
                 zebra_ui::image::reload_icon()
-                    .style(zebra_ui::styles::svg::primary_hover)
+                    .style(if self.on_input.is_some() {
+                        zebra_ui::styles::svg::primary_hover
+                    } else {
+                        zebra_ui::styles::svg::primary_disabled
+                    })
                     .height(30)
                     .width(30),
             )
@@ -203,7 +224,11 @@ where
         row = row.push(Space::new(5, 0));
 
         Container::new(row)
-            .style(zebra_ui::styles::container::primary_bordered)
+            .style(if self.on_input.is_some() {
+                zebra_ui::styles::container::primary_bordered_hover
+            } else {
+                zebra_ui::styles::container::primary_bordered_disabled
+            })
             .into()
     }
 }

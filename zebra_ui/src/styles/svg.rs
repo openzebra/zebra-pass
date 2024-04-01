@@ -21,14 +21,13 @@ pub fn primary_hover(theme: &Theme, status: Status) -> Appearance {
 
 pub fn primary_disabled(theme: &Theme, status: Status) -> Appearance {
     let palette = theme.extended_palette();
+    let mut color = palette.primary.weak.color;
+
+    color.a = 0.5;
 
     match status {
-        Status::Idle => Appearance {
-            color: Some(palette.primary.weak.color),
-        },
-        Status::Hovered => Appearance {
-            color: Some(palette.primary.weak.color),
-        },
+        Status::Idle => Appearance { color: Some(color) },
+        Status::Hovered => Appearance { color: Some(color) },
     }
 }
 
