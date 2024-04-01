@@ -95,10 +95,15 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
 
     fn view_header(&self) -> Container<'a, Message> {
         let zebra_logo = Container::new(zebra_ui::image::zebra_logo_view()).width(125);
-        let add_btn = Button::new(zebra_ui::image::add_icon().height(30).width(30))
-            .padding(0)
-            .style(zebra_ui::styles::button::transparent)
-            .on_press_maybe(self.on_add.clone());
+        let add_btn = Button::new(
+            zebra_ui::image::add_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press_maybe(self.on_add.clone());
         let row_btns = Row::new()
             .push(add_btn)
             .height(Length::Fill)
