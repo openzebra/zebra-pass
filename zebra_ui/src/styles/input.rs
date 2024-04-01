@@ -8,8 +8,8 @@ use crate::config::BORDER_RADIUS;
 
 pub fn primary(theme: &Theme, status: Status) -> Appearance {
     let palette = theme.extended_palette();
-
     let active = Appearance {
+        selection: disbaled_color(palette.primary.weak.color),
         background: Background::Color(Color::TRANSPARENT),
         border: Border {
             radius: BORDER_RADIUS.into(),
@@ -19,7 +19,6 @@ pub fn primary(theme: &Theme, status: Status) -> Appearance {
         icon: palette.primary.weak.text,
         placeholder: palette.background.weak.color,
         value: palette.background.base.text,
-        selection: palette.primary.weak.color,
     };
 
     match status {
@@ -52,8 +51,10 @@ pub fn primary(theme: &Theme, status: Status) -> Appearance {
 
 pub fn danger(theme: &Theme, status: Status) -> Appearance {
     let palette = theme.extended_palette();
-
+    let mut selection = palette.danger.weak.color;
+    selection.a = 0.5;
     let active = Appearance {
+        selection,
         background: Background::Color(Color::TRANSPARENT),
         border: Border {
             radius: BORDER_RADIUS.into(),
@@ -63,7 +64,6 @@ pub fn danger(theme: &Theme, status: Status) -> Appearance {
         icon: palette.danger.weak.text,
         placeholder: palette.danger.weak.color,
         value: palette.danger.base.color,
-        selection: palette.danger.weak.color,
     };
 
     match status {
@@ -92,8 +92,8 @@ pub fn danger(theme: &Theme, status: Status) -> Appearance {
 
 pub fn transparent_primary(theme: &Theme, _status: Status) -> Appearance {
     let palette = theme.extended_palette();
-
     let active = Appearance {
+        selection: disbaled_color(palette.primary.weak.color),
         placeholder: disbaled_color(palette.primary.base.color),
         background: Background::Color(Color::TRANSPARENT),
         border: Border {
@@ -103,7 +103,6 @@ pub fn transparent_primary(theme: &Theme, _status: Status) -> Appearance {
         },
         icon: Color::TRANSPARENT,
         value: palette.primary.base.color,
-        selection: Color::TRANSPARENT,
     };
 
     active
@@ -111,8 +110,8 @@ pub fn transparent_primary(theme: &Theme, _status: Status) -> Appearance {
 
 pub fn transparent_danger(theme: &Theme, _status: Status) -> Appearance {
     let palette = theme.extended_palette();
-
     let active = Appearance {
+        selection: disbaled_color(palette.danger.weak.color),
         placeholder: disbaled_color(palette.danger.base.color),
         background: Background::Color(Color::TRANSPARENT),
         border: Border {
@@ -122,7 +121,6 @@ pub fn transparent_danger(theme: &Theme, _status: Status) -> Appearance {
         },
         icon: Color::TRANSPARENT,
         value: palette.danger.base.color,
-        selection: Color::TRANSPARENT,
     };
 
     active

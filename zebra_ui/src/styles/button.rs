@@ -17,6 +17,40 @@ pub fn transparent(_theme: &Theme, status: Status) -> Appearance {
     }
 }
 
+pub fn primary(theme: &Theme, status: Status) -> Appearance {
+    let palette = theme.extended_palette();
+    let base = Appearance {
+        background: Some(palette.primary.strong.color.into()),
+        text_color: palette.background.base.text,
+        border: Border {
+            color: palette.primary.weak.color,
+            width: 1.0,
+            radius: BORDER_RADIUS.into(),
+        },
+        shadow: Default::default(),
+    };
+
+    match status {
+        Status::Active => Appearance { ..base },
+        Status::Pressed => Appearance {
+            background: Some(palette.primary.strong.color.into()),
+            text_color: palette.background.base.text,
+            border: Border {
+                color: palette.primary.weak.color,
+                width: 1.0,
+                radius: BORDER_RADIUS.into(),
+            },
+            ..base
+        },
+        Status::Hovered => Appearance {
+            background: Some(palette.primary.strong.color.into()),
+            text_color: palette.background.base.text,
+            ..base
+        },
+        Status::Disabled => disabled(base),
+    }
+}
+
 pub fn outline_primary(theme: &Theme, status: Status) -> Appearance {
     let palette = theme.extended_palette();
     let base = Appearance {

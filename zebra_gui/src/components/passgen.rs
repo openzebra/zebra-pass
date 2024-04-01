@@ -127,16 +127,26 @@ where
             .size(16)
             .padding(8)
             .width(250)
-            // .style(zebra_ui::style::text_input::TextInput::Transparent)
+            .style(zebra_ui::styles::input::transparent_primary)
             .on_input(Event::InputEmpty);
-        let reload_btn = Button::new(zebra_ui::image::reload_icon().height(30).width(30))
-            .padding(0)
-            // .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(Event::Refresh);
-        let copy_btn = Button::new(zebra_ui::image::copy_icon().height(25).width(25))
-            .padding(0)
-            // .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(Event::Copy);
+        let reload_btn = Button::new(
+            zebra_ui::image::reload_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(Event::Refresh);
+        let copy_btn = Button::new(
+            zebra_ui::image::copy_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(25)
+                .width(25),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(Event::Copy);
 
         let box_row: Row<'_, Event> = Row::new()
             .align_items(iced::Alignment::Center)
@@ -144,7 +154,7 @@ where
             .push(entropy)
             .push(reload_btn);
         let border_box = Container::new(box_row)
-            // .style(zebra_ui::style::container::Container::SecondaryRoundedBox)
+            .style(zebra_ui::styles::container::primary_bordered)
             .padding(16);
         let col = Column::new().push(border_box);
 
@@ -153,11 +163,8 @@ where
 
     fn short_text(&self) -> String {
         let state = self.state.lock().unwrap(); // TODO: remove unwrap..
-        if state.value.len() > 22 {
-            format!("{}...", &state.value[..22])
-        } else {
-            state.value.clone()
-        }
+
+        state.value.clone()
     }
 }
 
