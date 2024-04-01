@@ -26,6 +26,7 @@ pub enum Event {
     Copy,
     Reload,
     ShowHideSecure,
+    HandleSubmit,
     HandleInput(String),
 }
 
@@ -136,6 +137,7 @@ where
                     None
                 }
             }
+            Event::HandleSubmit => self.on_submit.clone(),
         }
     }
 
@@ -151,6 +153,9 @@ where
 
         if self.on_input.is_some() {
             input = input.on_input(Event::HandleInput);
+        }
+        if self.on_submit.is_some() {
+            input = input.on_submit(Event::HandleSubmit);
         }
 
         let col = if let Some(label) = &self.label {
