@@ -444,10 +444,12 @@ impl PasswordSetup {
             .style(zebra_ui::styles::text::danger)
             .size(14);
         let mut passowrd_input = SmartInput::new()
+            .set_value(&self.password)
             .padding(10)
             .set_secure(true)
             .set_placeholder(t!("placeholder_password"));
         let mut confirm_passowrd_input = SmartInput::new()
+            .set_value(&self.confirm_password)
             .padding(10)
             .set_secure(true)
             .set_placeholder(t!("placeholder_confirm_password"));

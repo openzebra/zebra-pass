@@ -16,7 +16,7 @@ where
     padding: u16,
     secured: bool,
     placeholder: String,
-    value: String,
+    value: &'a str,
     label: Option<String>,
     font_size: u16,
 }
@@ -37,7 +37,7 @@ where
         let padding = 0;
         let secured = false;
         let placeholder = String::new();
-        let value = String::new();
+        let value = "";
         let label = None;
         let font_size = 14;
 
@@ -105,6 +105,12 @@ where
 
         self
     }
+
+    pub fn set_value(mut self, value: &'a str) -> Self {
+        self.value = value;
+
+        self
+    }
 }
 
 impl<'a, Message> Component<Message, Theme, Renderer> for SmartInput<'a, Message>
@@ -124,9 +130,11 @@ where
                 None
             }
             Event::HandleInput(v) => {
-                self.value = v;
-
-                None
+                if let Some(cb) = &self.on_input {
+                    Some(cb(v))
+                } else {
+                    None
+                }
             }
         }
     }
