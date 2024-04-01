@@ -19,6 +19,7 @@ where
     value: &'a str,
     label: Option<String>,
     font_size: u16,
+    danger: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -41,9 +42,11 @@ where
         let value = "";
         let label = None;
         let font_size = 14;
+        let danger = false;
 
         Self {
             padding,
+            danger,
             font_size,
             label,
             secured,
@@ -112,6 +115,12 @@ where
 
         self
     }
+
+    pub fn set_danger(mut self, is_danger: bool) -> Self {
+        self.danger = is_danger;
+
+        self
+    }
 }
 
 impl<'a, Message> Component<Message, Theme, Renderer> for SmartInput<'a, Message>
@@ -149,7 +158,11 @@ where
             .size(self.font_size)
             .padding(self.padding)
             .secure(self.secured && !self.showed_secure_flag)
-            .style(zebra_ui::styles::input::transparent_primary);
+            .style(if self.danger {
+                zebra_ui::styles::input::transparent_danger
+            } else {
+                zebra_ui::styles::input::transparent_primary
+            });
 
         if self.on_input.is_some() {
             input = input.on_input(Event::HandleInput);
@@ -237,10 +250,18 @@ where
         row = row.push(Space::new(5, 0));
 
         Container::new(row)
-            .style(if self.on_input.is_some() {
-                zebra_ui::styles::container::primary_bordered_hover
+            .style(if self.danger {
+                if self.on_input.is_some() {
+                    zebra_ui::styles::container::danger_bordered_hover
+                } else {
+                    zebra_ui::styles::container::danger_bordered_disabled
+                }
             } else {
-                zebra_ui::styles::container::primary_bordered_disabled
+                if self.on_input.is_some() {
+                    zebra_ui::styles::container::primary_bordered_hover
+                } else {
+                    zebra_ui::styles::container::primary_bordered_disabled
+                }
             })
             .into()
     }

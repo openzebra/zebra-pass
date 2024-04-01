@@ -4,6 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
+use crate::components::smart_input::SmartInput;
 use crate::{gui::Routers, rust_i18n::t};
 use iced::widget::{text_input, Button, Column, Container, Row, Space, Text};
 use iced::Element;
@@ -22,7 +23,6 @@ use super::{error::ErrorPage, home::Home, options::Options, Page};
 pub struct Lock {
     core: Arc<Mutex<Core>>,
     password: String,
-    show: bool,
     loading: bool,
     loaded: bool,
     err_message: String,
@@ -52,7 +52,6 @@ impl Page for Lock {
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let password = String::new();
-        let show = false;
         let loading = false;
         let loaded = false;
         let err_message = String::new();
@@ -65,7 +64,6 @@ impl Page for Lock {
             loaded,
             loading,
             password,
-            show,
         })
     }
 
@@ -153,24 +151,23 @@ impl Page for Lock {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let error_message = Text::new(&self.err_message)
             .size(14)
-            // .style(zebra_ui::style::text::Text::Dabger)
+            .style(zebra_ui::styles::text::danger)
             .horizontal_alignment(Horizontal::Center);
-        let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
-            .size(16)
-            .padding(8)
-            .width(250)
-            // .style(zebra_ui::style::text_input::TextInput::Primary)
-            .id(self.input_id.clone());
+        let mut passowrd_input = SmartInput::new()
+            .set_value(&self.password)
+            .padding(10)
+            .set_danger(!self.err_message.is_empty())
+            .set_font_size(14)
+            .set_secure(true)
+            .set_placeholder(t!("placeholder_password"));
 
         if !self.loading {
-            passowrd = passowrd
+            passowrd_input = passowrd_input
                 .on_input(LockMessage::OnPasswordInput)
                 .on_submit(LockMessage::OnSubmit);
         }
-        if !self.show {
-            passowrd = passowrd.secure(true);
-        }
 
+        let passowrd_input = Container::new(passowrd_input).width(250);
         let submit_btn = Button::new(
             Text::new(t!("unlock_btn"))
                 .horizontal_alignment(Horizontal::Center)
@@ -180,7 +177,7 @@ impl Page for Lock {
         .padding(8)
         .width(250)
         .height(38)
-        // .style(zebra_ui::style::button::Button::OutlinePrimary)
+        .style(zebra_ui::styles::button::outline_primary)
         .on_press(LockMessage::OnSubmit);
         let loading_btn = Button::new(
             Column::new()
@@ -190,10 +187,10 @@ impl Page for Lock {
         )
         .padding(8)
         .height(38)
-        // .style(zebra_ui::style::button::Button::OutlinePrimary)
+        .style(zebra_ui::styles::button::outline_primary)
         .width(250);
         let options_btn = Button::new(Text::new(t!("restore_or_create")).size(14))
-            // .style(zebra_ui::style::button::Button::Ref)
+            .style(zebra_ui::styles::button::ref_primary)
             .on_press_maybe(if self.loading {
                 None
             } else {
@@ -217,7 +214,7 @@ impl Page for Lock {
             .push(Space::new(0.0, 16.0))
             .push(error_message)
             .push(Space::new(0.0, 5.0))
-            .push(passowrd)
+            .push(passowrd_input)
             .push(Space::new(0.0, 5.0))
             .push(match self.loading {
                 false => submit_btn,

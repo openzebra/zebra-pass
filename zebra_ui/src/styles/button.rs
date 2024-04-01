@@ -51,6 +51,33 @@ pub fn outline_primary(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
+pub fn ref_primary(theme: &Theme, status: Status) -> Appearance {
+    let palette = theme.extended_palette();
+    let base = Appearance {
+        background: Some(Color::TRANSPARENT.into()),
+        text_color: palette.primary.strong.color,
+        border: Border {
+            color: Color::TRANSPARENT,
+            width: 0.0,
+            radius: 0.0.into(),
+        },
+        shadow: Default::default(),
+    };
+
+    match status {
+        Status::Active => Appearance { ..base },
+        Status::Pressed => Appearance {
+            text_color: palette.primary.weak.color,
+            ..base
+        },
+        Status::Hovered => Appearance {
+            text_color: palette.primary.weak.color,
+            ..base
+        },
+        Status::Disabled => disabled(base),
+    }
+}
+
 fn disabled(appearance: Appearance) -> Appearance {
     Appearance {
         background: appearance

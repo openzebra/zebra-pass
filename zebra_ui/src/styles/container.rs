@@ -61,3 +61,45 @@ pub fn primary_bordered(theme: &Theme, _status: Status) -> Appearance {
         ..Appearance::default()
     }
 }
+
+pub fn danger_bordered_hover(theme: &Theme, status: Status) -> Appearance {
+    let palette = theme.extended_palette();
+
+    match status {
+        Status::Idle => Appearance {
+            background: Some(Color::TRANSPARENT.into()),
+            border: Border {
+                width: 1.0,
+                radius: BORDER_RADIUS.into(),
+                color: palette.danger.weak.color,
+            },
+            ..Appearance::default()
+        },
+        Status::Hovered => Appearance {
+            background: Some(Color::TRANSPARENT.into()),
+            border: Border {
+                width: 1.0,
+                radius: BORDER_RADIUS.into(),
+                color: palette.danger.strong.color,
+            },
+            ..Appearance::default()
+        },
+    }
+}
+
+pub fn danger_bordered_disabled(theme: &Theme, _status: Status) -> Appearance {
+    let palette = theme.extended_palette();
+    let mut color = palette.danger.base.color;
+
+    color.a = 0.5;
+
+    Appearance {
+        background: Some(Color::TRANSPARENT.into()),
+        border: Border {
+            color,
+            width: 1.0,
+            radius: BORDER_RADIUS.into(),
+        },
+        ..Appearance::default()
+    }
+}
