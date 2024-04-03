@@ -12,6 +12,14 @@ pub fn line_inverse(theme: &Theme) -> Appearance {
     }
 }
 
+pub fn line_secondary(theme: &Theme) -> Appearance {
+    let palette = theme.extended_palette();
+
+    Appearance {
+        bar_color: palette.secondary.base.color,
+    }
+}
+
 pub fn line_transparent(_theme: &Theme) -> Appearance {
     Appearance {
         bar_color: Color::TRANSPARENT,

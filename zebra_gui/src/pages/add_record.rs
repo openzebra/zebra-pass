@@ -8,7 +8,7 @@ use iced::widget::{Column, Container, Row, Text};
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
-use crate::components::home_nav_bar::{NavBar, NavRoute};
+use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::smart_input::SmartInput;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
@@ -37,25 +37,6 @@ impl Page for AddRecordPage {
     type Message = AddRecordPageMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        // let name_input_state = Arc::new(Mutex::new(SmartInputState {
-        //     secured: false,
-        //     placeholder: String::new(),
-        //     value: String::new(),
-        //     label: Some(t!("add_form_name")),
-        // }));
-        // let username_input_state = Arc::new(Mutex::new(SmartInputState {
-        //     secured: false,
-        //     placeholder: String::new(),
-        //     value: String::new(),
-        //     label: Some(t!("add_form_username")),
-        // }));
-        // let password_input_state = Arc::new(Mutex::new(SmartInputState {
-        //     secured: true,
-        //     placeholder: String::new(),
-        //     value: String::new(),
-        //     label: Some(t!("add_form_password")),
-        // }));
-
         Ok(Self { core })
     }
 
@@ -119,9 +100,9 @@ impl Page for AddRecordPage {
         let login_form = self.login_form();
         let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(1.0))
-            .height(Length::Fill);
-        // .alfa(LINE_ALFA_CHANNEL)
-        // .style(zebra_ui::components::line::LineStyleSheet::Secondary);
+            .height(Length::Fill)
+            .style(zebra_ui::styles::line::line_secondary)
+            .alfa(LINE_ALFA_CHANNEL);
         let left_search_col = Column::new().height(Length::Fill).width(200);
         let content_row = Row::new()
             .push(left_search_col)

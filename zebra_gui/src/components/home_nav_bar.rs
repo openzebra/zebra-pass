@@ -68,22 +68,16 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
         let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)
-            .style(zebra_ui::styles::line::line_inverse)
-            .alfa(LINE_ALFA_CHANNEL);
-        let vline1 = zebra_ui::components::line::Linear::new()
-            .width(Length::Fixed(1.0))
-            .height(Length::Fill)
-            .style(zebra_ui::styles::line::line_inverse)
+            .style(zebra_ui::styles::line::line_secondary)
             .alfa(LINE_ALFA_CHANNEL);
         let hline = zebra_ui::components::line::Linear::new()
             .height(Length::Fixed(1.0))
             .width(Length::Fill)
-            .style(zebra_ui::styles::line::line_inverse)
+            .style(zebra_ui::styles::line::line_secondary)
             .alfa(LINE_ALFA_CHANNEL);
 
         let main_row = Row::new()
             .push(self.view_left_nav_bar())
-            .push(vline1)
             .push(vline)
             .push(content);
         let main_col = Column::new().push(header).push(hline).push(main_row);
