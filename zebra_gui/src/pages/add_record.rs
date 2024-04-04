@@ -9,6 +9,7 @@ use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
+use crate::components::select_list;
 use crate::components::smart_input::SmartInput;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
@@ -20,8 +21,14 @@ use super::settings::Settings;
 use super::Page;
 
 #[derive(Debug)]
+pub enum Categories {
+    Login,
+}
+
+#[derive(Debug)]
 pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
+    categories: Vec<select_list::SelectListField<Categories>>,
 }
 
 #[derive(Debug, Clone)]
@@ -30,6 +37,7 @@ pub enum AddRecordPageMessage {
     RouteHome,
     RouteSettings,
     ReloadPassword,
+    HanldeSelectCategory(usize),
     HanldeInputName(String),
 }
 
@@ -37,7 +45,22 @@ impl Page for AddRecordPage {
     type Message = AddRecordPageMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        Ok(Self { core })
+        let categories = vec![
+            select_list::SelectListField {
+                text: String::from("test"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fsdfds"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fdgf89h"),
+                value: Categories::Login,
+            },
+        ];
+
+        Ok(Self { core, categories })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -93,6 +116,10 @@ impl Page for AddRecordPage {
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
+            AddRecordPageMessage::HanldeSelectCategory(index) => {
+                dbg!(index);
+                Command::none()
+            }
         }
     }
 
@@ -103,11 +130,17 @@ impl Page for AddRecordPage {
             .height(Length::Fill)
             .style(zebra_ui::styles::line::line_secondary)
             .alfa(LINE_ALFA_CHANNEL);
-        let left_search_col = Column::new().height(Length::Fill).width(200);
-        let content_row = Row::new()
-            .push(left_search_col)
-            .push(vline)
-            .push(login_form);
+        let categories = select_list::SelectList::from(&self.categories)
+            .on_select(AddRecordPageMessage::HanldeSelectCategory)
+            .set_gap(5)
+            .set_line_gap(10)
+            .set_field_padding(8);
+        let categories = Container::new(categories);
+        let left_col = Column::new()
+            .height(Length::Fill)
+            .width(200)
+            .push(categories);
+        let content_row = Row::new().push(left_col).push(vline).push(login_form);
         let main_container = Container::new(content_row).width(Length::Fill);
 
         NavBar::<Self::Message>::new()
