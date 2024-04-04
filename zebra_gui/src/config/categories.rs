@@ -2,7 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Categories {
     Login,
     CryptoWallet,
@@ -21,7 +21,7 @@ impl std::fmt::Display for Categories {
         let text = match self {
             Categories::Login => "login",
             Categories::CreditCard => "credit_card",
-            Categories::CryptoWallet => "secure_note",
+            Categories::CryptoWallet => "secure_wallet",
             Categories::Identity => "identity",
             Categories::BankAccount => "bank_account",
             Categories::EmailAccount => "email_account",

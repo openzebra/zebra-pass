@@ -26,6 +26,7 @@ pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
     categories: Vec<select_list::SelectListField<Categories>>,
     selected: Categories,
+    selected_index: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -40,23 +41,53 @@ impl Page for AddRecordPage {
     type Message = AddRecordPageMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
+        let selected_index = 0;
         let categories = vec![
             select_list::SelectListField {
-                text: String::from("test"),
+                text: t!(&format!("item_{}", Categories::Login)),
                 value: Categories::Login,
             },
             select_list::SelectListField {
-                text: String::from("fsdfds"),
-                value: Categories::Login,
+                text: t!(&format!("item_{}", Categories::CryptoWallet)),
+                value: Categories::CryptoWallet,
             },
             select_list::SelectListField {
-                text: String::from("fdgf89h"),
-                value: Categories::Login,
+                text: t!(&format!("item_{}", Categories::CreditCard)),
+                value: Categories::CreditCard,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::Identity)),
+                value: Categories::Identity,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::BankAccount)),
+                value: Categories::BankAccount,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::EmailAccount)),
+                value: Categories::EmailAccount,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::Passport)),
+                value: Categories::Passport,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::DriverLicense)),
+                value: Categories::DriverLicense,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::WifiPassword)),
+                value: Categories::WifiPassword,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::Other)),
+                value: Categories::Other,
             },
         ];
         let selected = Categories::Login;
 
         Ok(Self {
+            selected_index,
             core,
             categories,
             selected,
@@ -106,7 +137,14 @@ impl Page for AddRecordPage {
                 }
             },
             AddRecordPageMessage::HanldeSelectCategories(index) => {
-                dbg!(index);
+                match self.categories.get(index) {
+                    Some(v) => {
+                        self.selected_index = index;
+                        self.selected = v.value.clone();
+                    }
+                    None => {}
+                };
+
                 Command::none()
             }
         }
@@ -121,16 +159,15 @@ impl Page for AddRecordPage {
             .alfa(LINE_ALFA_CHANNEL);
         let categories = select_list::SelectList::from(&self.categories)
             .on_select(AddRecordPageMessage::HanldeSelectCategories)
-            .set_gap(5)
+            .set_selected_index(self.selected_index)
+            .set_text_horizontal_alignmen(iced::alignment::Horizontal::Left)
             .set_line_gap(10)
             .set_field_padding(8);
         let categories = Container::new(categories);
         let left_col = Column::new()
             .height(Length::Fill)
             .width(200)
-            .push(Space::new(0, 5))
-            .push(categories)
-            .push(Space::new(0, 5));
+            .push(categories);
         let content_row = Row::new().push(left_col).push(vline).push(login_form);
         let main_container = Container::new(content_row).width(Length::Fill);
 
@@ -146,7 +183,7 @@ impl Page for AddRecordPage {
 
 impl AddRecordPage {
     pub fn login_form(&self) -> Container<AddRecordPageMessage> {
-        let title = Text::new(t!("add_form_title"))
+        let title = Text::new(t!(&format!("title_item_{}", &self.selected)))
             .size(16)
             .width(Length::Fill)
             .horizontal_alignment(iced::alignment::Horizontal::Left);

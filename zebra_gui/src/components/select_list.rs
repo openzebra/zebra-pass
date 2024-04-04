@@ -19,9 +19,10 @@ where
     on_select: Option<Box<dyn Fn(usize) -> Message + 'a>>,
     field_padding: u16,
     font_size: u16,
-    gap: u16,
     line_gap: u16,
     fields: &'a [SelectListField<Data>],
+    text_horizontal_alignmen: iced::alignment::Horizontal,
+    selected_index: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -38,15 +39,24 @@ where
         let font_size = 14;
         let gap = 0;
         let line_gap = 5;
+        let selected_index = 0;
+        let text_horizontal_alignmen = iced::alignment::Horizontal::Center;
 
         Self {
+            selected_index,
+            text_horizontal_alignmen,
             fields,
             line_gap,
-            gap,
             field_padding,
             font_size,
             on_select: None,
         }
+    }
+
+    pub fn set_text_horizontal_alignmen(mut self, alignment: iced::alignment::Horizontal) -> Self {
+        self.text_horizontal_alignmen = alignment;
+
+        self
     }
 
     pub fn set_font_size(mut self, amount: u16) -> Self {
@@ -55,14 +65,14 @@ where
         self
     }
 
-    pub fn set_gap(mut self, amount: u16) -> Self {
-        self.gap = amount;
+    pub fn set_line_gap(mut self, amount: u16) -> Self {
+        self.line_gap = amount;
 
         self
     }
 
-    pub fn set_line_gap(mut self, amount: u16) -> Self {
-        self.line_gap = amount;
+    pub fn set_selected_index(mut self, index: usize) -> Self {
+        self.selected_index = index;
 
         self
     }
@@ -114,7 +124,7 @@ where
                 let hline = zebra_ui::components::line::Linear::new()
                     .height(Length::Fixed(0.5))
                     .width(Length::Fill)
-                    .style(if i != self.fields.len() - 1 {
+                    .style(if i != self.fields.len() - 1 && self.selected_index != i {
                         zebra_ui::styles::line::line_secondary
                     } else {
                         zebra_ui::styles::line::line_transparent
@@ -124,15 +134,20 @@ where
                     .push(Space::new(self.line_gap, 0))
                     .push(hline)
                     .push(Space::new(self.line_gap, 0));
+
                 Column::new()
                     .push(
                         Button::new(
                             Text::new(&data.text)
-                                .horizontal_alignment(iced::alignment::Horizontal::Center)
+                                .horizontal_alignment(self.text_horizontal_alignmen)
                                 .width(Length::Fill),
                         )
                         .padding(self.field_padding)
-                        .style(zebra_ui::styles::button::ref_primary)
+                        .style(if self.selected_index == i {
+                            zebra_ui::styles::button::primary_rude
+                        } else {
+                            zebra_ui::styles::button::ref_primary
+                        })
                         .width(Length::Fill)
                         .on_press(Event::HandleSelect(i)),
                     )
@@ -140,9 +155,7 @@ where
                     .into()
             })
             .collect();
-        let ul = Column::with_children(fields)
-            .spacing(self.gap)
-            .align_items(iced::Alignment::Center);
+        let ul = Column::with_children(fields).align_items(iced::Alignment::Center);
         let scrolling = Scrollable::new(ul)
             .height(Length::Fill)
             .style(zebra_ui::styles::scrollable::scroll_transparent);

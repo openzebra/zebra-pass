@@ -17,6 +17,14 @@ pub fn transparent(_theme: &Theme, status: Status) -> Appearance {
     }
 }
 
+pub fn primary_rude(theme: &Theme, status: Status) -> Appearance {
+    let mut base = primary(theme, status);
+
+    base.border.radius = 0.0.into();
+
+    Appearance { ..base }
+}
+
 pub fn primary(theme: &Theme, status: Status) -> Appearance {
     let palette = theme.extended_palette();
     let base = Appearance {
