@@ -4,7 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use iced::widget::{Column, Container, Row, Text};
+use iced::widget::{Column, Container, Row, Space, Text};
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
@@ -46,6 +46,66 @@ impl Page for AddRecordPage {
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let categories = vec![
+            select_list::SelectListField {
+                text: String::from("test"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fsdfds"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fdgf89h"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("test"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fsdfds"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fdgf89h"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("test"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fsdfds"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fdgf89h"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("test"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fsdfds"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fdgf89h"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("test"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fsdfds"),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: String::from("fdgf89h"),
+                value: Categories::Login,
+            },
             select_list::SelectListField {
                 text: String::from("test"),
                 value: Categories::Login,
@@ -139,7 +199,9 @@ impl Page for AddRecordPage {
         let left_col = Column::new()
             .height(Length::Fill)
             .width(200)
-            .push(categories);
+            .push(Space::new(0, 5))
+            .push(categories)
+            .push(Space::new(0, 5));
         let content_row = Row::new().push(left_col).push(vline).push(login_form);
         let main_container = Container::new(content_row).width(Length::Fill);
 

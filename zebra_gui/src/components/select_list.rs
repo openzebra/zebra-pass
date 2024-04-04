@@ -1,7 +1,7 @@
 //! -- Copyright (c) 2024 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use iced::widget::{component, Button, Column, Component, Container, Row, Space, Text};
+use iced::widget::{component, Button, Column, Component, Container, Row, Scrollable, Space, Text};
 use iced::{Element, Length, Renderer, Theme};
 
 use super::home_nav_bar::LINE_ALFA_CHANNEL;
@@ -143,8 +143,11 @@ where
         let ul = Column::with_children(fields)
             .spacing(self.gap)
             .align_items(iced::Alignment::Center);
+        let scrolling = Scrollable::new(ul)
+            .height(Length::Fill)
+            .style(zebra_ui::styles::scrollable::scroll_transparent);
 
-        Container::new(ul).into()
+        Container::new(scrolling).into()
     }
 }
 

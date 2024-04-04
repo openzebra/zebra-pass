@@ -7,5 +7,6 @@ pub mod input;
 pub mod line;
 pub mod menu;
 pub mod pick_list;
+pub mod scrollable;
 pub mod svg;
 pub mod text;
