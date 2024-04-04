@@ -7,6 +7,7 @@ use zebra_lib::{
     core::core::Core,
     errors::ZebraErrors,
 };
+use zebra_ui::config::PRINT_WIDTH;
 
 use crate::{
     gui::{GlobalMessage, Routers},
@@ -19,13 +20,15 @@ use super::{
     password_setup::{LastRoute, PasswordSetup},
     Page,
 };
-use iced::keyboard::{self, key::Named};
+use iced::{alignment::Horizontal, Command, Length, Subscription};
 use iced::{
-    alignment::Horizontal,
-    widget::{self, pick_list, text_input, Space},
-    Command, Length, Subscription,
+    keyboard::{self, key::Named},
+    Element,
 };
-use zebra_ui::widget::*;
+use iced::{
+    overlay::menu,
+    widget::{pick_list, scrollable, text_input, Button, Column, Container, Row, Space, Text},
+};
 
 #[derive(Debug)]
 pub struct Restore {
@@ -87,9 +90,9 @@ impl Page for Restore {
         match message {
             RestoreMessage::TabPressed(shift) => {
                 if shift {
-                    widget::focus_previous()
+                    iced::widget::focus_previous()
                 } else {
-                    widget::focus_next()
+                    iced::widget::focus_next()
                 }
             }
             RestoreMessage::Back => match Options::new(Arc::clone(&self.core)) {
@@ -224,28 +227,25 @@ impl Page for Restore {
     fn view(&self) -> Element<Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let title = Text::new(t!("restore_page_title"))
             .size(24)
             .horizontal_alignment(Horizontal::Center);
-        let forward_icon = zebra_ui::image::forward_icon()
-            .height(50)
-            .width(50)
-            .style(zebra_ui::style::svg::Svg::Primary);
+        let forward_icon = zebra_ui::image::forward_icon().height(50).width(50);
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(RestoreMessage::Back);
         let forward_btn = Button::new(forward_icon)
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(RestoreMessage::Next);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let error_message = Text::new(self.err_message.clone().unwrap_or(String::new()))
             .size(16)
-            .style(zebra_ui::style::text::Text::Dabger)
+            .style(zebra_ui::styles::text::danger)
             .horizontal_alignment(Horizontal::Center);
         let content_col = Column::new()
             .width(Length::Fill)
@@ -280,8 +280,14 @@ impl Restore {
         )
         .text_size(16)
         .padding(4)
-        .width(80)
-        .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        .style(pick_list::Style {
+            field: Box::new(zebra_ui::styles::pick_list::primary_field),
+            menu: menu::Style {
+                list: Box::new(zebra_ui::styles::menu::primary_menu),
+                scrollable: Box::new(scrollable::default),
+            },
+        })
+        .width(80);
         let language_pick_list = pick_list(
             self.dicts.as_slice(),
             Some(self.dict),
@@ -289,8 +295,14 @@ impl Restore {
         )
         .text_size(16)
         .padding(4)
-        .width(150)
-        .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        .style(pick_list::Style {
+            field: Box::new(zebra_ui::styles::pick_list::primary_field),
+            menu: menu::Style {
+                list: Box::new(zebra_ui::styles::menu::primary_menu),
+                scrollable: Box::new(scrollable::default),
+            },
+        })
+        .width(150);
 
         Row::new()
             .push(count_pick_list)
@@ -315,8 +327,8 @@ impl Restore {
                             .size(14)
                             .width(90)
                             .style(match self.error_indexs[element_index] {
-                                true => zebra_ui::style::text_input::TextInput::Danger,
-                                false => zebra_ui::style::text_input::TextInput::Primary,
+                                true => zebra_ui::styles::input::danger,
+                                false => zebra_ui::styles::input::primary,
                             })
                             .on_input(move |v| RestoreMessage::InputChanged((element_index, v)))
                             .on_paste(move |v| RestoreMessage::InputPaste((element_index, v)))

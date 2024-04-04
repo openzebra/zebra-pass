@@ -7,9 +7,13 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
-use iced::{alignment::Horizontal, widget::Space, Command, Length, Subscription};
+use iced::{alignment::Horizontal, Command, Length, Subscription};
+use iced::{
+    widget::{Button, Column, Container, Row, Space, Text},
+    Element,
+};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
+use zebra_ui::config::PRINT_WIDTH;
 
 use super::{error::ErrorPage, locale::Locale, options::Options, Page};
 
@@ -95,7 +99,7 @@ impl Page for Interview {
     fn view(&self) -> Element<Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let row = Row::new()
@@ -123,11 +127,11 @@ impl Interview {
         let zebra_img = zebra_ui::image::zebra_heat().height(250).width(250);
         let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(InterviewMessage::Next);
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(InterviewMessage::Back);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
 
@@ -150,11 +154,11 @@ impl Interview {
         let zebra_img = zebra_ui::image::rust_logo().height(250).width(250);
         let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(InterviewMessage::Next);
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(InterviewMessage::Back);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
 
@@ -177,11 +181,11 @@ impl Interview {
         let zebra_img = zebra_ui::image::atom().height(250).width(250);
         let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(InterviewMessage::Next);
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(InterviewMessage::Back);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
 

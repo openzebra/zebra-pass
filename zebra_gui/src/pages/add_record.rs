@@ -4,12 +4,14 @@
 
 use std::sync::{Arc, Mutex};
 
-use iced::{Command, Length, Subscription};
+use iced::widget::{Column, Container, Row, Space, Text};
+use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
 
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
-use crate::components::smart_input::{SmartInput, SmartInputState};
+use crate::components::select_list;
+use crate::components::smart_input::SmartInput;
+use crate::config::categories::Categories;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
 
@@ -22,9 +24,9 @@ use super::Page;
 #[derive(Debug)]
 pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
-    name_input_state: Arc<Mutex<SmartInputState>>,
-    username_input_state: Arc<Mutex<SmartInputState>>,
-    password_input_state: Arc<Mutex<SmartInputState>>,
+    categories: Vec<select_list::SelectListField<Categories>>,
+    selected: Categories,
+    selected_index: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -32,38 +34,63 @@ pub enum AddRecordPageMessage {
     RouteGen,
     RouteHome,
     RouteSettings,
-    ReloadPassword,
-    HanldeInputName(String),
+    HanldeSelectCategories(usize),
 }
 
 impl Page for AddRecordPage {
     type Message = AddRecordPageMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        let name_input_state = Arc::new(Mutex::new(SmartInputState {
-            secured: false,
-            placeholder: String::new(),
-            value: String::new(),
-            label: t!("add_form_name"),
-        }));
-        let username_input_state = Arc::new(Mutex::new(SmartInputState {
-            secured: false,
-            placeholder: String::new(),
-            value: String::new(),
-            label: t!("add_form_username"),
-        }));
-        let password_input_state = Arc::new(Mutex::new(SmartInputState {
-            secured: true,
-            placeholder: String::new(),
-            value: String::new(),
-            label: t!("add_form_password"),
-        }));
+        let selected_index = 0;
+        let categories = vec![
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::Login)),
+                value: Categories::Login,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::CryptoWallet)),
+                value: Categories::CryptoWallet,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::CreditCard)),
+                value: Categories::CreditCard,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::Identity)),
+                value: Categories::Identity,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::BankAccount)),
+                value: Categories::BankAccount,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::EmailAccount)),
+                value: Categories::EmailAccount,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::Passport)),
+                value: Categories::Passport,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::DriverLicense)),
+                value: Categories::DriverLicense,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::WifiPassword)),
+                value: Categories::WifiPassword,
+            },
+            select_list::SelectListField {
+                text: t!(&format!("item_{}", Categories::Other)),
+                value: Categories::Other,
+            },
+        ];
+        let selected = Categories::Login;
 
         Ok(Self {
+            selected_index,
             core,
-            name_input_state,
-            username_input_state,
-            password_input_state,
+            categories,
+            selected,
         })
     }
 
@@ -73,17 +100,6 @@ impl Page for AddRecordPage {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
-            AddRecordPageMessage::ReloadPassword => {
-                dbg!("shoud ope modal.");
-
-                Command::none()
-            }
-            AddRecordPageMessage::HanldeInputName(v) => {
-                dbg!(v);
-
-                Command::none()
-            }
-
             AddRecordPageMessage::RouteGen => match Generator::new(Arc::clone(&self.core)) {
                 Ok(gen) => {
                     let route = Routers::Generator(gen);
@@ -120,21 +136,39 @@ impl Page for AddRecordPage {
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
+            AddRecordPageMessage::HanldeSelectCategories(index) => {
+                match self.categories.get(index) {
+                    Some(v) => {
+                        self.selected_index = index;
+                        self.selected = v.value.clone();
+                    }
+                    None => {}
+                };
+
+                Command::none()
+            }
         }
     }
 
     fn view(&self) -> Element<Self::Message> {
         let login_form = self.login_form();
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)
-            .alfa(LINE_ALFA_CHANNEL)
-            .style(zebra_ui::components::line::LineStyleSheet::Secondary);
-        let left_search_col = Column::new().height(Length::Fill).width(200);
-        let content_row = Row::new()
-            .push(left_search_col)
-            .push(vline)
-            .push(login_form);
+            .style(zebra_ui::styles::line::line_secondary)
+            .alfa(LINE_ALFA_CHANNEL);
+        let categories = select_list::SelectList::from(&self.categories)
+            .on_select(AddRecordPageMessage::HanldeSelectCategories)
+            .set_selected_index(self.selected_index)
+            .set_text_horizontal_alignmen(iced::alignment::Horizontal::Left)
+            .set_line_gap(10)
+            .set_field_padding(8);
+        let categories = Container::new(categories);
+        let left_col = Column::new()
+            .height(Length::Fill)
+            .width(200)
+            .push(categories);
+        let content_row = Row::new().push(left_col).push(vline).push(login_form);
         let main_container = Container::new(content_row).width(Length::Fill);
 
         NavBar::<Self::Message>::new()
@@ -149,19 +183,18 @@ impl Page for AddRecordPage {
 
 impl AddRecordPage {
     pub fn login_form(&self) -> Container<AddRecordPageMessage> {
-        let title = Text::new(t!("add_form_title"))
+        let title = Text::new(t!(&format!("title_item_{}", &self.selected)))
             .size(16)
             .width(Length::Fill)
             .horizontal_alignment(iced::alignment::Horizontal::Left);
 
-        let name_input = SmartInput::new(Arc::clone(&self.name_input_state));
+        let name_input = SmartInput::new();
         let name_input = Container::new(name_input);
 
-        let username_input = SmartInput::new(Arc::clone(&self.username_input_state));
+        let username_input = SmartInput::new();
         let username_input = Container::new(username_input);
 
-        let password_input = SmartInput::new(Arc::clone(&self.password_input_state))
-            .set_reload(AddRecordPageMessage::ReloadPassword);
+        let password_input = SmartInput::new();
         let password_input = Container::new(password_input);
 
         let main_col = Column::new()

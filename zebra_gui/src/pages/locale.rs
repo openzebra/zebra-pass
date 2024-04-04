@@ -7,14 +7,14 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
+use iced::{alignment::Horizontal, overlay::menu, Command, Length, Subscription};
 use iced::{
-    alignment::Horizontal,
-    widget::{pick_list, Space},
-    Command, Length, Subscription,
+    widget::{pick_list, scrollable, Button, Column, Container, Row, Space, Text},
+    Element,
 };
 use zebra_lib::settings::language::Language;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
+use zebra_ui::config::PRINT_WIDTH;
 
 use super::{error::ErrorPage, inverview::Interview, Page};
 
@@ -94,9 +94,13 @@ impl Page for Locale {
         .text_size(20)
         .padding(5)
         .width(220)
-        // .on_opened(LocaleMessage::Openned)
-        // .on_closed(LocaleMessage::Closed)
-        .style(zebra_ui::style::pick_list::PickList::OutlineLight);
+        .style(pick_list::Style {
+            field: Box::new(zebra_ui::styles::pick_list::primary_field),
+            menu: menu::Style {
+                list: Box::new(zebra_ui::styles::menu::primary_menu),
+                scrollable: Box::new(scrollable::default),
+            },
+        });
 
         let zebra_print = zebra_ui::image::zebra_print_view();
         let title = Text::new(t!("welcome"))
@@ -104,11 +108,11 @@ impl Page for Locale {
             .horizontal_alignment(Horizontal::Center);
         let forward_btn = Button::new(zebra_ui::image::forward_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(LocaleMessage::Next);
 
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let payload_col = Column::new()

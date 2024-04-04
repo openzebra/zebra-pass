@@ -1,10 +1,11 @@
 //! -- Copyright (c) 2023 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use iced::widget::Checkbox;
-use iced::{Alignment, Command, Length, Subscription};
+use iced::widget::{Button, Checkbox, Column, Container, Row, Text};
+use iced::{Alignment, Command, Element, Length, Subscription};
 use std::sync::{Arc, Mutex};
 use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
+use zebra_ui::config::PRINT_WIDTH;
 
 use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
 use crate::gui::{GlobalMessage, Routers};
@@ -14,7 +15,6 @@ use super::error::ErrorPage;
 use super::options::Options;
 use super::password_setup::{LastRoute, PasswordSetup};
 use super::Page;
-use zebra_ui::widget::*;
 
 #[derive(Debug)]
 pub struct GenPhrase {
@@ -116,28 +116,27 @@ impl Page for GenPhrase {
         .size(24);
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
-        let forward_icon =
-            zebra_ui::image::forward_icon()
-                .height(50)
-                .width(50)
-                .style(if self.is_checked {
-                    zebra_ui::style::svg::Svg::Primary
-                } else {
-                    zebra_ui::style::svg::Svg::PrimaryDisabled
-                });
+        let forward_icon = zebra_ui::image::forward_icon()
+            .height(50)
+            .style(if self.is_checked {
+                zebra_ui::styles::svg::primary_hover
+            } else {
+                zebra_ui::styles::svg::primary_disabled
+            })
+            .width(50);
         let forward_btn = Button::new(forward_icon)
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press_maybe(match self.is_checked {
                 true => Some(GenPhraseMessage::Next),
                 false => None,
             });
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(GenPhraseMessage::Back);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
         let check_box = Checkbox::new(t!("approve_seed_remember"), self.is_checked)
@@ -150,8 +149,8 @@ impl Page for GenPhrase {
             Ok(elem) => Container::new(elem.set_on_copy(GenPhraseMessage::CopyWords)),
             Err(e) => {
                 let err_msg = Text::new(e.to_string())
-                    .size(14)
-                    .style(zebra_ui::style::text::Text::Dabger);
+                    .style(zebra_ui::styles::text::danger)
+                    .size(14);
 
                 Container::new(err_msg)
             }

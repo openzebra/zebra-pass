@@ -3,16 +3,17 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use super::{error::ErrorPage, gen_phrase::GenPhrase, home::Home, restore::Restore, Page};
+use crate::components::smart_input::SmartInput;
 use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
-use iced::keyboard::{self, key::Named};
 use iced::widget::{self, Checkbox};
+use iced::widget::{text_input, Button, Column, Container, Row, Space, Text};
+use iced::{alignment::Horizontal, Command, Length, Subscription};
 use iced::{
-    alignment::Horizontal,
-    widget::{text_input, Space},
-    Command, Length, Subscription,
+    keyboard::{self, key::Named},
+    Element,
 };
 use std::sync::{Arc, Mutex};
 use zebra_lib::{
@@ -24,7 +25,7 @@ use zebra_lib::{
     },
     errors::ZebraErrors,
 };
-use zebra_ui::widget::*;
+use zebra_ui::config::PRINT_WIDTH;
 
 #[derive(Debug)]
 pub enum LastRoute {
@@ -37,8 +38,6 @@ pub struct PasswordSetup {
     pub last_route: LastRoute,
     error_msg: String,
     salt: String,
-    password: String,
-    confirm_password: String,
     email: String,
     approved: bool,
     server_sync: bool,
@@ -47,6 +46,8 @@ pub struct PasswordSetup {
     loading: bool,
     core: Arc<Mutex<Core>>,
     mnemonic: Option<Arc<Mnemonic>>,
+    password: String,
+    confirm_password: String,
 }
 
 #[derive(Debug, Clone)]
@@ -87,9 +88,7 @@ impl Page for PasswordSetup {
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
         let mnemonic = None;
         let last_route = LastRoute::Gen;
-        let password = String::new();
         let salt = String::new();
-        let confirm_password = String::new();
         let approved = false;
         let server_sync = true;
         let email_restore = true;
@@ -97,10 +96,14 @@ impl Page for PasswordSetup {
         let enabled_salt = false;
         let loading = false;
         let error_msg = String::new();
+        let confirm_password = String::new();
+        let password = String::new();
 
         Ok(Self {
             email,
             loading,
+            password,
+            confirm_password,
             error_msg,
             enabled_salt,
             salt,
@@ -110,8 +113,6 @@ impl Page for PasswordSetup {
             approved,
             mnemonic,
             last_route,
-            password,
-            confirm_password,
         })
     }
 
@@ -299,7 +300,7 @@ impl Page for PasswordSetup {
     fn view(&self) -> Element<Self::Message> {
         let zebra_print = zebra_ui::image::zebra_print_view();
         let print_col = Column::new()
-            .width(220)
+            .width(PRINT_WIDTH)
             .height(Length::Fill)
             .push(zebra_print);
         let title = Text::new(t!("setup_account_and_password"))
@@ -311,18 +312,18 @@ impl Page for PasswordSetup {
                 && !self.password.is_empty()
                 && !self.confirm_password.is_empty()
             {
-                zebra_ui::style::svg::Svg::Primary
+                zebra_ui::styles::svg::primary_hover
             } else {
-                zebra_ui::style::svg::Svg::PrimaryDisabled
+                zebra_ui::styles::svg::primary_disabled
             },
         );
         let back_btn = Button::new(zebra_ui::image::back_icon().height(50).width(50))
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press(PasswordSetupMessage::Back);
         let forward_btn = Button::new(forward_icon)
             .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
+            .style(zebra_ui::styles::button::transparent)
             .on_press_maybe(
                 if self.approved
                     && self.password == self.confirm_password
@@ -371,7 +372,7 @@ impl PasswordSetup {
     pub fn view_error<'a>(&self) -> Container<'a, PasswordSetupMessage> {
         let error_message = Text::new(t!("mnemonic_is_not_inited"))
             .size(16)
-            .style(zebra_ui::style::text::Text::Dabger)
+            .style(zebra_ui::styles::text::danger)
             .horizontal_alignment(Horizontal::Center);
 
         Container::new(Column::new().push(error_message))
@@ -398,12 +399,14 @@ impl PasswordSetup {
             .align_items(iced::Alignment::Start);
         let mut email_input = text_input(&t!("placeholder_email"), &self.email)
             .size(14)
-            .width(Length::Fill)
-            .style(zebra_ui::style::text_input::TextInput::Primary);
+            .padding(8)
+            .style(zebra_ui::styles::input::primary)
+            .width(Length::Fill);
         let mut salt_input = text_input(&t!("placeholder_salt"), &self.salt)
             .size(14)
-            .width(Length::Fill)
-            .style(zebra_ui::style::text_input::TextInput::Primary);
+            .padding(8)
+            .style(zebra_ui::styles::input::primary)
+            .width(Length::Fill);
 
         if self.enabled_salt && !self.loading {
             salt_input = salt_input.on_input(PasswordSetupMessage::OnSaltInput);
@@ -421,7 +424,7 @@ impl PasswordSetup {
         let options_col = Column::new()
             .align_items(iced::Alignment::Center)
             .padding(10)
-            .spacing(5)
+            .spacing(10)
             .height(Length::Fill)
             .width(Length::Fill)
             .push(server_sync_row)
@@ -430,44 +433,44 @@ impl PasswordSetup {
             .push(salt_row)
             .push(salt_input);
         Container::new(options_col)
-            .height(160)
+            .height(200)
             .width(320)
-            .style(zebra_ui::style::container::Container::Bordered)
+            .style(zebra_ui::styles::container::primary_bordered)
     }
 
     pub fn view_content(&self) -> Container<'_, PasswordSetupMessage> {
         let info = self.view_info();
         let error_msg = Text::new(&self.error_msg)
-            .style(zebra_ui::style::text::Text::Dabger)
+            .style(zebra_ui::styles::text::danger)
             .size(14);
-        let mut passowrd = text_input(&t!("placeholder_password"), &self.password)
-            .size(16)
-            .width(250)
-            .padding(8)
-            .secure(true)
-            .style(zebra_ui::style::text_input::TextInput::Primary);
-        let mut confirm_passowrd =
-            text_input(&t!("placeholder_confirm_password"), &self.confirm_password)
-                .size(16)
-                .padding(8)
-                .width(250)
-                .secure(true)
-                .style(zebra_ui::style::text_input::TextInput::Primary);
+        let mut passowrd_input = SmartInput::new()
+            .set_value(&self.password)
+            .padding(10)
+            .set_secure(true)
+            .set_placeholder(t!("placeholder_password"));
+        let mut confirm_passowrd_input = SmartInput::new()
+            .set_value(&self.confirm_password)
+            .padding(10)
+            .set_secure(true)
+            .set_placeholder(t!("placeholder_confirm_password"));
 
         if !self.loading {
-            passowrd = passowrd
+            passowrd_input = passowrd_input
                 .on_submit(PasswordSetupMessage::Next)
                 .on_input(PasswordSetupMessage::OnPasswordInputed);
 
-            confirm_passowrd = confirm_passowrd
+            confirm_passowrd_input = confirm_passowrd_input
                 .on_input(PasswordSetupMessage::OnConfirmPasswordInputed)
                 .on_submit(PasswordSetupMessage::Next);
         }
 
+        let passowrd_input = Container::new(passowrd_input).width(250);
+        let confirm_passowrd_input = Container::new(confirm_passowrd_input).width(250);
+
         let in_col = Column::new()
             .spacing(5)
-            .push(passowrd)
-            .push(confirm_passowrd);
+            .push(passowrd_input)
+            .push(confirm_passowrd_input);
         let check_box = Checkbox::new(t!("accept_privacy_policy"), self.approved)
             .on_toggle(PasswordSetupMessage::ApprovePolicy)
             .text_size(11);

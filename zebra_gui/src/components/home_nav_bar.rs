@@ -1,8 +1,8 @@
 //! -- Copyright (c) 2024 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
+use iced::widget::{Button, Column, Container, Row};
 use iced::{widget::Space, Length};
-use zebra_ui::widget::*;
 
 pub const LINE_ALFA_CHANNEL: f32 = 0.4;
 
@@ -65,20 +65,19 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
 
     pub fn view(&self, content: Container<'a, Message>) -> Container<'a, Message> {
         let header = self.view_header();
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)
-            .alfa(LINE_ALFA_CHANNEL)
-            .style(zebra_ui::components::line::LineStyleSheet::Secondary);
-        let hline = zebra_ui::components::line::Line::new()
+            .style(zebra_ui::styles::line::line_secondary)
+            .alfa(LINE_ALFA_CHANNEL);
+        let hline = zebra_ui::components::line::Linear::new()
             .height(Length::Fixed(1.0))
             .width(Length::Fill)
-            .alfa(LINE_ALFA_CHANNEL)
-            .style(zebra_ui::components::line::LineStyleSheet::Secondary);
+            .style(zebra_ui::styles::line::line_secondary)
+            .alfa(LINE_ALFA_CHANNEL);
 
         let main_row = Row::new()
             .push(self.view_left_nav_bar())
-            .push(vline.clone())
             .push(vline)
             .push(content);
         let main_col = Column::new().push(header).push(hline).push(main_row);
@@ -90,10 +89,15 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
 
     fn view_header(&self) -> Container<'a, Message> {
         let zebra_logo = Container::new(zebra_ui::image::zebra_logo_view()).width(125);
-        let add_btn = Button::new(zebra_ui::image::add_icon().height(30).width(30))
-            .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
-            .on_press_maybe(self.on_add.clone());
+        let add_btn = Button::new(
+            zebra_ui::image::add_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press_maybe(self.on_add.clone());
         let row_btns = Row::new()
             .push(add_btn)
             .height(Length::Fill)
@@ -120,23 +124,23 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
     }
 
     fn vew_home_btn(&self) -> Row<'a, Message> {
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(3.0))
-            .height(Length::Fixed(40.0))
             .style(if self.route == NavRoute::Home {
-                zebra_ui::components::line::LineStyleSheet::Inverse
+                zebra_ui::styles::line::line_inverse
             } else {
-                zebra_ui::components::line::LineStyleSheet::Transparent
-            });
+                zebra_ui::styles::line::line_transparent
+            })
+            .height(Length::Fixed(40.0));
         let lock_btn = Button::new(zebra_ui::image::lock_icon().height(25).width(25).style(
             if self.route == NavRoute::Home {
-                zebra_ui::style::svg::Svg::Inverse
+                zebra_ui::styles::svg::bg_inverse
             } else {
-                zebra_ui::style::svg::Svg::Primary
+                zebra_ui::styles::svg::primary_hover
             },
         ))
         .padding(0)
-        .style(zebra_ui::style::button::Button::Transparent)
+        .style(zebra_ui::styles::button::transparent)
         .on_press_maybe(self.on_home.clone());
 
         Row::new()
@@ -147,23 +151,23 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
     }
 
     fn vew_gen_btn(&self) -> Row<'a, Message> {
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(3.0))
-            .height(Length::Fixed(40.0))
             .style(if self.route == NavRoute::Gen {
-                zebra_ui::components::line::LineStyleSheet::Inverse
+                zebra_ui::styles::line::line_inverse
             } else {
-                zebra_ui::components::line::LineStyleSheet::Transparent
-            });
+                zebra_ui::styles::line::line_transparent
+            })
+            .height(Length::Fixed(40.0));
         let lock_btn = Button::new(zebra_ui::image::magic_icon().height(25).width(25).style(
             if self.route == NavRoute::Gen {
-                zebra_ui::style::svg::Svg::Inverse
+                zebra_ui::styles::svg::bg_inverse
             } else {
-                zebra_ui::style::svg::Svg::Primary
+                zebra_ui::styles::svg::primary_hover
             },
         ))
         .padding(0)
-        .style(zebra_ui::style::button::Button::Transparent)
+        .style(zebra_ui::styles::button::transparent)
         .on_press_maybe(self.on_gen.clone());
 
         Row::new()
@@ -174,23 +178,23 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
     }
 
     fn vew_settings_btn(&self) -> Row<'a, Message> {
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(3.0))
-            .height(Length::Fixed(40.0))
             .style(if self.route == NavRoute::Settings {
-                zebra_ui::components::line::LineStyleSheet::Inverse
+                zebra_ui::styles::line::line_inverse
             } else {
-                zebra_ui::components::line::LineStyleSheet::Transparent
-            });
+                zebra_ui::styles::line::line_transparent
+            })
+            .height(Length::Fixed(40.0));
         let lock_btn = Button::new(zebra_ui::image::gear_icon().height(25).width(25).style(
             if self.route == NavRoute::Settings {
-                zebra_ui::style::svg::Svg::Inverse
+                zebra_ui::styles::svg::primary_disabled
             } else {
-                zebra_ui::style::svg::Svg::Primary
+                zebra_ui::styles::svg::primary_hover
             },
         ))
         .padding(0)
-        .style(zebra_ui::style::button::Button::Transparent)
+        .style(zebra_ui::styles::button::transparent)
         .on_press_maybe(self.on_settings.clone());
 
         Row::new()

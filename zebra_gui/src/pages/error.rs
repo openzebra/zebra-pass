@@ -5,13 +5,9 @@
 use std::sync::{Arc, Mutex};
 
 use crate::rust_i18n::t;
-use iced::{
-    alignment,
-    widget::{Column, Space},
-    window, Length, Subscription,
-};
+use iced::widget::{Button, Column, Container, Row, Space, Text};
+use iced::{alignment, window, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
 
 use crate::gui::GlobalMessage;
 
@@ -48,11 +44,11 @@ impl Page for ErrorPage {
 
     fn view(&self) -> Element<Self::Message> {
         let title = Text::new(t!("error_page_title"))
-            .size(18)
-            .style(zebra_ui::style::text::Text::Info);
+            // .style(zebra_ui::style::text::Text::Info);
+            .size(18);
         let message = Text::new(&self.message)
-            .size(14)
-            .style(zebra_ui::style::text::Text::Dabger);
+            // .style(zebra_ui::style::text::Text::Dabger)
+            .size(14);
         let exit_btn = Button::new(
             Text::new("exit")
                 .size(14)
@@ -60,8 +56,8 @@ impl Page for ErrorPage {
         )
         .padding(8)
         .width(120)
-        .on_press(ErrorPageMessage::Exit)
-        .style(zebra_ui::style::button::Button::Primary);
+        // .style(zebra_ui::style::button::Button::Primary)
+        .on_press(ErrorPageMessage::Exit);
         let content_col = Column::new()
             .height(Length::Fill)
             .width(Length::Fill)
@@ -73,8 +69,8 @@ impl Page for ErrorPage {
             .push(exit_btn);
         let content = Container::new(content_col)
             .height(250)
-            .width(450)
-            .style(zebra_ui::style::container::Container::WeekBorder);
+            // .style(zebra_ui::style::container::Container::WeekBorder)
+            .width(450);
         let row = Row::new()
             .height(Length::Fill)
             .align_items(iced::Alignment::Center)

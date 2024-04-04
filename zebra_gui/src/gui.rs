@@ -6,10 +6,9 @@ use std::sync::{Arc, Mutex};
 use crate::pages::Page;
 
 use super::pages;
-use iced::{executor, Application, Command, Element};
+use iced::advanced::Application;
+use iced::{executor, Command, Element, Theme};
 use zebra_lib::{core::core, settings::appearance::Themes};
-
-use zebra_ui::{color::ZebraPalette, style};
 
 #[derive(Debug)]
 pub enum Routers {
@@ -61,7 +60,7 @@ impl Application for GUI {
     type Executor = executor::Default;
     type Message = GlobalMessage;
     type Flags = zebra_lib::core::core::Core;
-    type Theme = style::Theme;
+    type Theme = Theme;
 
     fn title(&self) -> String {
         "Zebrapass".into()
@@ -182,7 +181,7 @@ impl Application for GUI {
         }])
     }
 
-    fn view(&self) -> Element<'_, Self::Message, zebra_ui::style::Theme> {
+    fn view(&self) -> Element<'_, Self::Message, Self::Theme> {
         match &self.route {
             Routers::Loading(l) => l.view().map(|msg| GlobalMessage::LoadMessage(msg)),
             Routers::Locale(l) => l.view().map(|msg| GlobalMessage::LocaleMessage(msg)),
@@ -209,12 +208,18 @@ impl Application for GUI {
     fn theme(&self) -> Self::Theme {
         // TODO: Remove unwrap.
         match self.core.lock().unwrap().state.settings.appearance.theme {
-            Themes::Dark => style::Theme::Dark(ZebraPalette::DARK),
-            Themes::Light => style::Theme::Light(ZebraPalette::LIGHT),
+            Themes::Dark => Theme::Custom(Arc::new(zebra_ui::theme::dark_custom_theme())),
+            Themes::Light => Theme::Custom(Arc::new(zebra_ui::theme::light_custom_theme())),
             Themes::Auto => match dark_light::detect() {
-                dark_light::Mode::Dark => style::Theme::Dark(ZebraPalette::DARK),
-                dark_light::Mode::Light => style::Theme::Light(ZebraPalette::LIGHT),
-                dark_light::Mode::Default => style::Theme::Dark(ZebraPalette::DARK),
+                dark_light::Mode::Dark => {
+                    Theme::Custom(Arc::new(zebra_ui::theme::dark_custom_theme()))
+                }
+                dark_light::Mode::Light => {
+                    Theme::Custom(Arc::new(zebra_ui::theme::light_custom_theme()))
+                }
+                dark_light::Mode::Default => {
+                    Theme::Custom(Arc::new(zebra_ui::theme::dark_custom_theme()))
+                }
             },
         }
     }

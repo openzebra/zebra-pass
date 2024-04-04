@@ -5,11 +5,11 @@
 use std::sync::{Arc, Mutex};
 
 use crate::rust_i18n::t;
-use iced::{alignment, Command, Length, Subscription};
+use iced::widget::{Button, Column, Container, Row, Text};
+use iced::{alignment, Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
 
-use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
+use crate::components::home_nav_bar::{NavBar, NavRoute};
 use crate::gui::{GlobalMessage, Routers};
 
 use super::add_record::AddRecordPage;
@@ -109,10 +109,15 @@ impl Home {
             .push(title);
 
         // TODO: add more options for import..
-        let add_btn = Button::new(zebra_ui::image::add_icon().height(70).width(70))
-            .padding(0)
-            .style(zebra_ui::style::button::Button::Transparent)
-            .on_press(HomeMessage::AddRecord);
+        let add_btn = Button::new(
+            zebra_ui::image::add_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(70)
+                .width(70),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(HomeMessage::AddRecord);
         let options_row = Row::new()
             .align_items(iced::Alignment::Center)
             .height(Length::Fill)
@@ -121,8 +126,8 @@ impl Home {
             .align_x(alignment::Horizontal::Center)
             .padding(8)
             .height(250)
-            .width(400)
-            .style(zebra_ui::style::container::Container::Bordered);
+            .style(zebra_ui::styles::container::primary_bordered)
+            .width(400);
         let col = Column::new()
             .width(Length::Fill)
             .height(Length::Fill)
@@ -134,11 +139,9 @@ impl Home {
     }
 
     pub fn view_records(&self) -> Container<HomeMessage> {
-        let vline = zebra_ui::components::line::Line::new()
+        let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(1.0))
-            .height(Length::Fill)
-            .alfa(LINE_ALFA_CHANNEL)
-            .style(zebra_ui::components::line::LineStyleSheet::Secondary);
+            .height(Length::Fill);
         let left_search_col = Column::new().height(Length::Fill).width(200);
         let row = Row::new().push(left_search_col).push(vline);
 

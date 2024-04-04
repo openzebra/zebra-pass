@@ -9,10 +9,9 @@ use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
 use crate::pages::error::ErrorPage;
 use crate::rust_i18n::t;
 use iced::alignment::Horizontal;
-use iced::widget::Space;
-use iced::{clipboard, Command, Length, Subscription};
+use iced::widget::{Button, Column, Container, Row, Space, Text};
+use iced::{clipboard, Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::widget::*;
 
 use crate::components::home_nav_bar::{NavBar, NavRoute};
 use crate::gui::{GlobalMessage, Routers};
@@ -151,8 +150,8 @@ impl Page for Generator {
             Tabs::Bip39 => Some(GeneratorMessage::PasswordTab),
         })
         .style(match self.tab {
-            Tabs::Password => zebra_ui::style::button::Button::Primary,
-            Tabs::Bip39 => zebra_ui::style::button::Button::OutlinePrimary,
+            Tabs::Password => zebra_ui::styles::button::primary,
+            Tabs::Bip39 => zebra_ui::styles::button::outline_primary,
         });
         let bip39_btn = Button::new(
             Text::new(t!("bip39_gen"))
@@ -162,13 +161,13 @@ impl Page for Generator {
         )
         .padding(8)
         .width(200)
+        .style(match self.tab {
+            Tabs::Bip39 => zebra_ui::styles::button::primary,
+            Tabs::Password => zebra_ui::styles::button::outline_primary,
+        })
         .on_press_maybe(match self.tab {
             Tabs::Bip39 => None,
             Tabs::Password => Some(GeneratorMessage::PhraseTab),
-        })
-        .style(match self.tab {
-            Tabs::Bip39 => zebra_ui::style::button::Button::Primary,
-            Tabs::Password => zebra_ui::style::button::Button::OutlinePrimary,
         });
         let row_btns = Row::new().spacing(5).push(password_btn).push(bip39_btn);
         let content = match self.tab {
@@ -214,8 +213,8 @@ impl Generator {
 
     pub fn view_error(&self, error: String) -> Container<GeneratorMessage> {
         let err_msg = Text::new(error)
-            .size(14)
-            .style(zebra_ui::style::text::Text::Dabger);
+            .style(zebra_ui::styles::text::danger)
+            .size(14);
 
         Container::new(err_msg)
     }

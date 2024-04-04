@@ -5,12 +5,10 @@
 use std::sync::{Arc, Mutex};
 
 use crate::rust_i18n::t;
-use iced::{
-    widget::{text, Space},
-    Alignment, Command, Length, Subscription,
-};
+use iced::widget::{Column, Container, Row, Space, Text};
+use iced::{Alignment, Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
-use zebra_ui::{components::circular::Circular, widget::*};
+use zebra_ui::components::circular::Circular;
 
 use crate::gui::{GlobalMessage, Routers};
 
@@ -90,8 +88,8 @@ impl Page for Loader {
 
     fn view(&self) -> Element<Self::Message> {
         let message = match &self.error {
-            Some(err) => text(err).size(25),
-            None => text(t!("loading")).size(25),
+            Some(err) => Text::new(err).size(25),
+            None => Text::new(t!("loading")).size(25),
         }
         .horizontal_alignment(iced::alignment::Horizontal::Center);
         let spiner = Circular::new();
