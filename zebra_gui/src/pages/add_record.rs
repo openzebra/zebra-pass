@@ -11,6 +11,7 @@ use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::select_list;
 use crate::components::smart_input::SmartInput;
+use crate::config::categories::Categories;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
 
@@ -21,14 +22,10 @@ use super::settings::Settings;
 use super::Page;
 
 #[derive(Debug)]
-pub enum Categories {
-    Login,
-}
-
-#[derive(Debug)]
 pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
     categories: Vec<select_list::SelectListField<Categories>>,
+    selected: Categories,
 }
 
 #[derive(Debug, Clone)]
@@ -36,9 +33,7 @@ pub enum AddRecordPageMessage {
     RouteGen,
     RouteHome,
     RouteSettings,
-    ReloadPassword,
-    HanldeSelectCategory(usize),
-    HanldeInputName(String),
+    HanldeSelectCategories(usize),
 }
 
 impl Page for AddRecordPage {
@@ -58,69 +53,14 @@ impl Page for AddRecordPage {
                 text: String::from("fdgf89h"),
                 value: Categories::Login,
             },
-            select_list::SelectListField {
-                text: String::from("test"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fsdfds"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fdgf89h"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("test"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fsdfds"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fdgf89h"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("test"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fsdfds"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fdgf89h"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("test"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fsdfds"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fdgf89h"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("test"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fsdfds"),
-                value: Categories::Login,
-            },
-            select_list::SelectListField {
-                text: String::from("fdgf89h"),
-                value: Categories::Login,
-            },
         ];
+        let selected = Categories::Login;
 
-        Ok(Self { core, categories })
+        Ok(Self {
+            core,
+            categories,
+            selected,
+        })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -129,17 +69,6 @@ impl Page for AddRecordPage {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
-            AddRecordPageMessage::ReloadPassword => {
-                dbg!("shoud ope modal.");
-
-                Command::none()
-            }
-            AddRecordPageMessage::HanldeInputName(v) => {
-                dbg!(v);
-
-                Command::none()
-            }
-
             AddRecordPageMessage::RouteGen => match Generator::new(Arc::clone(&self.core)) {
                 Ok(gen) => {
                     let route = Routers::Generator(gen);
@@ -176,7 +105,7 @@ impl Page for AddRecordPage {
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
-            AddRecordPageMessage::HanldeSelectCategory(index) => {
+            AddRecordPageMessage::HanldeSelectCategories(index) => {
                 dbg!(index);
                 Command::none()
             }
@@ -191,7 +120,7 @@ impl Page for AddRecordPage {
             .style(zebra_ui::styles::line::line_secondary)
             .alfa(LINE_ALFA_CHANNEL);
         let categories = select_list::SelectList::from(&self.categories)
-            .on_select(AddRecordPageMessage::HanldeSelectCategory)
+            .on_select(AddRecordPageMessage::HanldeSelectCategories)
             .set_gap(5)
             .set_line_gap(10)
             .set_field_padding(8);
@@ -228,7 +157,7 @@ impl AddRecordPage {
         let username_input = SmartInput::new();
         let username_input = Container::new(username_input);
 
-        let password_input = SmartInput::new().set_reload(AddRecordPageMessage::ReloadPassword);
+        let password_input = SmartInput::new();
         let password_input = Container::new(password_input);
 
         let main_col = Column::new()

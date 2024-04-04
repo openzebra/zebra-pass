@@ -11,6 +11,7 @@ use zebra_lib::core::core::Core;
 use zebra_ui::config::{WIN_HEIGHT, WIN_WIDTH};
 
 mod components;
+mod config;
 mod error;
 mod gui;
 mod pages;
