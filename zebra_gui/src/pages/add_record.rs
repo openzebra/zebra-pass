@@ -4,10 +4,11 @@
 
 use std::sync::{Arc, Mutex};
 
-use iced::widget::{Column, Container, Row, Space, Text};
+use iced::widget::{Column, Container, Row, Text};
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
+use crate::components::add_login::AddLogin;
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::select_list;
 use crate::components::smart_input::SmartInput;
@@ -151,7 +152,6 @@ impl Page for AddRecordPage {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let login_form = self.login_form();
         let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(1.0))
             .height(Length::Fill)
@@ -168,7 +168,19 @@ impl Page for AddRecordPage {
             .height(Length::Fill)
             .width(200)
             .push(categories);
-        let content_row = Row::new().push(left_col).push(vline).push(login_form);
+        let form = match self.selected {
+            Categories::Login => {
+                let f = AddLogin::new();
+
+                Container::new(f)
+            }
+            _ => {
+                let ctx = Text::new("not implemented yet");
+
+                Container::new(ctx)
+            }
+        };
+        let content_row = Row::new().push(left_col).push(vline).push(form);
         let main_container = Container::new(content_row).width(Length::Fill);
 
         NavBar::<Self::Message>::new()
