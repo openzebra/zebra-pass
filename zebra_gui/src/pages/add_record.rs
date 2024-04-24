@@ -11,7 +11,6 @@ use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use crate::components::add_login::AddLogin;
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::select_list;
-use crate::components::smart_input::SmartInput;
 use crate::config::categories::Categories;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
@@ -170,7 +169,7 @@ impl Page for AddRecordPage {
             .push(categories);
         let form = match self.selected {
             Categories::Login => {
-                let f = AddLogin::new();
+                let f = AddLogin::new().set_title(t!(&format!("item_{}", Categories::Login)));
 
                 Container::new(f)
             }
@@ -190,35 +189,5 @@ impl Page for AddRecordPage {
             .on_home(AddRecordPageMessage::RouteHome)
             .view(main_container)
             .into()
-    }
-}
-
-impl AddRecordPage {
-    pub fn login_form(&self) -> Container<AddRecordPageMessage> {
-        let title = Text::new(t!(&format!("title_item_{}", &self.selected)))
-            .size(16)
-            .width(Length::Fill)
-            .horizontal_alignment(iced::alignment::Horizontal::Left);
-
-        let name_input = SmartInput::new();
-        let name_input = Container::new(name_input);
-
-        let username_input = SmartInput::new();
-        let username_input = Container::new(username_input);
-
-        let password_input = SmartInput::new();
-        let password_input = Container::new(password_input);
-
-        let main_col = Column::new()
-            .padding(16)
-            .spacing(8)
-            .width(Length::Fill)
-            .align_items(iced::Alignment::Center)
-            .push(title)
-            .push(name_input)
-            .push(username_input)
-            .push(password_input);
-
-        Container::new(main_col)
     }
 }
