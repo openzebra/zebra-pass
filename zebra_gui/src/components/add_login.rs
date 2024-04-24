@@ -2,7 +2,9 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::rust_i18n::t;
-use iced::widget::{component, Column, Component, Container, Row, Space, Text};
+use iced::widget::{
+    component, text_editor, Column, Component, Container, Row, Space, Text, TextEditor,
+};
 use iced::{Element, Length, Renderer, Theme};
 
 use super::smart_input::SmartInput;
@@ -18,6 +20,7 @@ where
     email: String,
     password: String,
     domain: String,
+    notes: String,
 }
 
 #[derive(Debug, Clone)]
@@ -43,6 +46,7 @@ where
             email: String::new(),
             password: String::new(),
             domain: String::new(),
+            notes: String::new(),
         }
     }
 
