@@ -89,7 +89,7 @@ where
             .size(12)
             .padding(4)
             .width(50)
-            // .style(zebra_ui::style::text_input::TextInput::Primary)
+            .style(zebra_ui::styles::input::primary)
             .on_input(Event::InputLength);
         let slider_row = Row::new().push(h_slider).push(input_len).spacing(5);
 
@@ -181,6 +181,7 @@ where
                     if v > 0 {
                         let mut state = self.state.lock().unwrap(); // TODO: remove unwrap..
                         state.length = v;
+                        drop(state);
                         self.regenerate();
 
                         None

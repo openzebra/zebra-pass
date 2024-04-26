@@ -9,6 +9,12 @@ use iced::{Element, Length, Renderer, Theme};
 
 use super::smart_input::SmartInput;
 
+pub struct AdditionField {
+    placeholder: String,
+    value: String,
+    secure: bool,
+}
+
 pub struct AddLogin<'a, Message>
 where
     Message: Clone,
@@ -21,6 +27,7 @@ where
     password: String,
     domain: String,
     content: text_editor::Content,
+    addition_fields: Vec<AdditionField>,
 }
 
 #[derive(Debug, Clone)]
@@ -49,6 +56,7 @@ where
             password: String::new(),
             domain: String::new(),
             content: text_editor::Content::new(),
+            addition_fields: Vec::new(),
         }
     }
 
@@ -171,6 +179,9 @@ where
             .style(zebra_ui::styles::text_editor::primary)
             .on_action(Event::HandleActionNote);
 
+        let row_new_item = Row::new();
+        let new_item_container = Container::new(row_new_item);
+
         let scrol_col = Column::new()
             .spacing(8)
             .padding(INDENT_HEAD)
@@ -184,6 +195,7 @@ where
             .push(Space::new(0, INDENT_HEAD))
             .push(note_label)
             .push(notes)
+            .push(new_item_container)
             .push(Space::new(0, INDENT_HEAD));
         let scrolling = Scrollable::new(scrol_col)
             .height(Length::Fill)
