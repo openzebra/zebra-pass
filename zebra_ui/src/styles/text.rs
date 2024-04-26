@@ -11,3 +11,12 @@ pub fn danger(theme: &Theme) -> Appearance {
         color: Some(palette.danger.weak.color),
     }
 }
+
+pub fn muted(theme: &Theme) -> Appearance {
+    let palette = theme.extended_palette();
+    let mut color = palette.background.base.text;
+
+    color.a = 0.3;
+
+    Appearance { color: Some(color) }
+}

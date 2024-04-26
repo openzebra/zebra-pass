@@ -2,9 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::rust_i18n::t;
-use iced::widget::{
-    component, text_editor, Column, Component, Container, Row, Space, Text, TextEditor,
-};
+use iced::widget::{component, text_editor, Column, Component, Container, Row, Space, Text};
 use iced::{Element, Length, Renderer, Theme};
 
 use super::smart_input::SmartInput;
@@ -20,7 +18,7 @@ where
     email: String,
     password: String,
     domain: String,
-    notes: String,
+    content: text_editor::Content,
 }
 
 #[derive(Debug, Clone)]
@@ -31,6 +29,7 @@ pub enum Event {
     HandleInputEmail(String),
     HandleInputPassword(String),
     HandleInputDomain(String),
+    HandleActionNote(text_editor::Action),
 }
 
 impl<'a, Message: Clone> AddLogin<'a, Message>
@@ -46,7 +45,7 @@ where
             email: String::new(),
             password: String::new(),
             domain: String::new(),
-            notes: String::new(),
+            content: text_editor::Content::new(),
         }
     }
 
@@ -89,6 +88,11 @@ where
             }
             Event::HandleInputPassword(v) => {
                 self.password = v;
+                None
+            }
+            Event::HandleActionNote(a) => {
+                self.content.perform(a);
+
                 None
             }
         }
@@ -144,6 +148,17 @@ where
             .set_placeholder(t!("placeholder_password"));
         let password_input = Container::new(password_input);
 
+        let note_label = Text::new("NOTES")
+            .size(14)
+            .style(zebra_ui::styles::text::muted)
+            .width(Length::Fill)
+            .horizontal_alignment(iced::alignment::Horizontal::Left);
+        let notes = text_editor(&self.content)
+            .height(Length::Fill)
+            .padding(INPUT_PADDING)
+            .style(zebra_ui::styles::text_editor::primary)
+            .on_action(Event::HandleActionNote);
+
         let main_col = Column::new()
             .padding(16)
             .spacing(8)
@@ -155,7 +170,10 @@ where
             .push(email_input)
             .push(domain_input)
             .push(username_input)
-            .push(password_input);
+            .push(password_input)
+            .push(Space::new(0, INDENT_HEAD))
+            .push(note_label)
+            .push(notes);
 
         Container::new(main_col).into()
     }

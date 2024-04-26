@@ -10,3 +10,4 @@ pub mod pick_list;
 pub mod scrollable;
 pub mod svg;
 pub mod text;
+pub mod text_editor;
