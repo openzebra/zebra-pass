@@ -3,14 +3,14 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::rust_i18n::t;
 use iced::widget::{
-    component, text_editor, Button, Column, Component, Container, Row, Scrollable, Space, Text,
+    component, text_editor, Button, Checkbox, Column, Component, Container, Row, Scrollable, Space,
+    Text,
 };
 use iced::{Element, Length, Renderer, Theme};
 
 use super::smart_input::SmartInput;
 
 pub struct AdditionField {
-    placeholder: String,
     value: String,
     secure: bool,
 }
@@ -28,6 +28,7 @@ where
     domain: String,
     content: text_editor::Content,
     addition_fields: Vec<AdditionField>,
+    addition_check_box_secure: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -39,7 +40,10 @@ pub enum Event {
     HandleInputEmail(String),
     HandleInputPassword(String),
     HandleInputDomain(String),
+    HandleInputCustomField((usize, String)),
     HandleActionNote(text_editor::Action),
+    HandleCheckedSecure(bool),
+    HandleAddNewField,
 }
 
 impl<'a, Message: Clone> AddLogin<'a, Message>
@@ -57,6 +61,7 @@ where
             domain: String::new(),
             content: text_editor::Content::new(),
             addition_fields: Vec::new(),
+            addition_check_box_secure: false,
         }
     }
 
@@ -107,6 +112,28 @@ where
                 None
             }
             Event::HandleSave => None,
+            Event::HandleAddNewField => {
+                self.addition_fields.push(AdditionField {
+                    value: String::new(),
+                    secure: self.addition_check_box_secure,
+                });
+
+                None
+            }
+            Event::HandleCheckedSecure(v) => {
+                self.addition_check_box_secure = v;
+                None
+            }
+            Event::HandleInputCustomField((index, value)) => {
+                match self.addition_fields.get_mut(index) {
+                    Some(v) => {
+                        v.value = value;
+
+                        return None;
+                    }
+                    None => return None,
+                };
+            }
         }
     }
 
@@ -179,8 +206,63 @@ where
             .style(zebra_ui::styles::text_editor::primary)
             .on_action(Event::HandleActionNote);
 
-        let row_new_item = Row::new();
-        let new_item_container = Container::new(row_new_item);
+        let custom_fields_label = Text::new(t!("custom_fields"))
+            .size(14)
+            .style(zebra_ui::styles::text::muted)
+            .width(Length::Fill)
+            .horizontal_alignment(iced::alignment::Horizontal::Left);
+        let custom_fields: Vec<
+            iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer>,
+        > = self
+            .addition_fields
+            .iter()
+            .enumerate()
+            .map(|(index, field)| {
+                let new_field: SmartInput<'_, Event> = SmartInput::new()
+                    .set_value(&field.value)
+                    .padding(INPUT_PADDING)
+                    .on_input(move |v| Event::HandleInputCustomField((index, v)))
+                    .set_secure(field.secure);
+
+                Container::new(new_field).into()
+            })
+            .collect();
+        let custom_field_col = Column::with_children(custom_fields).spacing(8);
+
+        let add_field_label = Text::new(t!("label_new_field"))
+            .size(14)
+            .style(zebra_ui::styles::text::muted)
+            .width(Length::Fill)
+            .horizontal_alignment(iced::alignment::Horizontal::Left);
+        let add_btn = Button::new(
+            zebra_ui::image::add_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .on_press(Event::HandleAddNewField)
+        .style(zebra_ui::styles::button::transparent);
+        let secure_checkbox =
+            Checkbox::new(t!("placeholder_password"), self.addition_check_box_secure)
+                .on_toggle(Event::HandleCheckedSecure)
+                .text_size(14);
+        let row_new_item = Row::new()
+            .push(add_btn)
+            .push(Space::new(8, 0))
+            .push(secure_checkbox)
+            .align_items(iced::Alignment::Center);
+        let col_new_item = Column::new()
+            .push(add_field_label)
+            .push(Space::new(0, 8))
+            .push(row_new_item)
+            .push(Space::new(0, 8))
+            .push(custom_fields_label)
+            .push(custom_field_col);
+        let new_item_container = Container::new(col_new_item)
+            .padding(INDENT_HEAD)
+            .width(Length::Fill)
+            .style(zebra_ui::styles::container::primary_bordered_hover);
 
         let scrol_col = Column::new()
             .spacing(8)
@@ -193,9 +275,10 @@ where
             .push(username_input)
             .push(password_input)
             .push(Space::new(0, INDENT_HEAD))
+            .push(new_item_container)
+            .push(Space::new(0, INDENT_HEAD))
             .push(note_label)
             .push(notes)
-            .push(new_item_container)
             .push(Space::new(0, INDENT_HEAD));
         let scrolling = Scrollable::new(scrol_col)
             .height(Length::Fill)
