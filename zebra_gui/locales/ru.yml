@@ -62,5 +62,9 @@ item_passport: 'Паспорт'
 item_driver_license: 'Права'
 item_wifi_password: 'WiFi пароль'
 item_other: 'Элемент'
-
-
+placeholder_name: 'Название'
+placeholder_domain: 'Доменное имя'
+placeholder_username: 'Имя пользователя'
+placeholder_password: 'Пароль'
+label_notes: 'Записки'
+save_record: 'Сохранить запись'

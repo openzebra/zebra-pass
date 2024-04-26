@@ -113,7 +113,7 @@ where
             .size(24)
             .width(Length::Fill)
             .horizontal_alignment(iced::alignment::Horizontal::Left);
-        let save_button = Button::new(Text::new("save").size(16))
+        let save_button = Button::new(Text::new(t!("save_record")).size(16))
             .style(zebra_ui::styles::button::outline_primary)
             .on_press(Event::HandleSave);
         let head_row = Row::new()
@@ -160,7 +160,7 @@ where
             .set_placeholder(t!("placeholder_password"));
         let password_input = Container::new(password_input);
 
-        let note_label = Text::new("NOTES")
+        let note_label = Text::new(t!("label_notes"))
             .size(14)
             .style(zebra_ui::styles::text::muted)
             .width(Length::Fill)
