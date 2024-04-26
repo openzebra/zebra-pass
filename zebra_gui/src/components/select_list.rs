@@ -37,7 +37,6 @@ where
     pub fn from(fields: &'a [SelectListField<Data>]) -> Self {
         let field_padding = 0;
         let font_size = 14;
-        let gap = 0;
         let line_gap = 5;
         let selected_index = 0;
         let text_horizontal_alignmen = iced::alignment::Horizontal::Center;

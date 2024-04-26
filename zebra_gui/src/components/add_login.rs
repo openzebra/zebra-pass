@@ -2,7 +2,9 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::rust_i18n::t;
-use iced::widget::{component, text_editor, Column, Component, Container, Row, Space, Text};
+use iced::widget::{
+    component, text_editor, Button, Column, Component, Container, Row, Scrollable, Space, Text,
+};
 use iced::{Element, Length, Renderer, Theme};
 
 use super::smart_input::SmartInput;
@@ -24,6 +26,7 @@ where
 #[derive(Debug, Clone)]
 pub enum Event {
     HandleReloadPassword,
+    HandleSave,
     HandleInputName(String),
     HandleInputUserName(String),
     HandleInputEmail(String),
@@ -95,6 +98,7 @@ where
 
                 None
             }
+            Event::HandleSave => None,
         }
     }
 
@@ -106,10 +110,18 @@ where
         const INDENT_HEAD: u16 = 16;
 
         let title = Text::new(&self.title)
-            .size(16)
+            .size(24)
             .width(Length::Fill)
             .horizontal_alignment(iced::alignment::Horizontal::Left);
-        let head_row = Row::new().push(title);
+        let save_button = Button::new(Text::new("save").size(16))
+            .style(zebra_ui::styles::button::outline_primary)
+            .on_press(Event::HandleSave);
+        let head_row = Row::new()
+            .push(Space::new(INDENT_HEAD, 0))
+            .push(title)
+            .push(save_button)
+            .push(Space::new(INDENT_HEAD, 0))
+            .align_items(iced::Alignment::Center);
 
         let name_input = SmartInput::new()
             .set_value(&self.name)
@@ -154,18 +166,16 @@ where
             .width(Length::Fill)
             .horizontal_alignment(iced::alignment::Horizontal::Left);
         let notes = text_editor(&self.content)
-            .height(Length::Fill)
+            .height(120)
             .padding(INPUT_PADDING)
             .style(zebra_ui::styles::text_editor::primary)
             .on_action(Event::HandleActionNote);
 
-        let main_col = Column::new()
-            .padding(16)
+        let scrol_col = Column::new()
             .spacing(8)
+            .padding(INDENT_HEAD)
             .width(Length::Fill)
             .align_items(iced::Alignment::Center)
-            .push(head_row)
-            .push(Space::new(0, INDENT_HEAD))
             .push(name_input)
             .push(email_input)
             .push(domain_input)
@@ -173,7 +183,18 @@ where
             .push(password_input)
             .push(Space::new(0, INDENT_HEAD))
             .push(note_label)
-            .push(notes);
+            .push(notes)
+            .push(Space::new(0, INDENT_HEAD));
+        let scrolling = Scrollable::new(scrol_col)
+            .height(Length::Fill)
+            .style(zebra_ui::styles::scrollable::scroll_transparent);
+        let main_col = Column::new()
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Center)
+            .push(Space::new(0, INDENT_HEAD))
+            .push(head_row)
+            .push(Space::new(0, INDENT_HEAD))
+            .push(scrolling);
 
         Container::new(main_col).into()
     }
