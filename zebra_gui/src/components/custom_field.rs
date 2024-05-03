@@ -28,6 +28,7 @@ where
 pub enum Event {
     HandleAddNewField,
     HandleInputCustomField((usize, String)),
+    HandleRemoveCustomField(usize),
     HandleCheckedSecure(bool),
 }
 
@@ -110,6 +111,17 @@ where
 
                 None
             }
+            Event::HandleRemoveCustomField(index) => {
+                if let Some(cb) = &self.on_input {
+                    let mut new_list = self.list.to_vec();
+
+                    new_list.remove(index);
+
+                    Some(cb(new_list))
+                } else {
+                    None
+                }
+            }
         }
     }
 
@@ -124,13 +136,29 @@ where
             .iter()
             .enumerate()
             .map(|(index, field)| {
+                let trash_btn = Button::new(
+                    zebra_ui::image::trash_icon()
+                        .style(zebra_ui::styles::svg::primary_hover)
+                        .height(30)
+                        .width(30),
+                )
+                .padding(0)
+                .on_press(Event::HandleRemoveCustomField(index))
+                .width(30)
+                .style(zebra_ui::styles::button::transparent);
                 let new_field: SmartInput<'_, Event> = SmartInput::new()
                     .set_value(&field.value)
                     .padding(self.input_padding)
                     .on_input(move |v| Event::HandleInputCustomField((index, v)))
                     .set_secure(field.secure);
+                let field = Container::new(new_field).width(Length::FillPortion(2));
+                let field_row = Row::new()
+                    .push(field)
+                    .push(Space::new(5, 0))
+                    .push(trash_btn)
+                    .width(Length::Fill);
 
-                Container::new(new_field).into()
+                Container::new(field_row).into()
             })
             .collect();
         let custom_field_col = Column::with_children(custom_fields).spacing(8);
