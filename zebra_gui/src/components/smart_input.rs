@@ -17,8 +17,9 @@ where
     secured: bool,
     placeholder: String,
     value: &'a str,
-    label: Option<String>,
+    label: Option<&'a str>,
     font_size: u16,
+    label_size: u16,
     danger: bool,
 }
 
@@ -43,12 +44,14 @@ where
         let label = None;
         let font_size = 14;
         let danger = false;
+        let label_size = 12;
 
         Self {
             padding,
             danger,
             font_size,
             label,
+            label_size,
             secured,
             value,
             placeholder,
@@ -116,6 +119,18 @@ where
         self
     }
 
+    pub fn set_label_size(mut self, value: u16) -> Self {
+        self.label_size = value;
+
+        self
+    }
+
+    pub fn set_label(mut self, value: &'a str) -> Self {
+        self.label = Some(value);
+
+        self
+    }
+
     pub fn set_danger(mut self, is_danger: bool) -> Self {
         self.danger = is_danger;
 
@@ -172,9 +187,15 @@ where
         }
 
         let col = if let Some(label) = &self.label {
-            let label = Text::new(label.clone()).size(12);
+            let label = Text::new(label.to_string())
+                .size(self.label_size)
+                .style(zebra_ui::styles::text::muted);
+            let label_row = Row::new().push(Space::new(5, 0)).push(label);
 
-            Column::new().push(label).push(input)
+            Column::new()
+                .push(Space::new(0, 5))
+                .push(label_row)
+                .push(input)
         } else {
             Column::new().push(input)
         };

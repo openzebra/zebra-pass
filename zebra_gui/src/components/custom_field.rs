@@ -11,6 +11,7 @@ use super::smart_input::SmartInput;
 pub struct AdditionField {
     value: String,
     secure: bool,
+    label: String,
 }
 
 pub struct CustomFields<'a, Message>
@@ -22,6 +23,7 @@ where
     input_padding: u16,
     container_padding: Padding,
     list: &'a [AdditionField],
+    label: String,
 }
 
 #[derive(Debug, Clone)]
@@ -30,6 +32,7 @@ pub enum Event {
     HandleInputCustomField((usize, String)),
     HandleRemoveCustomField(usize),
     HandleCheckedSecure(bool),
+    HandleInputLabel(String),
 }
 
 impl<'a, Message: Clone> CustomFields<'a, Message>
@@ -43,6 +46,7 @@ where
             on_input: None,
             list: &[],
             check_box_secure: false,
+            label: String::new(),
         }
     }
 
@@ -83,6 +87,7 @@ where
                     new_list.push(AdditionField {
                         value: String::new(),
                         secure: self.check_box_secure,
+                        label: self.label.to_string(),
                     });
 
                     Some(cb(new_list))
@@ -122,6 +127,11 @@ where
                     None
                 }
             }
+            Event::HandleInputLabel(value) => {
+                self.label = value;
+
+                None
+            }
         }
     }
 
@@ -148,6 +158,7 @@ where
                 .style(zebra_ui::styles::button::transparent);
                 let new_field: SmartInput<'_, Event> = SmartInput::new()
                     .set_value(&field.value)
+                    .set_label(&field.label)
                     .padding(self.input_padding)
                     .on_input(move |v| Event::HandleInputCustomField((index, v)))
                     .set_secure(field.secure);
@@ -156,6 +167,7 @@ where
                     .push(field)
                     .push(Space::new(5, 0))
                     .push(trash_btn)
+                    .align_items(iced::Alignment::Center)
                     .width(Length::Fill);
 
                 Container::new(field_row).into()
@@ -178,6 +190,12 @@ where
         .on_press(Event::HandleAddNewField)
         .style(zebra_ui::styles::button::transparent);
 
+        let label_field: SmartInput<'_, Event> = SmartInput::new()
+            .set_value(&self.label)
+            .set_placeholder(t!("placeholder_label"))
+            .padding(self.input_padding)
+            .on_input(Event::HandleInputLabel);
+        let label_field = Container::new(label_field).width(200);
         let secure_checkbox = Checkbox::new(t!("placeholder_password"), self.check_box_secure)
             .on_toggle(Event::HandleCheckedSecure)
             .text_size(14);
@@ -185,6 +203,8 @@ where
             .push(add_btn)
             .push(Space::new(8, 0))
             .push(secure_checkbox)
+            .push(Space::new(8, 0))
+            .push(label_field)
             .align_items(iced::Alignment::Center);
         let col_new_item = Column::new()
             .push(add_field_label)
