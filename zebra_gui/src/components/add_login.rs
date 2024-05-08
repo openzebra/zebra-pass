@@ -24,6 +24,7 @@ where
     domain: String,
     content: text_editor::Content,
     list_custom_fields: Vec<AdditionField>,
+    password_modal: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -54,6 +55,7 @@ where
             domain: String::new(),
             content: text_editor::Content::new(),
             list_custom_fields: Vec::new(),
+            password_modal: false,
         }
     }
 
@@ -74,7 +76,7 @@ where
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
             Event::HandleReloadPassword => {
-                dbg!("reloaded");
+                self.password_modal = true;
 
                 None
             }
@@ -214,7 +216,14 @@ where
             .push(Space::new(0, INDENT_HEAD))
             .push(scrolling);
 
-        Container::new(main_col).into()
+        if self.password_modal {
+            // Modal::new(content, modal)
+            //     .on_blur(Message::HideModal)
+            //     .into()
+            Container::new(main_col).into()
+        } else {
+            Container::new(main_col).into()
+        }
     }
 }
 

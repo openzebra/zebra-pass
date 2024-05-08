@@ -4,6 +4,7 @@
 pub mod add_login;
 pub mod custom_field;
 pub mod home_nav_bar;
+pub mod modal;
 pub mod passgen;
 pub mod phrasegen;
 pub mod select_list;
