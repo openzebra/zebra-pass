@@ -26,6 +26,7 @@ where
     state: Arc<Mutex<PassGenState>>,
     generator: PassGen,
     copy_msg: Option<Message>,
+    height: Length,
 }
 
 #[derive(Clone)]
@@ -61,7 +62,13 @@ where
             state,
             generator,
             copy_msg: None,
+            height: Length::Fill,
         })
+    }
+
+    pub fn height(mut self, height: impl Into<Length>) -> Self {
+        self.height = height.into();
+        self
     }
 
     pub fn set_copy_message(mut self, msg: Message) -> Self {
@@ -256,7 +263,7 @@ where
             .width(Length::Fill);
         let row = Row::new()
             .push(col)
-            .height(300)
+            .height(self.height)
             .align_items(iced::Alignment::Center);
 
         Container::new(row).into()

@@ -87,6 +87,20 @@ pub fn danger_bordered_hover(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
+pub fn primary_bordered_modal(theme: &Theme, _status: Status) -> Appearance {
+    let palette = theme.extended_palette();
+
+    Appearance {
+        background: Some(palette.background.base.color.into()),
+        border: Border {
+            width: 1.0,
+            radius: BORDER_RADIUS.into(),
+            color: palette.primary.strong.color,
+        },
+        ..Appearance::default()
+    }
+}
+
 pub fn danger_bordered_disabled(theme: &Theme, _status: Status) -> Appearance {
     let palette = theme.extended_palette();
     let mut color = palette.danger.base.color;

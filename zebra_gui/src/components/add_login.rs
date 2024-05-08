@@ -2,11 +2,13 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::components::custom_field::CustomFields;
+use crate::components::passgen::{PassGenForm, PassGenState};
 use crate::rust_i18n::t;
 use iced::widget::{
     component, text_editor, Button, Column, Component, Container, Row, Scrollable, Space, Text,
 };
 use iced::{Element, Length, Renderer, Theme};
+use std::sync::{Arc, Mutex};
 
 use super::custom_field::AdditionField;
 use super::modal::Modal;
@@ -26,6 +28,7 @@ where
     content: text_editor::Content,
     list_custom_fields: Vec<AdditionField>,
     password_modal: bool,
+    pass_gen_state: Arc<Mutex<PassGenState>>,
 }
 
 #[derive(Debug, Clone)]
@@ -34,6 +37,7 @@ pub enum Event {
     HandleSave,
     HandleHidePasswordModal,
     HandleInputName(String),
+    HandleSavePassword,
     HandleInputUserName(String),
     HandleInputEmail(String),
     HandleInputPassword(String),
@@ -47,6 +51,10 @@ where
     Message: Clone,
 {
     pub fn new() -> Self {
+        let pass_gen_state = Arc::new(Mutex::new(PassGenState {
+            value: String::new(),
+            length: 45,
+        }));
         Self {
             title: String::new(),
             on_submit: None,
@@ -58,6 +66,7 @@ where
             content: text_editor::Content::new(),
             list_custom_fields: Vec::new(),
             password_modal: false,
+            pass_gen_state,
         }
     }
 
@@ -112,7 +121,27 @@ where
 
                 None
             }
-            Event::HandleSave => None,
+            Event::HandleSave => {
+                if let Some(on_submit) = &self.on_submit {
+                    Some(on_submit(String::new()))
+                } else {
+                    None
+                }
+            }
+            Event::HandleSavePassword => {
+                match self.pass_gen_state.lock() {
+                    Ok(state) => {
+                        self.password = state.value.to_string();
+                        self.password_modal = false;
+                    }
+                    Err(e) => {
+                        dbg!(e);
+                        // TODO: make error hanlde
+                    }
+                }
+
+                None
+            }
             Event::HandleChangeCustomField(new_list) => {
                 self.list_custom_fields = new_list;
 
@@ -224,11 +253,49 @@ where
             .push(scrolling);
 
         if self.password_modal {
-            let modal_col = Column::new();
-            let modal = Container::new(modal_col)
-                .width(300)
-                .height(300)
-                .style(zebra_ui::styles::container::primary_bordered);
+            let close_btn = Button::new(
+                zebra_ui::image::close_icon()
+                    .style(zebra_ui::styles::svg::primary_hover)
+                    .height(30)
+                    .width(30),
+            )
+            .padding(0)
+            .style(zebra_ui::styles::button::transparent)
+            .on_press(Event::HandleHidePasswordModal);
+            let close_btn = Column::new()
+                .push(close_btn)
+                .width(Length::Fill)
+                .align_items(iced::Alignment::End);
+            let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
+
+            // TODO: remoe unwrap
+            let pass_gen = PassGenForm::new(Arc::clone(&self.pass_gen_state))
+                .unwrap()
+                .height(200);
+            let pass_gen = Container::new(pass_gen);
+            let save_btn = Button::new(
+                Text::new(if self.password.is_empty() {
+                    t!("save_password")
+                } else {
+                    t!("edit_password")
+                })
+                .size(16)
+                .horizontal_alignment(iced::alignment::Horizontal::Center),
+            )
+            .style(zebra_ui::styles::button::outline_primary)
+            .padding(8)
+            .on_press(Event::HandleSavePassword);
+            let main_modal_col = Column::new()
+                .push(row_header)
+                .push(pass_gen)
+                .push(save_btn)
+                .push(Space::new(0, 8))
+                .padding(8)
+                .align_items(iced::Alignment::Center);
+
+            let modal = Container::new(main_modal_col)
+                .width(400)
+                .style(zebra_ui::styles::container::primary_bordered_modal);
             Modal::new(main_col, modal)
                 .on_blur(Event::HandleHidePasswordModal)
                 .into()
