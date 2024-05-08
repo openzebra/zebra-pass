@@ -210,6 +210,7 @@ where
         self.content.as_widget_mut().on_event(
             self.tree,
             event,
+            // TODO : Remove unswap
             layout.children().next().unwrap(),
             cursor,
             renderer,
@@ -243,6 +244,7 @@ where
             renderer,
             theme,
             style,
+            // TODO : Remove unswap
             layout.children().next().unwrap(),
             cursor,
             &layout.bounds(),
@@ -257,6 +259,7 @@ where
     ) {
         self.content.as_widget().operate(
             self.tree,
+            // TODO : Remove unswap
             layout.children().next().unwrap(),
             renderer,
             operation,
@@ -272,6 +275,7 @@ where
     ) -> mouse::Interaction {
         self.content.as_widget().mouse_interaction(
             self.tree,
+            // TODO : Remove unswap
             layout.children().next().unwrap(),
             cursor,
             viewport,
@@ -286,6 +290,7 @@ where
     ) -> Option<overlay::Element<'c, Message, Theme, Renderer>> {
         self.content.as_widget_mut().overlay(
             self.tree,
+            // TODO : Remove unswap
             layout.children().next().unwrap(),
             renderer,
             Vector::ZERO,

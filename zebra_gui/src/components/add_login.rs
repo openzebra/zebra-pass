@@ -9,6 +9,7 @@ use iced::widget::{
 use iced::{Element, Length, Renderer, Theme};
 
 use super::custom_field::AdditionField;
+use super::modal::Modal;
 use super::smart_input::SmartInput;
 
 pub struct AddLogin<'a, Message>
@@ -31,6 +32,7 @@ where
 pub enum Event {
     HandleReloadPassword,
     HandleSave,
+    HandleHidePasswordModal,
     HandleInputName(String),
     HandleInputUserName(String),
     HandleInputEmail(String),
@@ -75,6 +77,11 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
+            Event::HandleHidePasswordModal => {
+                self.password_modal = false;
+
+                None
+            }
             Event::HandleReloadPassword => {
                 self.password_modal = true;
 
@@ -217,10 +224,14 @@ where
             .push(scrolling);
 
         if self.password_modal {
-            // Modal::new(content, modal)
-            //     .on_blur(Message::HideModal)
-            //     .into()
-            Container::new(main_col).into()
+            let modal_col = Column::new();
+            let modal = Container::new(modal_col)
+                .width(300)
+                .height(300)
+                .style(zebra_ui::styles::container::primary_bordered);
+            Modal::new(main_col, modal)
+                .on_blur(Event::HandleHidePasswordModal)
+                .into()
         } else {
             Container::new(main_col).into()
         }
