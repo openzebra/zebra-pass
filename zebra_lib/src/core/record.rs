@@ -52,3 +52,16 @@ impl std::fmt::Display for Categories {
         write!(f, "{}", text)
     }
 }
+
+impl Default for Element {
+    fn default() -> Element {
+        Element {
+            icon: String::new(), // TODO: make it defualt icon
+            created: String::new(),
+            updated: String::new(),
+            favourite: false,
+            fields: Vec::new(),
+            extra_fields: Vec::new(),
+        }
+    }
+}
