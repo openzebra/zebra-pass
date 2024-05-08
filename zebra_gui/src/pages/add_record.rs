@@ -168,8 +168,9 @@ impl Page for AddRecordPage {
             .width(200)
             .push(categories);
         let form = match self.selected {
-            Categories::Login => {
-                let f = AddLogin::new().set_title(t!(&format!("item_{}", Categories::Login)));
+            Categories::Login(_) => {
+                let f = AddLogin::new()
+                    .set_title(t!(&format!("item_{}", Categories::Login.to_string())));
 
                 Container::new(f)
             }

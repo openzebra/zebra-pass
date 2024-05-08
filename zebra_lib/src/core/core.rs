@@ -1,7 +1,7 @@
 //! -- Copyright (c) 2023Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use crate::core::record::Element;
+use crate::core::record::Categories;
 use crate::keychain::keys::{KeyChain, AES_KEY_SIZE};
 use crate::{
     bip39::mnemonic::Mnemonic,
@@ -15,7 +15,7 @@ use std::fmt;
 
 pub struct Core {
     pub state: State,
-    pub data: Vec<Element>,
+    pub data: Vec<Categories>,
     keys: Option<KeyChain>,
     db: LocalStorage,
 }
@@ -93,7 +93,7 @@ impl Core {
         Ok(())
     }
 
-    pub fn add_element(&mut self, elem: Element) -> Result<(), ZebraErrors> {
+    pub fn add_element(&mut self, elem: Categories) -> Result<(), ZebraErrors> {
         self.data.push(elem);
         self.update()?;
 
@@ -148,7 +148,7 @@ impl Core {
         Ok(())
     }
 
-    fn get_data(&self) -> Result<Vec<Element>, ZebraErrors> {
+    fn get_data(&self) -> Result<Vec<Categories>, ZebraErrors> {
         let orders = &self.state.settings.cipher.cipher_orders;
         let secure_data_store = &self.state.secure_data_store;
 
@@ -212,7 +212,7 @@ mod core_tests {
     use crate::bip39::mnemonic::Language;
 
     use super::*;
-    use crate::core::record::Categories;
+    use crate::core::record::{Categories, Element};
     use rand;
     use rand::RngCore;
 
@@ -251,17 +251,14 @@ mod core_tests {
 
         let mut password = [0u8; 1245];
         let words_password = "test";
-        let data = vec![Element {
-            name: "test_name".to_string(),
-            website: "test_domain".to_string(),
+        let data = vec![Categories::Login(Element {
             icon: "test_icon_url".to_string(),
-            element_type: Categories::Login,
             created: "".to_string(),
             updated: "".to_string(),
             favourite: false,
             fields: vec![],
             extra_fields: vec![],
-        }];
+        })];
 
         rng.fill_bytes(&mut password);
 
