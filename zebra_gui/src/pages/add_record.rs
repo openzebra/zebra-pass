@@ -11,9 +11,9 @@ use zebra_lib::{core::core::Core, errors::ZebraErrors};
 use crate::components::add_login::AddLogin;
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::select_list;
-use crate::config::categories::Categories;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
+use zebra_lib::core::record::Categories;
 
 use super::error::ErrorPage;
 use super::gen::Generator;

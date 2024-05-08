@@ -212,7 +212,7 @@ mod core_tests {
     use crate::bip39::mnemonic::Language;
 
     use super::*;
-    use crate::core::record::ElementType;
+    use crate::core::record::Categories;
     use rand;
     use rand::RngCore;
 
@@ -255,7 +255,7 @@ mod core_tests {
             name: "test_name".to_string(),
             website: "test_domain".to_string(),
             icon: "test_icon_url".to_string(),
-            element_type: ElementType::Login,
+            element_type: Categories::Login,
             created: "".to_string(),
             updated: "".to_string(),
             favourite: false,
