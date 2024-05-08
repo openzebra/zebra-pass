@@ -44,47 +44,53 @@ impl Page for AddRecordPage {
         let selected_index = 0;
         let categories = vec![
             select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::Login)),
-                value: Categories::Login,
+                text: t!(&format!("item_{}", Categories::Login(Default::default()))),
+                value: Categories::Login(Default::default()),
             },
-            select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::CryptoWallet)),
-                value: Categories::CryptoWallet,
-            },
-            select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::CreditCard)),
-                value: Categories::CreditCard,
-            },
-            select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::Identity)),
-                value: Categories::Identity,
-            },
-            select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::BankAccount)),
-                value: Categories::BankAccount,
-            },
-            select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::EmailAccount)),
-                value: Categories::EmailAccount,
-            },
-            select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::Passport)),
-                value: Categories::Passport,
-            },
-            select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::DriverLicense)),
-                value: Categories::DriverLicense,
-            },
-            select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::WifiPassword)),
-                value: Categories::WifiPassword,
-            },
-            select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::Other)),
-                value: Categories::Other,
-            },
+            // select_list::SelectListField {
+            //     text: t!(&format!(
+            //         "item_{}",
+            //         Categories::CryptoWallet(Default::default())
+            //     )),
+            //     value: Categories::CryptoWallet,
+            // },
+            // select_list::SelectListField {
+            //     text: t!(&format!(
+            //         "item_{}",
+            //         Categories::CreditCard(Default::default())
+            //     )),
+            //     value: Categories::CreditCard,
+            // },
+            // select_list::SelectListField {
+            //     text: t!(&format!("item_{}", Categories::Identity)),
+            //     value: Categories::Identity,
+            // },
+            // select_list::SelectListField {
+            //     text: t!(&format!("item_{}", Categories::BankAccount)),
+            //     value: Categories::BankAccount,
+            // },
+            // select_list::SelectListField {
+            //     text: t!(&format!("item_{}", Categories::EmailAccount)),
+            //     value: Categories::EmailAccount,
+            // },
+            // select_list::SelectListField {
+            //     text: t!(&format!("item_{}", Categories::Passport)),
+            //     value: Categories::Passport,
+            // },
+            // select_list::SelectListField {
+            //     text: t!(&format!("item_{}", Categories::DriverLicense)),
+            //     value: Categories::DriverLicense,
+            // },
+            // select_list::SelectListField {
+            //     text: t!(&format!("item_{}", Categories::WifiPassword)),
+            //     value: Categories::WifiPassword,
+            // },
+            // select_list::SelectListField {
+            //     text: t!(&format!("item_{}", Categories::Other)),
+            //     value: Categories::Other,
+            // },
         ];
-        let selected = Categories::Login;
+        let selected = Categories::Login(Default::default());
 
         Ok(Self {
             selected_index,
@@ -169,8 +175,10 @@ impl Page for AddRecordPage {
             .push(categories);
         let form = match self.selected {
             Categories::Login(_) => {
-                let f = AddLogin::new()
-                    .set_title(t!(&format!("item_{}", Categories::Login.to_string())));
+                let f = AddLogin::new().set_title(t!(&format!(
+                    "item_{}",
+                    Categories::Login(Default::default())
+                )));
 
                 Container::new(f)
             }
