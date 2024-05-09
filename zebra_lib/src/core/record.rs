@@ -17,6 +17,7 @@ pub struct Element {
     pub created: String,
     pub updated: String,
     pub favourite: bool,
+    pub note: String,
     pub fields: Vec<Item>,
     pub extra_fields: Vec<Item>,
 }
@@ -59,6 +60,7 @@ impl Default for Element {
             icon: String::new(), // TODO: make it defualt icon
             created: String::new(),
             updated: String::new(),
+            note: String::new(),
             favourite: false,
             fields: Vec::new(),
             extra_fields: Vec::new(),

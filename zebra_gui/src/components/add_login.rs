@@ -196,7 +196,7 @@ where
             .set_value(&self.email)
             .padding(INPUT_PADDING)
             .on_input(Event::HandleInputEmail)
-            .set_placeholder(t!("placeholder_username"));
+            .set_placeholder(t!("placeholder_email"));
         let email_input = Container::new(email_input);
 
         let password_input = SmartInput::new()

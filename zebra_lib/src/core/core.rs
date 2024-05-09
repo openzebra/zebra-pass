@@ -255,6 +255,7 @@ mod core_tests {
             icon: "test_icon_url".to_string(),
             created: "".to_string(),
             updated: "".to_string(),
+            note: String::new(),
             favourite: false,
             fields: vec![],
             extra_fields: vec![],

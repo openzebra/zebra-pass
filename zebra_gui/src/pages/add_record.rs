@@ -13,7 +13,7 @@ use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::select_list;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
-use zebra_lib::core::record::Categories;
+use zebra_lib::core::record;
 
 use super::error::ErrorPage;
 use super::gen::Generator;
@@ -24,8 +24,8 @@ use super::Page;
 #[derive(Debug)]
 pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
-    categories: Vec<select_list::SelectListField<Categories>>,
-    selected: Categories,
+    categories: Vec<select_list::SelectListField<record::Categories>>,
+    selected: record::Categories,
     selected_index: usize,
 }
 
@@ -44,8 +44,46 @@ impl Page for AddRecordPage {
         let selected_index = 0;
         let categories = vec![
             select_list::SelectListField {
-                text: t!(&format!("item_{}", Categories::Login(Default::default()))),
-                value: Categories::Login(Default::default()),
+                text: t!(&format!(
+                    "item_{}",
+                    record::Categories::Login(Default::default())
+                )),
+                value: record::Categories::Login(record::Element {
+                    fields: vec![
+                        record::Item {
+                            title: t!("placeholder_name"),
+                            value: String::new(),
+                            hide: false,
+                            copy: true,
+                        },
+                        record::Item {
+                            title: t!("placeholder_domain"),
+                            value: String::new(),
+                            hide: false,
+                            copy: true,
+                        },
+                        record::Item {
+                            title: t!("placeholder_username"),
+                            value: String::new(),
+                            hide: false,
+                            copy: true,
+                        },
+                        record::Item {
+                            title: t!("placeholder_email"),
+                            value: String::new(),
+                            hide: false,
+                            copy: true,
+                        },
+                        record::Item {
+                            title: t!("placeholder_password"),
+                            value: String::new(),
+                            hide: true,
+                            copy: true,
+                        },
+                    ],
+                    extra_fields: Vec::new(),
+                    ..Default::default()
+                }),
             },
             // select_list::SelectListField {
             //     text: t!(&format!(
@@ -90,7 +128,7 @@ impl Page for AddRecordPage {
             //     value: Categories::Other,
             // },
         ];
-        let selected = Categories::Login(Default::default());
+        let selected = record::Categories::Login(Default::default());
 
         Ok(Self {
             selected_index,
@@ -174,10 +212,10 @@ impl Page for AddRecordPage {
             .width(200)
             .push(categories);
         let form = match self.selected {
-            Categories::Login(_) => {
+            record::Categories::Login(_) => {
                 let f = AddLogin::new().set_title(t!(&format!(
                     "item_{}",
-                    Categories::Login(Default::default())
+                    record::Categories::Login(Default::default())
                 )));
 
                 Container::new(f)
