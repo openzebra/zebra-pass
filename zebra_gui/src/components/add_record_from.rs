@@ -10,23 +10,18 @@ use iced::widget::{
 use iced::{Element, Length, Renderer, Theme};
 use std::sync::{Arc, Mutex};
 
-use super::custom_field::AdditionField;
 use super::modal::Modal;
 use super::smart_input::SmartInput;
+use zebra_lib::core::record;
 
-pub struct AddLogin<'a, Message>
+pub struct AddRecordForm<'a, Message>
 where
     Message: Clone,
 {
+    element: &'a record::Element,
     title: String,
-    on_submit: Option<Box<dyn Fn(String) -> Message + 'a>>,
-    name: String,
-    username: String,
-    email: String,
-    password: String,
-    domain: String,
+    on_input: Option<Box<dyn Fn(record::Element) -> Message + 'a>>,
     content: text_editor::Content,
-    list_custom_fields: Vec<AdditionField>,
     password_modal: bool,
     pass_gen_state: Arc<Mutex<PassGenState>>,
 }
@@ -36,35 +31,31 @@ pub enum Event {
     HandleReloadPassword,
     HandleSave,
     HandleHidePasswordModal,
-    HandleInputName(String),
+    HandleInputFieldValue(usize, String),
     HandleSavePassword,
     HandleInputUserName(String),
     HandleInputEmail(String),
     HandleInputPassword(String),
     HandleInputDomain(String),
-    HandleChangeCustomField(Vec<AdditionField>),
+    HandleChangeCustomField(Vec<record::Item>),
     HandleActionNote(text_editor::Action),
 }
 
-impl<'a, Message: Clone> AddLogin<'a, Message>
+impl<'a, Message: Clone> AddRecordForm<'a, Message>
 where
     Message: Clone,
 {
-    pub fn new() -> Self {
+    pub fn from(element: &'a record::Element) -> Self {
         let pass_gen_state = Arc::new(Mutex::new(PassGenState {
             value: String::new(),
             length: 45,
         }));
+
         Self {
+            element,
             title: String::new(),
-            on_submit: None,
-            name: String::new(),
-            username: String::new(),
-            email: String::new(),
-            password: String::new(),
-            domain: String::new(),
+            on_input: None,
             content: text_editor::Content::new(),
-            list_custom_fields: Vec::new(),
             password_modal: false,
             pass_gen_state,
         }
@@ -75,9 +66,18 @@ where
 
         self
     }
+
+    pub fn on_input<F>(mut self, callback: F) -> Self
+    where
+        F: 'a + Fn(record::Element) -> Message,
+    {
+        self.on_input = Some(Box::new(callback));
+
+        self
+    }
 }
 
-impl<'a, Message> Component<Message, Theme, Renderer> for AddLogin<'a, Message>
+impl<'a, Message> Component<Message, Theme, Renderer> for AddRecordForm<'a, Message>
 where
     Message: Clone,
 {
@@ -96,24 +96,35 @@ where
 
                 None
             }
-            Event::HandleInputName(v) => {
-                self.name = v;
-                None
+            Event::HandleInputFieldValue(index, value) => {
+                if let Some(on_submit) = &self.on_input {
+                    let mut new_element = self.element.clone();
+
+                    match new_element.fields.get_mut(index) {
+                        Some(el) => {
+                            el.value = value;
+                            Some(on_submit(new_element))
+                        }
+                        None => None,
+                    }
+                } else {
+                    None
+                }
             }
             Event::HandleInputUserName(v) => {
-                self.username = v;
+                //
                 None
             }
             Event::HandleInputEmail(v) => {
-                self.email = v;
+                //
                 None
             }
             Event::HandleInputDomain(v) => {
-                self.domain = v;
+                //
                 None
             }
             Event::HandleInputPassword(v) => {
-                self.password = v;
+                //
                 None
             }
             Event::HandleActionNote(a) => {
@@ -122,8 +133,10 @@ where
                 None
             }
             Event::HandleSave => {
-                if let Some(on_submit) = &self.on_submit {
-                    Some(on_submit(String::new()))
+                if let Some(on_submit) = &self.on_input {
+                    let new_element = self.element.clone();
+
+                    Some(on_submit(new_element))
                 } else {
                     None
                 }
@@ -131,7 +144,7 @@ where
             Event::HandleSavePassword => {
                 match self.pass_gen_state.lock() {
                     Ok(state) => {
-                        self.password = state.value.to_string();
+                        // self.password = state.value.to_string();
                         self.password_modal = false;
                     }
                     Err(e) => {
@@ -143,9 +156,15 @@ where
                 None
             }
             Event::HandleChangeCustomField(new_list) => {
-                self.list_custom_fields = new_list;
+                if let Some(on_submit) = &self.on_input {
+                    let mut new_element = self.element.clone();
 
-                None
+                    new_element.extra_fields = new_list;
+
+                    Some(on_submit(new_element))
+                } else {
+                    None
+                }
             }
         }
     }
@@ -171,42 +190,20 @@ where
             .push(Space::new(INDENT_HEAD, 0))
             .align_items(iced::Alignment::Center);
 
-        let name_input = SmartInput::new()
-            .set_value(&self.name)
-            .padding(INPUT_PADDING)
-            .on_input(Event::HandleInputName)
-            .set_placeholder(t!("placeholder_name"));
-        let name_input = Container::new(name_input);
-
-        let domain_input = SmartInput::new()
-            .set_value(&self.domain)
-            .padding(INPUT_PADDING)
-            .on_input(Event::HandleInputDomain)
-            .set_placeholder(t!("placeholder_domain"));
-        let domain_input = Container::new(domain_input);
-
-        let username_input = SmartInput::new()
-            .set_value(&self.username)
-            .padding(INPUT_PADDING)
-            .on_input(Event::HandleInputUserName)
-            .set_placeholder(t!("placeholder_username"));
-        let username_input = Container::new(username_input);
-
-        let email_input = SmartInput::new()
-            .set_value(&self.email)
-            .padding(INPUT_PADDING)
-            .on_input(Event::HandleInputEmail)
-            .set_placeholder(t!("placeholder_email"));
-        let email_input = Container::new(email_input);
-
-        let password_input = SmartInput::new()
-            .set_value(&self.password)
-            .padding(INPUT_PADDING)
-            .set_secure(true)
-            .set_reload(Event::HandleReloadPassword)
-            .on_input(Event::HandleInputPassword)
-            .set_placeholder(t!("placeholder_password"));
-        let password_input = Container::new(password_input);
+        let fields: Vec<iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer>> =
+            self.element
+                .fields
+                .iter()
+                .enumerate()
+                .map(|(index, field)| {
+                    SmartInput::new()
+                        .set_value(&field.value)
+                        .padding(INPUT_PADDING)
+                        .on_input(move |v| Event::HandleInputFieldValue(index, v))
+                        .set_placeholder(field.title.clone())
+                        .into()
+                })
+                .collect();
 
         let note_label = Text::new(t!("label_notes"))
             .size(14)
@@ -222,21 +219,17 @@ where
         let custom_fields = CustomFields::new()
             .set_padding(INDENT_HEAD)
             .on_input(Event::HandleChangeCustomField)
-            .set_list(&self.list_custom_fields);
-        let new_item_container = Container::new(custom_fields);
+            .set_list(&self.element.extra_fields);
+        let custom_fields = Container::new(custom_fields);
 
-        let scrol_col = Column::new()
+        // let custom_field_col = Column::with_children(custom_fields).spacing(8);
+        let scrol_col = Column::with_children(fields)
             .spacing(8)
             .padding(INDENT_HEAD)
             .width(Length::Fill)
             .align_items(iced::Alignment::Center)
-            .push(name_input)
-            .push(email_input)
-            .push(domain_input)
-            .push(username_input)
-            .push(password_input)
             .push(Space::new(0, INDENT_HEAD))
-            .push(new_item_container)
+            .push(custom_fields)
             .push(Space::new(0, INDENT_HEAD))
             .push(note_label)
             .push(notes)
@@ -274,7 +267,9 @@ where
                 .height(200);
             let pass_gen = Container::new(pass_gen);
             let save_btn = Button::new(
-                Text::new(if self.password.is_empty() {
+                // Text::new(if self.password.is_empty() {
+                Text::new(if false {
+                    // TODO: make mechanism for password field detect
                     t!("save_password")
                 } else {
                     t!("edit_password")
@@ -305,11 +300,11 @@ where
     }
 }
 
-impl<'a, Message> From<AddLogin<'a, Message>> for Element<'a, Message>
+impl<'a, Message> From<AddRecordForm<'a, Message>> for Element<'a, Message>
 where
     Message: 'a + Clone,
 {
-    fn from(form: AddLogin<'a, Message>) -> Self {
+    fn from(form: AddRecordForm<'a, Message>) -> Self {
         component(form)
     }
 }

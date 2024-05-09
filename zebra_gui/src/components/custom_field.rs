@@ -6,23 +6,17 @@ use iced::widget::{component, Button, Checkbox, Column, Component, Container, Ro
 use iced::{Element, Length, Padding, Renderer, Theme};
 
 use super::smart_input::SmartInput;
-
-#[derive(Clone, Debug)]
-pub struct AdditionField {
-    value: String,
-    secure: bool,
-    label: String,
-}
+use zebra_lib::core::record::Item;
 
 pub struct CustomFields<'a, Message>
 where
     Message: Clone,
 {
-    on_input: Option<Box<dyn Fn(Vec<AdditionField>) -> Message + 'a>>,
+    on_input: Option<Box<dyn Fn(Vec<Item>) -> Message + 'a>>,
     check_box_secure: bool,
     input_padding: u16,
     container_padding: Padding,
-    list: &'a [AdditionField],
+    list: &'a [Item],
     label: String,
 }
 
@@ -55,7 +49,7 @@ where
         self
     }
 
-    pub fn set_list(mut self, list: &'a [AdditionField]) -> Self {
+    pub fn set_list(mut self, list: &'a [Item]) -> Self {
         self.list = list;
 
         self
@@ -63,7 +57,7 @@ where
 
     pub fn on_input<F>(mut self, callback: F) -> Self
     where
-        F: 'a + Fn(Vec<AdditionField>) -> Message,
+        F: 'a + Fn(Vec<Item>) -> Message,
     {
         self.on_input = Some(Box::new(callback));
 
@@ -84,10 +78,11 @@ where
                 if let Some(cb) = &self.on_input {
                     let mut new_list = self.list.to_vec();
 
-                    new_list.push(AdditionField {
+                    new_list.push(Item {
+                        title: self.label.to_string(),
                         value: String::new(),
-                        secure: self.check_box_secure,
-                        label: self.label.to_string(),
+                        hide: self.check_box_secure,
+                        copy: true,
                     });
 
                     Some(cb(new_list))
@@ -158,10 +153,11 @@ where
                 .style(zebra_ui::styles::button::transparent);
                 let new_field: SmartInput<'_, Event> = SmartInput::new()
                     .set_value(&field.value)
-                    .set_label(&field.label)
+                    .set_label(&field.title)
+                    // .set_copy(&field.copy)
                     .padding(self.input_padding)
                     .on_input(move |v| Event::HandleInputCustomField((index, v)))
-                    .set_secure(field.secure);
+                    .set_secure(field.hide);
                 let field = Container::new(new_field).width(Length::FillPortion(2));
                 let field_row = Row::new()
                     .push(field)

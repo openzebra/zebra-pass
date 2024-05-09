@@ -8,7 +8,7 @@ use iced::widget::{Column, Container, Row, Text};
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
-use crate::components::add_login::AddLogin;
+use crate::components::add_record_from::AddRecordForm;
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::select_list;
 use crate::gui::{GlobalMessage, Routers};
@@ -25,7 +25,6 @@ use super::Page;
 pub struct AddRecordPage {
     core: Arc<Mutex<Core>>,
     categories: Vec<select_list::SelectListField<record::Categories>>,
-    selected: record::Categories,
     selected_index: usize,
 }
 
@@ -35,6 +34,7 @@ pub enum AddRecordPageMessage {
     RouteHome,
     RouteSettings,
     HanldeSelectCategories(usize),
+    HanldeInput(record::Element),
 }
 
 impl Page for AddRecordPage {
@@ -128,13 +128,11 @@ impl Page for AddRecordPage {
             //     value: Categories::Other,
             // },
         ];
-        let selected = record::Categories::Login(Default::default());
 
         Ok(Self {
             selected_index,
             core,
             categories,
-            selected,
         })
     }
 
@@ -182,14 +180,50 @@ impl Page for AddRecordPage {
             },
             AddRecordPageMessage::HanldeSelectCategories(index) => {
                 match self.categories.get(index) {
-                    Some(v) => {
+                    Some(_) => {
                         self.selected_index = index;
-                        self.selected = v.value.clone();
                     }
                     None => {}
                 };
 
                 Command::none()
+            }
+            AddRecordPageMessage::HanldeInput(new_element) => {
+                match self.categories.get_mut(self.selected_index) {
+                    Some(element) => {
+                        element.value = match &element.value {
+                            record::Categories::Login(_) => record::Categories::Login(new_element),
+                            record::Categories::CreditCard(_) => {
+                                record::Categories::CreditCard(new_element)
+                            }
+                            record::Categories::CryptoWallet(_) => {
+                                record::Categories::CryptoWallet(new_element)
+                            }
+                            record::Categories::Identity(_) => {
+                                record::Categories::Identity(new_element)
+                            }
+                            record::Categories::BankAccount(_) => {
+                                record::Categories::BankAccount(new_element)
+                            }
+                            record::Categories::EmailAccount(_) => {
+                                record::Categories::EmailAccount(new_element)
+                            }
+                            record::Categories::Passport(_) => {
+                                record::Categories::Passport(new_element)
+                            }
+                            record::Categories::DriverLicense(_) => {
+                                record::Categories::DriverLicense(new_element)
+                            }
+                            record::Categories::WifiPassword(_) => {
+                                record::Categories::WifiPassword(new_element)
+                            }
+                            record::Categories::Other(_) => record::Categories::Other(new_element),
+                        };
+
+                        Command::none()
+                    }
+                    None => Command::none(),
+                }
             }
         }
     }
@@ -211,21 +245,31 @@ impl Page for AddRecordPage {
             .height(Length::Fill)
             .width(200)
             .push(categories);
-        let form = match self.selected {
-            record::Categories::Login(_) => {
-                let f = AddLogin::new().set_title(t!(&format!(
-                    "item_{}",
-                    record::Categories::Login(Default::default())
-                )));
+        let form = if let Some(selected) = self.categories.get(self.selected_index) {
+            match &selected.value {
+                record::Categories::Login(elem) => {
+                    let f = AddRecordForm::from(&elem)
+                        .set_title(t!(&format!(
+                            "item_{}",
+                            record::Categories::Login(Default::default())
+                        )))
+                        .on_input(AddRecordPageMessage::HanldeInput);
 
-                Container::new(f)
-            }
-            _ => {
-                let ctx = Text::new("not implemented yet");
+                    Container::new(f)
+                }
+                _ => {
+                    let ctx = Text::new("not implemented yet");
 
-                Container::new(ctx)
+                    Container::new(ctx)
+                }
             }
+        } else {
+            // TODO: make error hanlder
+            let error = Text::new("NOT WORKS");
+
+            Container::new(error)
         };
+
         let content_row = Row::new().push(left_col).push(vline).push(form);
         let main_container = Container::new(content_row).width(Length::Fill);
 
