@@ -23,6 +23,7 @@ where
     on_input: Option<Box<dyn Fn(record::Element) -> Message + 'a>>,
     content: text_editor::Content,
     password_modal: bool,
+    modal_index_element: usize,
     pass_gen_state: Arc<Mutex<PassGenState>>,
 }
 
@@ -32,11 +33,8 @@ pub enum Event {
     HandleSave,
     HandleHidePasswordModal,
     HandleInputFieldValue(usize, String),
+    HandleReloadInput(usize),
     HandleSavePassword,
-    HandleInputUserName(String),
-    HandleInputEmail(String),
-    HandleInputPassword(String),
-    HandleInputDomain(String),
     HandleChangeCustomField(Vec<record::Item>),
     HandleActionNote(text_editor::Action),
 }
@@ -57,6 +55,7 @@ where
             on_input: None,
             content: text_editor::Content::new(),
             password_modal: false,
+            modal_index_element: 0,
             pass_gen_state,
         }
     }
@@ -111,22 +110,6 @@ where
                     None
                 }
             }
-            Event::HandleInputUserName(v) => {
-                //
-                None
-            }
-            Event::HandleInputEmail(v) => {
-                //
-                None
-            }
-            Event::HandleInputDomain(v) => {
-                //
-                None
-            }
-            Event::HandleInputPassword(v) => {
-                //
-                None
-            }
             Event::HandleActionNote(a) => {
                 self.content.perform(a);
 
@@ -144,16 +127,27 @@ where
             Event::HandleSavePassword => {
                 match self.pass_gen_state.lock() {
                     Ok(state) => {
-                        // self.password = state.value.to_string();
+                        let mut new_element = self.element.clone();
+
                         self.password_modal = false;
+
+                        match new_element.fields.get_mut(self.modal_index_element) {
+                            Some(el) => el.value = state.value.to_string(),
+                            None => return None,
+                        };
+
+                        if let Some(on_submit) = &self.on_input {
+                            Some(on_submit(new_element))
+                        } else {
+                            None
+                        }
                     }
                     Err(e) => {
                         dbg!(e);
                         // TODO: make error hanlde
+                        None
                     }
                 }
-
-                None
             }
             Event::HandleChangeCustomField(new_list) => {
                 if let Some(on_submit) = &self.on_input {
@@ -165,6 +159,11 @@ where
                 } else {
                     None
                 }
+            }
+            Event::HandleReloadInput(index) => {
+                self.modal_index_element = index;
+                self.password_modal = true;
+                None
             }
         }
     }
@@ -196,12 +195,18 @@ where
                 .iter()
                 .enumerate()
                 .map(|(index, field)| {
-                    SmartInput::new()
+                    let mut input = SmartInput::new()
                         .set_value(&field.value)
                         .padding(INPUT_PADDING)
+                        .set_secure(field.hide)
                         .on_input(move |v| Event::HandleInputFieldValue(index, v))
-                        .set_placeholder(field.title.clone())
-                        .into()
+                        .set_placeholder(field.title.clone());
+
+                    if field.reload {
+                        input = input.set_reload(Event::HandleReloadInput(index));
+                    }
+
+                    input.into()
                 })
                 .collect();
 
@@ -222,7 +227,6 @@ where
             .set_list(&self.element.extra_fields);
         let custom_fields = Container::new(custom_fields);
 
-        // let custom_field_col = Column::with_children(custom_fields).spacing(8);
         let scrol_col = Column::with_children(fields)
             .spacing(8)
             .padding(INDENT_HEAD)
@@ -267,12 +271,15 @@ where
                 .height(200);
             let pass_gen = Container::new(pass_gen);
             let save_btn = Button::new(
-                // Text::new(if self.password.is_empty() {
-                Text::new(if false {
-                    // TODO: make mechanism for password field detect
-                    t!("save_password")
-                } else {
-                    t!("edit_password")
+                Text::new(match self.element.fields.get(self.modal_index_element) {
+                    Some(el) => {
+                        if el.value.is_empty() {
+                            t!("save_password")
+                        } else {
+                            t!("edit_password")
+                        }
+                    }
+                    None => t!("edit_password"),
                 })
                 .size(16)
                 .horizontal_alignment(iced::alignment::Horizontal::Center),

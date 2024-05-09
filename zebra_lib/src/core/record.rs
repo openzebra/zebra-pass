@@ -9,6 +9,7 @@ pub struct Item {
     pub value: String,
     pub hide: bool,
     pub copy: bool,
+    pub reload: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

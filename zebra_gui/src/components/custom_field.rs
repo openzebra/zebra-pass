@@ -83,6 +83,7 @@ where
                         value: String::new(),
                         hide: self.check_box_secure,
                         copy: true,
+                        reload: false,
                     });
 
                     Some(cb(new_list))
