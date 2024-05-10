@@ -21,6 +21,7 @@ where
     element: &'a record::Element,
     title: String,
     on_input: Option<Box<dyn Fn(record::Element) -> Message + 'a>>,
+    on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
     on_save: Option<Message>,
     content: text_editor::Content,
     password_modal: bool,
@@ -34,6 +35,7 @@ pub enum Event {
     HandleSave,
     HandleHidePasswordModal,
     HandleInputFieldValue(usize, String),
+    HandleInputFieldCopy(usize),
     HandleReloadInput(usize),
     HandleSavePassword,
     HandleChangeCustomField(Vec<record::Item>),
@@ -54,6 +56,7 @@ where
             element,
             title: String::new(),
             on_input: None,
+            on_copy: None,
             on_save: None,
             content: text_editor::Content::with_text(&element.note),
             password_modal: false,
@@ -70,6 +73,15 @@ where
 
     pub fn set_title(mut self, title: String) -> Self {
         self.title = title;
+
+        self
+    }
+
+    pub fn on_copy<F>(mut self, callback: F) -> Self
+    where
+        F: 'a + Fn(String) -> Message,
+    {
+        self.on_copy = Some(Box::new(callback));
 
         self
     }
@@ -173,6 +185,16 @@ where
                 self.password_modal = true;
                 None
             }
+            Event::HandleInputFieldCopy(index) => {
+                if let Some(on_copy) = &self.on_copy {
+                    match self.element.fields.get(index) {
+                        Some(el) => Some(on_copy(el.value.clone())),
+                        None => None,
+                    }
+                } else {
+                    None
+                }
+            }
         }
     }
 
@@ -212,6 +234,10 @@ where
 
                     if field.reload {
                         input = input.set_reload(Event::HandleReloadInput(index));
+                    }
+
+                    if field.copy && !field.value.is_empty() {
+                        input = input.set_copy(Event::HandleInputFieldCopy(index));
                     }
 
                     input.into()

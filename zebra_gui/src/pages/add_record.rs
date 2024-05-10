@@ -36,6 +36,7 @@ pub enum AddRecordPageMessage {
     RouteHome,
     RouteSettings,
     SaveRecord,
+    Copy(String),
     TabPressed(bool),
     HanldeSelectCategories(usize),
     HanldeInput(record::Element),
@@ -156,6 +157,7 @@ impl Page for AddRecordPage {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
+            AddRecordPageMessage::Copy(value) => iced::clipboard::write::<GlobalMessage>(value),
             AddRecordPageMessage::SaveRecord => {
                 dbg!("asfbdskj");
                 Command::none()
@@ -278,6 +280,7 @@ impl Page for AddRecordPage {
                             "item_{}",
                             record::Categories::Login(Default::default())
                         )))
+                        .on_copy(AddRecordPageMessage::Copy)
                         .set_save(AddRecordPageMessage::SaveRecord)
                         .on_input(AddRecordPageMessage::HanldeInput);
 
