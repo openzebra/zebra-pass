@@ -21,6 +21,7 @@ where
     element: &'a record::Element,
     title: String,
     on_input: Option<Box<dyn Fn(record::Element) -> Message + 'a>>,
+    on_save: Option<Message>,
     content: text_editor::Content,
     password_modal: bool,
     modal_index_element: usize,
@@ -53,11 +54,18 @@ where
             element,
             title: String::new(),
             on_input: None,
+            on_save: None,
             content: text_editor::Content::with_text(&element.note),
             password_modal: false,
             modal_index_element: 0,
             pass_gen_state,
         }
+    }
+
+    pub fn set_save(mut self, msg: Message) -> Self {
+        self.on_save = Some(msg);
+
+        self
     }
 
     pub fn set_title(mut self, title: String) -> Self {
@@ -123,15 +131,7 @@ where
                     None
                 }
             }
-            Event::HandleSave => {
-                if let Some(on_submit) = &self.on_input {
-                    let new_element = self.element.clone();
-
-                    Some(on_submit(new_element))
-                } else {
-                    None
-                }
-            }
+            Event::HandleSave => self.on_save.clone(),
             Event::HandleSavePassword => {
                 match self.pass_gen_state.lock() {
                     Ok(state) => {

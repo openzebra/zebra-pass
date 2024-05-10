@@ -35,6 +35,7 @@ pub enum AddRecordPageMessage {
     RouteGen,
     RouteHome,
     RouteSettings,
+    SaveRecord,
     TabPressed(bool),
     HanldeSelectCategories(usize),
     HanldeInput(record::Element),
@@ -155,6 +156,10 @@ impl Page for AddRecordPage {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
+            AddRecordPageMessage::SaveRecord => {
+                dbg!("asfbdskj");
+                Command::none()
+            }
             AddRecordPageMessage::TabPressed(shift) => {
                 if shift {
                     iced::widget::focus_previous()
@@ -273,6 +278,7 @@ impl Page for AddRecordPage {
                             "item_{}",
                             record::Categories::Login(Default::default())
                         )))
+                        .set_save(AddRecordPageMessage::SaveRecord)
                         .on_input(AddRecordPageMessage::HanldeInput);
 
                     Container::new(f)

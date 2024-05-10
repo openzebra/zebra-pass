@@ -189,11 +189,12 @@ where
         let col = if let Some(label) = &self.label {
             let label = Text::new(label.to_string())
                 .size(self.label_size)
+                .line_height(0.1)
                 .style(zebra_ui::styles::text::muted);
             let label_row = Row::new().push(Space::new(5, 0)).push(label);
 
             Column::new()
-                .push(Space::new(0, 5))
+                .push(Space::new(0, 15))
                 .push(label_row)
                 .push(input)
         } else {
