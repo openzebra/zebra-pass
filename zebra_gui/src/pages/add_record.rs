@@ -4,6 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
+use iced::keyboard::key::Named;
 use iced::widget::{Column, Container, Row, Text};
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
@@ -13,6 +14,7 @@ use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::select_list;
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
+use iced::keyboard;
 use zebra_lib::core::record;
 
 use super::error::ErrorPage;
@@ -33,6 +35,7 @@ pub enum AddRecordPageMessage {
     RouteGen,
     RouteHome,
     RouteSettings,
+    TabPressed(bool),
     HanldeSelectCategories(usize),
     HanldeInput(record::Element),
 }
@@ -142,11 +145,23 @@ impl Page for AddRecordPage {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        Subscription::none()
+        keyboard::on_key_press(|key_code, modifiers| match (key_code, modifiers) {
+            (keyboard::Key::Named(Named::Tab), _) => {
+                Some(AddRecordPageMessage::TabPressed(modifiers.shift()))
+            }
+            _ => None,
+        })
     }
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
+            AddRecordPageMessage::TabPressed(shift) => {
+                if shift {
+                    iced::widget::focus_previous()
+                } else {
+                    iced::widget::focus_next()
+                }
+            }
             AddRecordPageMessage::RouteGen => match Generator::new(Arc::clone(&self.core)) {
                 Ok(gen) => {
                     let route = Routers::Generator(gen);
