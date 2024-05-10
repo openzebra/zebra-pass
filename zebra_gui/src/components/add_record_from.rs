@@ -53,7 +53,7 @@ where
             element,
             title: String::new(),
             on_input: None,
-            content: text_editor::Content::new(),
+            content: text_editor::Content::with_text(&element.note),
             password_modal: false,
             modal_index_element: 0,
             pass_gen_state,
@@ -113,7 +113,15 @@ where
             Event::HandleActionNote(a) => {
                 self.content.perform(a);
 
-                None
+                if let Some(on_submit) = &self.on_input {
+                    let mut new_element = self.element.clone();
+
+                    new_element.note = self.content.text();
+
+                    Some(on_submit(new_element))
+                } else {
+                    None
+                }
             }
             Event::HandleSave => {
                 if let Some(on_submit) = &self.on_input {
