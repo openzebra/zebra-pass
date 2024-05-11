@@ -224,7 +224,7 @@ where
                 } else {
                     None
                 });
-            row = row.push(eye_btn);
+            row = row.spacing(4).push(eye_btn);
         }
 
         if self.on_copy.is_some() {
