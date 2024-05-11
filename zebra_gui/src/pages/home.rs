@@ -4,12 +4,14 @@
 
 use std::sync::{Arc, Mutex};
 
+use crate::components::select_list;
 use crate::rust_i18n::t;
 use iced::widget::{Button, Column, Container, Row, Text};
 use iced::{alignment, Command, Element, Length, Subscription};
+use zebra_lib::core::record;
 use zebra_lib::{core::core::Core, errors::ZebraErrors};
 
-use crate::components::home_nav_bar::{NavBar, NavRoute};
+use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::gui::{GlobalMessage, Routers};
 
 use super::add_record::AddRecordPage;
@@ -21,6 +23,8 @@ use super::Page;
 #[derive(Debug)]
 pub struct Home {
     core: Arc<Mutex<Core>>,
+    selected_index: usize,
+    categories_list: Vec<select_list::SelectListField<record::Categories>>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -28,13 +32,31 @@ pub enum HomeMessage {
     RouteGen,
     RouteSettings,
     AddRecord,
+    HanldeSelectCategories(usize),
 }
 
 impl Page for Home {
     type Message = HomeMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        Ok(Self { core })
+        let records = match core.lock() {
+            // TODO: this is bad praticle! the big array copy in ram, need rework with pointers.
+            Ok(state) => state.data.clone(),
+            Err(_) => Vec::new(),
+        };
+        let categories_list: Vec<select_list::SelectListField<record::Categories>> = records
+            .iter()
+            .map(|element| select_list::SelectListField {
+                text: element.get_value().name.to_string(),
+                value: element.clone(),
+            })
+            .collect();
+
+        Ok(Self {
+            core,
+            categories_list,
+            selected_index: 0,
+        })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -79,12 +101,17 @@ impl Page for Home {
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
+            HomeMessage::HanldeSelectCategories(index) => {
+                self.selected_index = index;
+
+                Command::none()
+            }
         }
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let records = &self.core.lock().unwrap().data; // TODO: remove unwrap..
-        let content = Container::new(if records.is_empty() {
+        let records = &self.core.lock().unwrap(); // TODO: remove unwrap..
+        let content = Container::new(if records.data.is_empty() {
             self.view_options()
         } else {
             self.view_records()
@@ -139,10 +166,23 @@ impl Home {
     }
 
     pub fn view_records(&self) -> Container<HomeMessage> {
+        let categories = select_list::SelectList::from(&self.categories_list)
+            .on_select(HomeMessage::HanldeSelectCategories)
+            .set_selected_index(self.selected_index)
+            .set_text_horizontal_alignmen(iced::alignment::Horizontal::Left)
+            .set_line_gap(10)
+            .set_field_padding(8);
+        let categories = Container::new(categories);
+
         let vline = zebra_ui::components::line::Linear::new()
             .width(Length::Fixed(1.0))
-            .height(Length::Fill);
-        let left_search_col = Column::new().height(Length::Fill).width(200);
+            .height(Length::Fill)
+            .style(zebra_ui::styles::line::line_secondary)
+            .alfa(LINE_ALFA_CHANNEL);
+        let left_search_col = Column::new()
+            .height(Length::Fill)
+            .width(200)
+            .push(categories);
         let row = Row::new().push(left_search_col).push(vline);
 
         Container::new(row)

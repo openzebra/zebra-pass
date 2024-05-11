@@ -56,13 +56,6 @@ impl Page for AddRecordPage {
                 value: record::Categories::Login(record::Element {
                     fields: vec![
                         record::Item {
-                            title: t!("placeholder_name"),
-                            value: String::new(),
-                            hide: false,
-                            copy: true,
-                            reload: false,
-                        },
-                        record::Item {
                             title: t!("placeholder_domain"),
                             value: String::new(),
                             hide: false,
@@ -158,10 +151,31 @@ impl Page for AddRecordPage {
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
             AddRecordPageMessage::Copy(value) => iced::clipboard::write::<GlobalMessage>(value),
-            AddRecordPageMessage::SaveRecord => {
-                dbg!("asfbdskj");
-                Command::none()
-            }
+            AddRecordPageMessage::SaveRecord => match self.core.lock() {
+                Ok(mut core) => match self.categories.get(self.selected_index) {
+                    Some(category) => match core.add_element(category.value.clone()) {
+                        Ok(_) => {
+                            dbg!("saved");
+                            //
+                            Command::none()
+                        }
+                        Err(e) => {
+                            dbg!(e);
+                            Command::none()
+                        }
+                    },
+                    None => {
+                        //
+                        dbg!("not found category");
+                        Command::none()
+                    }
+                },
+                Err(e) => {
+                    // TODO: make redirect error page.
+                    dbg!(e);
+                    Command::none()
+                }
+            },
             AddRecordPageMessage::TabPressed(shift) => {
                 if shift {
                     iced::widget::focus_previous()

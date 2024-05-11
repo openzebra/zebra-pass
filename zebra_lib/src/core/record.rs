@@ -19,6 +19,7 @@ pub struct Element {
     pub updated: String,
     pub favourite: bool,
     pub note: String,
+    pub name: String,
     pub fields: Vec<Item>,
     pub extra_fields: Vec<Item>,
 }
@@ -35,6 +36,23 @@ pub enum Categories {
     DriverLicense(Element),
     WifiPassword(Element),
     Other(Element),
+}
+
+impl Categories {
+    pub fn get_value(&self) -> &Element {
+        match self {
+            Categories::Login(v) => v,
+            Categories::CreditCard(v) => v,
+            Categories::CryptoWallet(v) => v,
+            Categories::Identity(v) => v,
+            Categories::BankAccount(v) => v,
+            Categories::EmailAccount(v) => v,
+            Categories::Passport(v) => v,
+            Categories::DriverLicense(v) => v,
+            Categories::WifiPassword(v) => v,
+            Categories::Other(v) => v,
+        }
+    }
 }
 
 impl std::fmt::Display for Categories {
@@ -62,6 +80,7 @@ impl Default for Element {
             created: String::new(),
             updated: String::new(),
             note: String::new(),
+            name: String::new(),
             favourite: false,
             fields: Vec::new(),
             extra_fields: Vec::new(),

@@ -66,10 +66,11 @@ impl Application for GUI {
         "Zebrapass".into()
     }
 
-    fn new(arg: Self::Flags) -> (GUI, Command<Self::Message>) {
+    fn new(mut arg: Self::Flags) -> (GUI, Command<Self::Message>) {
+        arg.unlock("qazqaz666").unwrap();
         let core = Arc::new(Mutex::new(arg));
-        let tmp = pages::add_record::AddRecordPage::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let route = Routers::AddRecord(tmp);
+        let tmp = pages::home::Home::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let route = Routers::Home(tmp);
         // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
         // let route = Routers::Loading(loader);
         let core_ref = Arc::clone(&core);

@@ -34,6 +34,8 @@ pub enum Event {
     HandleReloadPassword,
     HandleSave,
     HandleHidePasswordModal,
+    HandleInputNameFieldCopy,
+    HandleInputFieldName(String),
     HandleInputFieldValue(usize, String),
     HandleInputFieldCopy(usize),
     HandleReloadInput(usize),
@@ -105,6 +107,24 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
+            Event::HandleInputFieldName(value) => {
+                if let Some(on_submit) = &self.on_input {
+                    let mut new_element = self.element.clone();
+
+                    new_element.name = value;
+
+                    Some(on_submit(new_element))
+                } else {
+                    None
+                }
+            }
+            Event::HandleInputNameFieldCopy => {
+                if let Some(on_copy) = &self.on_copy {
+                    Some(on_copy(self.element.name.clone()))
+                } else {
+                    None
+                }
+            }
             Event::HandleHidePasswordModal => {
                 self.password_modal = false;
 
@@ -228,30 +248,44 @@ where
             .push(Space::new(INDENT_HEAD, 0))
             .align_items(iced::Alignment::Center);
 
-        let fields: Vec<iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer>> =
-            self.element
-                .fields
-                .iter()
-                .enumerate()
-                .map(|(index, field)| {
-                    let mut input = SmartInput::new()
-                        .set_value(&field.value)
-                        .padding(INPUT_PADDING)
-                        .set_secure(field.hide)
-                        .on_input(move |v| Event::HandleInputFieldValue(index, v))
-                        .set_placeholder(field.title.clone());
+        let mut name_field = SmartInput::new()
+            .set_value(&self.element.name)
+            .padding(INPUT_PADDING)
+            .on_input(Event::HandleInputFieldName)
+            .set_placeholder(t!("placeholder_name"));
 
-                    if field.reload {
-                        input = input.set_reload(Event::HandleReloadInput(index));
-                    }
+        if !self.element.name.is_empty() {
+            name_field = name_field.set_copy(Event::HandleInputNameFieldCopy);
+        }
 
-                    if field.copy && !field.value.is_empty() {
-                        input = input.set_copy(Event::HandleInputFieldCopy(index));
-                    }
+        let mut fields: Vec<
+            iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer>,
+        > = self
+            .element
+            .fields
+            .iter()
+            .enumerate()
+            .map(|(index, field)| {
+                let mut input = SmartInput::new()
+                    .set_value(&field.value)
+                    .padding(INPUT_PADDING)
+                    .set_secure(field.hide)
+                    .on_input(move |v| Event::HandleInputFieldValue(index, v))
+                    .set_placeholder(field.title.clone());
 
-                    input.into()
-                })
-                .collect();
+                if field.reload {
+                    input = input.set_reload(Event::HandleReloadInput(index));
+                }
+
+                if field.copy && !field.value.is_empty() {
+                    input = input.set_copy(Event::HandleInputFieldCopy(index));
+                }
+
+                input.into()
+            })
+            .collect();
+
+        fields.insert(0, name_field.into());
 
         let note_label = Text::new(t!("label_notes"))
             .size(14)
