@@ -47,7 +47,7 @@ impl Page for Home {
         let categories_list: Vec<select_list::SelectListField<record::Categories>> = records
             .iter()
             .map(|element| select_list::SelectListField {
-                text: element.get_value().name.to_string(),
+                text: element.get_value().name.clone(),
                 value: element.clone(),
             })
             .collect();

@@ -253,6 +253,7 @@ mod core_tests {
         let words_password = "test";
         let data = vec![Categories::Login(Element {
             icon: "test_icon_url".to_string(),
+            name: String::new(),
             created: "".to_string(),
             updated: "".to_string(),
             note: String::new(),

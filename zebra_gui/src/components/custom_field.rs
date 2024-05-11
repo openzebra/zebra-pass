@@ -191,6 +191,7 @@ where
             .set_value(&self.label)
             .set_placeholder(t!("placeholder_label"))
             .padding(self.input_padding)
+            .on_submit(Event::HandleAddNewField)
             .on_input(Event::HandleInputLabel);
         let label_field = Container::new(label_field).width(200);
         let secure_checkbox = Checkbox::new(t!("placeholder_password"), self.check_box_secure)
