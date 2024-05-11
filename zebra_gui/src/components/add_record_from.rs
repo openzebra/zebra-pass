@@ -355,7 +355,7 @@ where
             .push(Space::new(0, INDENT_HEAD))
             .push(scrolling);
 
-        if self.password_modal {
+        if self.password_modal && !self.read_only {
             let close_btn = Button::new(
                 zebra_ui::image::close_icon()
                     .style(zebra_ui::styles::svg::primary_hover)
