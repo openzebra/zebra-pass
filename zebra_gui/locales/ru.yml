@@ -73,5 +73,6 @@ edit_record: 'Редактировать'
 label_new_field: 'Добавить пользовательское поле'
 placeholder_label: 'Название поля'
 save_password: 'Сохранить пароль'
+not_found_item: 'Элемент не найден, попробуйте сбросить zebra'
 edit_password: 'Изменить пароль'
 

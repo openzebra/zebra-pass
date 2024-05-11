@@ -190,27 +190,16 @@ impl Home {
             .push(categories);
 
         let form = if let Some(selected) = self.categories_list.get(self.selected_index) {
-            match &selected.value {
-                record::Categories::Login(elem) => {
-                    let f = AddRecordForm::from(&elem)
-                        .set_read_only(self.read_only)
-                        .set_title(t!(&format!(
-                            "item_{}",
-                            record::Categories::Login(Default::default())
-                        )))
-                        .on_copy(HomeMessage::Copy);
+            let f = AddRecordForm::from(&selected.value.get_value())
+                .set_read_only(self.read_only)
+                .set_title(t!(&selected.text))
+                .on_copy(HomeMessage::Copy);
 
-                    Container::new(f)
-                }
-                _ => {
-                    let ctx = Text::new("not implemented yet");
-
-                    Container::new(ctx)
-                }
-            }
+            Container::new(f)
         } else {
-            // TODO: make error hanlder
-            let error = Text::new("NOT WORKS");
+            let error = Text::new(t!("not_found_item"))
+                .style(zebra_ui::styles::text::danger)
+                .size(24);
 
             Container::new(error)
         };

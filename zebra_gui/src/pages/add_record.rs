@@ -300,28 +300,17 @@ impl Page for AddRecordPage {
             .width(200)
             .push(categories);
         let form = if let Some(selected) = self.categories.get(self.selected_index) {
-            match &selected.value {
-                record::Categories::Login(elem) => {
-                    let f = AddRecordForm::from(&elem)
-                        .set_title(t!(&format!(
-                            "item_{}",
-                            record::Categories::Login(Default::default())
-                        )))
-                        .on_copy(AddRecordPageMessage::Copy)
-                        .set_save(AddRecordPageMessage::SaveRecord)
-                        .on_input(AddRecordPageMessage::HanldeInput);
+            let f = AddRecordForm::from(&selected.value.get_value())
+                .set_title(t!(&selected.text))
+                .on_copy(AddRecordPageMessage::Copy)
+                .set_save(AddRecordPageMessage::SaveRecord)
+                .on_input(AddRecordPageMessage::HanldeInput);
 
-                    Container::new(f)
-                }
-                _ => {
-                    let ctx = Text::new("not implemented yet");
-
-                    Container::new(ctx)
-                }
-            }
+            Container::new(f)
         } else {
-            // TODO: make error hanlder
-            let error = Text::new("NOT WORKS");
+            let error = Text::new(t!("not_found_item"))
+                .style(zebra_ui::styles::text::danger)
+                .size(24);
 
             Container::new(error)
         };
