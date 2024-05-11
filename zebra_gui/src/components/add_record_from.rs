@@ -302,7 +302,7 @@ where
             .element
             .fields
             .iter()
-            .filter(|&x| !x.value.is_empty() && self.read_only)
+            .filter(|&x| !self.read_only || !x.value.is_empty())
             .enumerate()
             .map(|(index, field)| {
                 let mut input = SmartInput::new()
