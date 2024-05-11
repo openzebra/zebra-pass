@@ -205,13 +205,22 @@ where
         const INPUT_PADDING: u16 = 12;
         const INDENT_HEAD: u16 = 16;
 
+        let can_save = match self.element.fields.get(0) {
+            Some(item) => !item.value.is_empty(),
+            None => false,
+        };
+
         let title = Text::new(&self.title)
             .size(24)
             .width(Length::Fill)
             .horizontal_alignment(iced::alignment::Horizontal::Left);
         let save_button = Button::new(Text::new(t!("save_record")).size(16))
             .style(zebra_ui::styles::button::outline_primary)
-            .on_press(Event::HandleSave);
+            .on_press_maybe(if can_save {
+                Some(Event::HandleSave)
+            } else {
+                None
+            });
         let head_row = Row::new()
             .push(Space::new(INDENT_HEAD, 0))
             .push(title)
