@@ -41,6 +41,7 @@ pub enum Event {
     HandleInputFieldName(String),
     HandleInputFieldValue(usize, String),
     HandleInputFieldCopy(usize),
+    HandleInputExtraFieldCopy(String),
     HandleReloadInput(usize),
     HandleSavePassword,
     HandleChangeCustomField(Vec<record::Item>),
@@ -232,6 +233,13 @@ where
                     None
                 }
             }
+            Event::HandleInputExtraFieldCopy(value) => {
+                if let Some(on_copy) = &self.on_copy {
+                    Some(on_copy(value.clone()))
+                } else {
+                    None
+                }
+            }
             Event::HandleEdit => self.on_edit.clone(),
         }
     }
@@ -242,6 +250,7 @@ where
     ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
         const INPUT_PADDING: u16 = 12;
         const INDENT_HEAD: u16 = 16;
+        const ITEM_SPACING: u16 = 8;
 
         let can_save = match self.element.fields.get(0) {
             Some(item) => !item.value.is_empty(),
@@ -327,14 +336,47 @@ where
             .style(zebra_ui::styles::text_editor::primary)
             .on_action(Event::HandleActionNote);
 
-        let custom_fields = CustomFields::new()
-            .set_padding(INDENT_HEAD)
-            .on_input(Event::HandleChangeCustomField)
-            .set_list(&self.element.extra_fields);
-        let custom_fields = Container::new(custom_fields);
+        let custom_fields = if self.read_only {
+            let custom_fields: Vec<
+                iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer>,
+            > = self
+                .element
+                .extra_fields
+                .iter()
+                .map(|field| {
+                    let mut new_field: SmartInput<'_, Event> = SmartInput::new()
+                        .set_value(&field.value)
+                        .set_label(&field.title)
+                        // a hack event because wayland has issue with cusor
+                        .on_input(Event::HandleInputExtraFieldCopy)
+                        .padding(5)
+                        .set_secure(field.hide);
+
+                    if !field.value.is_empty() {
+                        new_field = new_field
+                            .set_copy(Event::HandleInputExtraFieldCopy(field.value.clone()));
+                    }
+
+                    new_field.into()
+                })
+                .collect();
+
+            Container::new(
+                Column::with_children(custom_fields)
+                    .width(Length::Fill)
+                    .spacing(ITEM_SPACING),
+            )
+        } else {
+            let custom_fields = CustomFields::new()
+                .set_padding(INDENT_HEAD)
+                .on_input(Event::HandleChangeCustomField)
+                .set_list(&self.element.extra_fields);
+
+            Container::new(custom_fields)
+        };
 
         let scrol_col = Column::with_children(fields)
-            .spacing(8)
+            .spacing(ITEM_SPACING)
             .padding(INDENT_HEAD)
             .width(Length::Fill)
             .align_items(iced::Alignment::Center)
@@ -387,18 +429,19 @@ where
                     }
                     None => t!("edit_password"),
                 })
-                .size(16)
+                .size(ITEM_SPACING * 2)
                 .horizontal_alignment(iced::alignment::Horizontal::Center),
             )
             .style(zebra_ui::styles::button::outline_primary)
-            .padding(8)
+            .padding(ITEM_SPACING)
             .on_press(Event::HandleSavePassword);
+
             let main_modal_col = Column::new()
                 .push(row_header)
                 .push(pass_gen)
                 .push(save_btn)
-                .push(Space::new(0, 8))
-                .padding(8)
+                .push(Space::new(0, ITEM_SPACING))
+                .padding(ITEM_SPACING)
                 .align_items(iced::Alignment::Center);
 
             let modal = Container::new(main_modal_col)
