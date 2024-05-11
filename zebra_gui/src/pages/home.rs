@@ -24,15 +24,17 @@ use super::Page;
 #[derive(Debug)]
 pub struct Home {
     core: Arc<Mutex<Core>>,
+    read_only: bool,
     selected_index: usize,
     categories_list: Vec<select_list::SelectListField<record::Categories>>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum HomeMessage {
     RouteGen,
     RouteSettings,
     AddRecord,
+    Copy(String),
     HanldeSelectCategories(usize),
 }
 
@@ -56,6 +58,7 @@ impl Page for Home {
         Ok(Self {
             core,
             categories_list,
+            read_only: true,
             selected_index: 0,
         })
     }
@@ -66,6 +69,7 @@ impl Page for Home {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
+            HomeMessage::Copy(value) => iced::clipboard::write::<GlobalMessage>(value),
             HomeMessage::RouteGen => match Generator::new(Arc::clone(&self.core)) {
                 Ok(gen) => {
                     let route = Routers::Generator(gen);
@@ -188,13 +192,13 @@ impl Home {
         let form = if let Some(selected) = self.categories_list.get(self.selected_index) {
             match &selected.value {
                 record::Categories::Login(elem) => {
-                    let f = AddRecordForm::from(&elem).set_title(t!(&format!(
-                        "item_{}",
-                        record::Categories::Login(Default::default())
-                    )));
-                    // .on_copy(AddRecordPageMessage::Copy)
-                    // .set_save(AddRecordPageMessage::SaveRecord)
-                    // .on_input(AddRecordPageMessage::HanldeInput);
+                    let f = AddRecordForm::from(&elem)
+                        .set_read_only(self.read_only)
+                        .set_title(t!(&format!(
+                            "item_{}",
+                            record::Categories::Login(Default::default())
+                        )))
+                        .on_copy(HomeMessage::Copy);
 
                     Container::new(f)
                 }

@@ -23,7 +23,9 @@ where
     on_input: Option<Box<dyn Fn(record::Element) -> Message + 'a>>,
     on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
     on_save: Option<Message>,
+    on_edit: Option<Message>,
     content: text_editor::Content,
+    read_only: bool,
     password_modal: bool,
     modal_index_element: usize,
     pass_gen_state: Arc<Mutex<PassGenState>>,
@@ -33,6 +35,7 @@ where
 pub enum Event {
     HandleReloadPassword,
     HandleSave,
+    HandleEdit,
     HandleHidePasswordModal,
     HandleInputNameFieldCopy,
     HandleInputFieldName(String),
@@ -56,14 +59,16 @@ where
 
         Self {
             element,
+            pass_gen_state,
+            read_only: false,
             title: String::new(),
             on_input: None,
             on_copy: None,
             on_save: None,
+            on_edit: None,
             content: text_editor::Content::with_text(&element.note),
             password_modal: false,
             modal_index_element: 0,
-            pass_gen_state,
         }
     }
 
@@ -73,8 +78,20 @@ where
         self
     }
 
+    pub fn set_edit(mut self, msg: Message) -> Self {
+        self.on_edit = Some(msg);
+
+        self
+    }
+
     pub fn set_title(mut self, title: String) -> Self {
         self.title = title;
+
+        self
+    }
+
+    pub fn set_read_only(mut self, value: bool) -> Self {
+        self.read_only = value;
 
         self
     }
@@ -215,6 +232,7 @@ where
                     None
                 }
             }
+            Event::HandleEdit => self.on_edit.clone(),
         }
     }
 
@@ -234,13 +252,24 @@ where
             .size(24)
             .width(Length::Fill)
             .horizontal_alignment(iced::alignment::Horizontal::Left);
-        let save_button = Button::new(Text::new(t!("save_record")).size(16))
-            .style(zebra_ui::styles::button::outline_primary)
-            .on_press_maybe(if can_save {
-                Some(Event::HandleSave)
+        let save_button = Button::new(
+            Text::new(if self.read_only {
+                t!("edit_record")
             } else {
-                None
-            });
+                t!("save_record")
+            })
+            .size(16),
+        )
+        .style(zebra_ui::styles::button::outline_primary)
+        .on_press_maybe(if can_save {
+            Some(if self.read_only {
+                Event::HandleEdit
+            } else {
+                Event::HandleSave
+            })
+        } else {
+            None
+        });
         let head_row = Row::new()
             .push(Space::new(INDENT_HEAD, 0))
             .push(title)
@@ -273,7 +302,7 @@ where
                     .on_input(move |v| Event::HandleInputFieldValue(index, v))
                     .set_placeholder(field.title.clone());
 
-                if field.reload {
+                if field.reload && !self.read_only {
                     input = input.set_reload(Event::HandleReloadInput(index));
                 }
 
