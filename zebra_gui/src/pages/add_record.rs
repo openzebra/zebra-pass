@@ -154,14 +154,27 @@ impl Page for AddRecordPage {
             AddRecordPageMessage::SaveRecord => match self.core.lock() {
                 Ok(mut core) => match self.categories.get(self.selected_index) {
                     Some(category) => match core.add_element(category.value.clone()) {
-                        Ok(_) => {
-                            dbg!("saved");
-                            //
-                            Command::none()
-                        }
+                        Ok(_) => match Home::new(Arc::clone(&self.core)) {
+                            Ok(home) => {
+                                drop(core);
+                                let route = Routers::Home(home);
+
+                                Command::perform(std::future::ready(1), |_| {
+                                    GlobalMessage::Route(route)
+                                })
+                            }
+                            Err(e) => {
+                                let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                                Command::perform(std::future::ready(1), |_| {
+                                    GlobalMessage::Route(route)
+                                })
+                            }
+                        },
                         Err(e) => {
-                            dbg!(e);
-                            Command::none()
+                            let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                            Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                         }
                     },
                     None => {
@@ -171,9 +184,9 @@ impl Page for AddRecordPage {
                     }
                 },
                 Err(e) => {
-                    // TODO: make redirect error page.
-                    dbg!(e);
-                    Command::none()
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
             AddRecordPageMessage::TabPressed(shift) => {

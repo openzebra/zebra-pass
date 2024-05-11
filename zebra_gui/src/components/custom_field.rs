@@ -13,6 +13,7 @@ where
     Message: Clone,
 {
     on_input: Option<Box<dyn Fn(Vec<Item>) -> Message + 'a>>,
+    on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
     check_box_secure: bool,
     input_padding: u16,
     container_padding: Padding,
@@ -23,6 +24,7 @@ where
 #[derive(Debug, Clone)]
 pub enum Event {
     HandleAddNewField,
+    HandleInputCopy(usize),
     HandleInputCustomField((usize, String)),
     HandleRemoveCustomField(usize),
     HandleCheckedSecure(bool),
@@ -38,6 +40,7 @@ where
             input_padding: 8,
             container_padding: Padding::ZERO,
             on_input: None,
+            on_copy: None,
             list: &[],
             check_box_secure: false,
             label: String::new(),
@@ -63,6 +66,15 @@ where
 
         self
     }
+
+    pub fn on_copy<F>(mut self, callback: F) -> Self
+    where
+        F: 'a + Fn(String) -> Message,
+    {
+        self.on_copy = Some(Box::new(callback));
+
+        self
+    }
 }
 
 impl<'a, Message> Component<Message, Theme, Renderer> for CustomFields<'a, Message>
@@ -74,6 +86,16 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
+            Event::HandleInputCopy(index) => match self.list.get(index) {
+                Some(item) => {
+                    if let Some(cb) = &self.on_copy {
+                        Some(cb(item.value.clone()))
+                    } else {
+                        None
+                    }
+                }
+                None => None,
+            },
             Event::HandleAddNewField => {
                 if let Some(cb) = &self.on_input {
                     let mut new_list = self.list.to_vec();
@@ -152,13 +174,17 @@ where
                 .on_press(Event::HandleRemoveCustomField(index))
                 .width(30)
                 .style(zebra_ui::styles::button::transparent);
-                let new_field: SmartInput<'_, Event> = SmartInput::new()
+                let mut new_field: SmartInput<'_, Event> = SmartInput::new()
                     .set_value(&field.value)
                     .set_label(&field.title)
-                    // .set_copy(&field.copy)
                     .padding(self.input_padding)
                     .on_input(move |v| Event::HandleInputCustomField((index, v)))
                     .set_secure(field.hide);
+
+                if !field.value.is_empty() {
+                    new_field = new_field.set_copy(Event::HandleInputCopy(index));
+                }
+
                 let field = Container::new(new_field).width(Length::FillPortion(2));
                 let field_row = Row::new()
                     .push(field)
