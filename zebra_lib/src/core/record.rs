@@ -39,6 +39,21 @@ pub enum Categories {
 }
 
 impl Categories {
+    pub fn update_element(&self, new_element: Element) -> Self {
+        match self {
+            Categories::Login(_) => Categories::Login(new_element),
+            Categories::CreditCard(_) => Categories::CreditCard(new_element),
+            Categories::CryptoWallet(_) => Categories::CryptoWallet(new_element),
+            Categories::Identity(_) => Categories::Identity(new_element),
+            Categories::BankAccount(_) => Categories::BankAccount(new_element),
+            Categories::EmailAccount(_) => Categories::EmailAccount(new_element),
+            Categories::Passport(_) => Categories::Passport(new_element),
+            Categories::DriverLicense(_) => Categories::DriverLicense(new_element),
+            Categories::WifiPassword(_) => Categories::WifiPassword(new_element),
+            Categories::Other(_) => Categories::Other(new_element),
+        }
+    }
+
     pub fn get_value(&self) -> &Element {
         match self {
             Categories::Login(v) => v,

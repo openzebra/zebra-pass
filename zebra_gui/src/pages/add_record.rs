@@ -154,23 +154,25 @@ impl Page for AddRecordPage {
             AddRecordPageMessage::SaveRecord => match self.core.lock() {
                 Ok(mut core) => match self.categories.get(self.selected_index) {
                     Some(category) => match core.add_element(category.value.clone()) {
-                        Ok(_) => match Home::new(Arc::clone(&self.core)) {
-                            Ok(home) => {
-                                drop(core);
-                                let route = Routers::Home(home);
+                        Ok(_) => {
+                            drop(core);
+                            match Home::new(Arc::clone(&self.core)) {
+                                Ok(home) => {
+                                    let route = Routers::Home(home);
 
-                                Command::perform(std::future::ready(1), |_| {
-                                    GlobalMessage::Route(route)
-                                })
-                            }
-                            Err(e) => {
-                                let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                                    Command::perform(std::future::ready(1), |_| {
+                                        GlobalMessage::Route(route)
+                                    })
+                                }
+                                Err(e) => {
+                                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
 
-                                Command::perform(std::future::ready(1), |_| {
-                                    GlobalMessage::Route(route)
-                                })
+                                    Command::perform(std::future::ready(1), |_| {
+                                        GlobalMessage::Route(route)
+                                    })
+                                }
                             }
-                        },
+                        }
                         Err(e) => {
                             let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
 
@@ -245,34 +247,7 @@ impl Page for AddRecordPage {
             AddRecordPageMessage::HanldeInput(new_element) => {
                 match self.categories.get_mut(self.selected_index) {
                     Some(element) => {
-                        element.value = match &element.value {
-                            record::Categories::Login(_) => record::Categories::Login(new_element),
-                            record::Categories::CreditCard(_) => {
-                                record::Categories::CreditCard(new_element)
-                            }
-                            record::Categories::CryptoWallet(_) => {
-                                record::Categories::CryptoWallet(new_element)
-                            }
-                            record::Categories::Identity(_) => {
-                                record::Categories::Identity(new_element)
-                            }
-                            record::Categories::BankAccount(_) => {
-                                record::Categories::BankAccount(new_element)
-                            }
-                            record::Categories::EmailAccount(_) => {
-                                record::Categories::EmailAccount(new_element)
-                            }
-                            record::Categories::Passport(_) => {
-                                record::Categories::Passport(new_element)
-                            }
-                            record::Categories::DriverLicense(_) => {
-                                record::Categories::DriverLicense(new_element)
-                            }
-                            record::Categories::WifiPassword(_) => {
-                                record::Categories::WifiPassword(new_element)
-                            }
-                            record::Categories::Other(_) => record::Categories::Other(new_element),
-                        };
+                        element.value = element.value.update_element(new_element);
 
                         Command::none()
                     }
@@ -301,7 +276,7 @@ impl Page for AddRecordPage {
             .push(categories);
         let form = if let Some(selected) = self.categories.get(self.selected_index) {
             let f = AddRecordForm::from(&selected.value.get_value())
-                .set_title(t!(&selected.text))
+                .set_title(selected.text.clone())
                 .on_copy(AddRecordPageMessage::Copy)
                 .set_save(AddRecordPageMessage::SaveRecord)
                 .on_input(AddRecordPageMessage::HanldeInput);

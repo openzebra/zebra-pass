@@ -192,7 +192,7 @@ impl Home {
         let form = if let Some(selected) = self.categories_list.get(self.selected_index) {
             let f = AddRecordForm::from(&selected.value.get_value())
                 .set_read_only(self.read_only)
-                .set_title(t!(&selected.text))
+                .set_title(selected.text.clone())
                 .on_copy(HomeMessage::Copy);
 
             Container::new(f)

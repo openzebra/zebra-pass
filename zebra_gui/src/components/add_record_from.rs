@@ -252,11 +252,6 @@ where
         const INDENT_HEAD: u16 = 16;
         const ITEM_SPACING: u16 = 8;
 
-        let can_save = match self.element.fields.get(0) {
-            Some(item) => !item.value.is_empty(),
-            None => false,
-        };
-
         let title = Text::new(&self.title)
             .size(24)
             .width(Length::Fill)
@@ -270,7 +265,7 @@ where
             .size(16),
         )
         .style(zebra_ui::styles::button::outline_primary)
-        .on_press_maybe(if can_save {
+        .on_press_maybe(if !self.element.name.is_empty() {
             Some(if self.read_only {
                 Event::HandleEdit
             } else {
@@ -384,8 +379,16 @@ where
             .push(Space::new(0, INDENT_HEAD))
             .push(custom_fields)
             .push(Space::new(0, INDENT_HEAD))
-            .push(note_label)
-            .push(notes)
+            .push_maybe(if self.read_only && self.element.note.is_empty() {
+                None
+            } else {
+                Some(note_label)
+            })
+            .push_maybe(if self.read_only && self.element.note.is_empty() {
+                None
+            } else {
+                Some(notes)
+            })
             .push(Space::new(0, INDENT_HEAD));
         let scrolling = Scrollable::new(scrol_col)
             .height(Length::Fill)
