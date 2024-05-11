@@ -4,6 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
+use crate::components::add_record_from::AddRecordForm;
 use crate::components::select_list;
 use crate::rust_i18n::t;
 use iced::widget::{Button, Column, Container, Row, Text};
@@ -183,7 +184,33 @@ impl Home {
             .height(Length::Fill)
             .width(200)
             .push(categories);
-        let row = Row::new().push(left_search_col).push(vline);
+
+        let form = if let Some(selected) = self.categories_list.get(self.selected_index) {
+            match &selected.value {
+                record::Categories::Login(elem) => {
+                    let f = AddRecordForm::from(&elem).set_title(t!(&format!(
+                        "item_{}",
+                        record::Categories::Login(Default::default())
+                    )));
+                    // .on_copy(AddRecordPageMessage::Copy)
+                    // .set_save(AddRecordPageMessage::SaveRecord)
+                    // .on_input(AddRecordPageMessage::HanldeInput);
+
+                    Container::new(f)
+                }
+                _ => {
+                    let ctx = Text::new("not implemented yet");
+
+                    Container::new(ctx)
+                }
+            }
+        } else {
+            // TODO: make error hanlder
+            let error = Text::new("NOT WORKS");
+
+            Container::new(error)
+        };
+        let row = Row::new().push(left_search_col).push(vline).push(form);
 
         Container::new(row)
     }
