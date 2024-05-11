@@ -55,7 +55,7 @@ where
     pub fn from(element: &'a record::Element) -> Self {
         let pass_gen_state = Arc::new(Mutex::new(PassGenState {
             value: String::new(),
-            length: 45,
+            length: 42,
         }));
 
         Self {
@@ -417,10 +417,16 @@ where
                 .align_items(iced::Alignment::End);
             let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
 
-            // TODO: remoe unwrap
-            let pass_gen = PassGenForm::new(Arc::clone(&self.pass_gen_state))
-                .unwrap()
-                .height(200);
+            let pass_gen = match PassGenForm::new(Arc::clone(&self.pass_gen_state)) {
+                Ok(pass) => pass.height(200),
+                Err(e) => {
+                    let error = Text::new(e.to_string())
+                        .style(zebra_ui::styles::text::danger)
+                        .size(24);
+
+                    return Container::new(error).into();
+                }
+            };
             let pass_gen = Container::new(pass_gen);
             let save_btn = Button::new(
                 Text::new(match self.element.fields.get(self.modal_index_element) {
