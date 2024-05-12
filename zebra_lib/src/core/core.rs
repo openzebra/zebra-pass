@@ -62,6 +62,12 @@ impl Core {
         self.state.state_update(&self.db)
     }
 
+    pub fn data_update(&mut self) -> Result<(), ZebraErrors> {
+        self.update()?;
+
+        Ok(())
+    }
+
     pub fn init_data(
         &mut self,
         server_sync: bool,

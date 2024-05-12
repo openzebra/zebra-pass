@@ -34,8 +34,11 @@ pub enum HomeMessage {
     RouteGen,
     RouteSettings,
     AddRecord,
+    EditForm,
     Copy(String),
     HanldeSelectCategories(usize),
+    HanldeInputForm(record::Element),
+    HanldeSaveRecord,
 }
 
 impl Page for Home {
@@ -110,6 +113,56 @@ impl Page for Home {
                 self.selected_index = index;
 
                 Command::none()
+            }
+            HomeMessage::EditForm => {
+                self.read_only = false;
+                Command::none()
+            }
+            HomeMessage::HanldeInputForm(new_element) => {
+                match self.categories_list.get_mut(self.selected_index) {
+                    Some(element) => {
+                        element.text = element.value.get_value().name.clone();
+                        element.value = element.value.update_element(new_element);
+
+                        Command::none()
+                    }
+                    None => {
+                        let route = Routers::ErrorPage(ErrorPage::from(t!("not_found_item")));
+
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                }
+            }
+            HomeMessage::HanldeSaveRecord => {
+                self.read_only = true;
+
+                match self.categories_list.get_mut(self.selected_index) {
+                    Some(element) => match self.core.lock() {
+                        Ok(mut core) => {
+                            core.data[self.selected_index] = core.data[self.selected_index]
+                                .update_element(element.value.get_value().clone());
+
+                            match core.data_update() {
+                                Ok(_) => Command::none(),
+                                Err(e) => {
+                                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                                    Command::perform(std::future::ready(1), |_| {
+                                        GlobalMessage::Route(route)
+                                    })
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                            Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                        }
+                    },
+                    None => {
+                        let route = Routers::ErrorPage(ErrorPage::from(t!("not_found_item")));
+
+                        Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                    }
+                }
             }
         }
     }
@@ -190,10 +243,17 @@ impl Home {
             .push(categories);
 
         let form = if let Some(selected) = self.categories_list.get(self.selected_index) {
-            let f = AddRecordForm::from(&selected.value.get_value())
+            let mut f = AddRecordForm::from(&selected.value.get_value())
                 .set_read_only(self.read_only)
+                .set_edit(HomeMessage::EditForm)
                 .set_title(selected.text.clone())
                 .on_copy(HomeMessage::Copy);
+
+            if !self.read_only {
+                f = f
+                    .on_input(HomeMessage::HanldeInputForm)
+                    .set_save(HomeMessage::HanldeSaveRecord);
+            }
 
             Container::new(f)
         } else {
