@@ -4,7 +4,7 @@
 extern crate rust_i18n;
 
 use error::GUIError;
-use gui::GUI;
+use gui::Gui;
 use iced::{advanced::Application, window, Settings, Size};
 use rust_i18n::i18n;
 use zebra_lib::core::core::Core;
@@ -51,7 +51,7 @@ fn main() -> iced::Result {
 
     rust_i18n::set_locale(core.state.settings.locale.symbol());
 
-    GUI::run(Settings {
+    Gui::run(Settings {
         window,
         fonts: [].into(),
         flags: core,

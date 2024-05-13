@@ -32,7 +32,16 @@ pub enum Event {
     HandleInput(String),
 }
 
-impl<'a, Message: Clone> SmartInput<'a, Message>
+impl<'a, Message> Default for SmartInput<'a, Message>
+where
+    Message: Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<'a, Message> SmartInput<'a, Message>
 where
     Message: Clone,
 {
@@ -154,13 +163,7 @@ where
 
                 None
             }
-            Event::HandleInput(v) => {
-                if let Some(cb) = &self.on_input {
-                    Some(cb(v))
-                } else {
-                    None
-                }
-            }
+            Event::HandleInput(v) => self.on_input.as_ref().map(|cb| cb(v)),
             Event::HandleSubmit => self.on_submit.clone(),
         }
     }
@@ -169,7 +172,7 @@ where
         &self,
         _state: &Self::State,
     ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
-        let mut input = text_input(&self.placeholder, &self.value)
+        let mut input = text_input(&self.placeholder, self.value)
             .size(self.font_size)
             .padding(self.padding)
             .secure(self.secured && !self.showed_secure_flag)
@@ -278,12 +281,10 @@ where
                 } else {
                     zebra_ui::styles::container::danger_bordered_disabled
                 }
+            } else if self.on_input.is_some() {
+                zebra_ui::styles::container::primary_bordered_hover
             } else {
-                if self.on_input.is_some() {
-                    zebra_ui::styles::container::primary_bordered_hover
-                } else {
-                    zebra_ui::styles::container::primary_bordered_disabled
-                }
+                zebra_ui::styles::container::primary_bordered_disabled
             })
             .into()
     }

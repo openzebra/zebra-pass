@@ -33,7 +33,7 @@ where
 
 #[derive(Debug, Clone)]
 pub enum Event {
-    HandleReloadPassword,
+    ReloadPassword,
     HandleSave,
     HandleEdit,
     HandleHidePasswordModal,
@@ -148,7 +148,7 @@ where
 
                 None
             }
-            Event::HandleReloadPassword => {
+            Event::ReloadPassword => {
                 self.password_modal = true;
 
                 None
@@ -194,11 +194,7 @@ where
                             None => return None,
                         };
 
-                        if let Some(on_submit) = &self.on_input {
-                            Some(on_submit(new_element))
-                        } else {
-                            None
-                        }
+                        self.on_input.as_ref().map(|on_input| on_input(new_element))
                     }
                     Err(e) => {
                         dbg!(e);
@@ -225,20 +221,16 @@ where
             }
             Event::HandleInputFieldCopy(index) => {
                 if let Some(on_copy) = &self.on_copy {
-                    match self.element.fields.get(index) {
-                        Some(el) => Some(on_copy(el.value.clone())),
-                        None => None,
-                    }
+                    self.element
+                        .fields
+                        .get(index)
+                        .map(|el| on_copy(el.value.clone()))
                 } else {
                     None
                 }
             }
             Event::HandleInputExtraFieldCopy(value) => {
-                if let Some(on_copy) = &self.on_copy {
-                    Some(on_copy(value.clone()))
-                } else {
-                    None
-                }
+                self.on_copy.as_ref().map(|on_copy| on_copy(value.clone()))
             }
             Event::HandleEdit => self.on_edit.clone(),
         }

@@ -23,15 +23,24 @@ where
 
 #[derive(Debug, Clone)]
 pub enum Event {
-    HandleAddNewField,
-    HandleInputCopy(usize),
-    HandleInputCustomField((usize, String)),
-    HandleRemoveCustomField(usize),
-    HandleCheckedSecure(bool),
-    HandleInputLabel(String),
+    AddNewField,
+    InputCopy(usize),
+    InputCustomField((usize, String)),
+    RemoveCustomField(usize),
+    CheckedSecure(bool),
+    InputLabel(String),
 }
 
-impl<'a, Message: Clone> CustomFields<'a, Message>
+impl<'a, Message> Default for CustomFields<'a, Message>
+where
+    Message: Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<'a, Message> CustomFields<'a, Message>
 where
     Message: Clone,
 {
@@ -86,17 +95,11 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
-            Event::HandleInputCopy(index) => match self.list.get(index) {
-                Some(item) => {
-                    if let Some(cb) = &self.on_copy {
-                        Some(cb(item.value.clone()))
-                    } else {
-                        None
-                    }
-                }
+            Event::InputCopy(index) => match self.list.get(index) {
+                Some(item) => self.on_copy.as_ref().map(|cb| cb(item.value.clone())),
                 None => None,
             },
-            Event::HandleAddNewField => {
+            Event::AddNewField => {
                 if let Some(cb) = &self.on_input {
                     let mut new_list = self.list.to_vec();
 
@@ -113,7 +116,7 @@ where
                     None
                 }
             }
-            Event::HandleInputCustomField((index, value)) => {
+            Event::InputCustomField((index, value)) => {
                 if let Some(cb) = &self.on_input {
                     let mut new_list = self.list.to_vec();
 
@@ -129,12 +132,12 @@ where
                     None
                 }
             }
-            Event::HandleCheckedSecure(v) => {
+            Event::CheckedSecure(v) => {
                 self.check_box_secure = v;
 
                 None
             }
-            Event::HandleRemoveCustomField(index) => {
+            Event::RemoveCustomField(index) => {
                 if let Some(cb) = &self.on_input {
                     let mut new_list = self.list.to_vec();
 
@@ -145,7 +148,7 @@ where
                     None
                 }
             }
-            Event::HandleInputLabel(value) => {
+            Event::InputLabel(value) => {
                 self.label = value;
 
                 None
@@ -171,18 +174,18 @@ where
                         .width(30),
                 )
                 .padding(0)
-                .on_press(Event::HandleRemoveCustomField(index))
+                .on_press(Event::RemoveCustomField(index))
                 .width(30)
                 .style(zebra_ui::styles::button::transparent);
                 let mut new_field: SmartInput<'_, Event> = SmartInput::new()
                     .set_value(&field.value)
                     .set_label(&field.title)
                     .padding(self.input_padding)
-                    .on_input(move |v| Event::HandleInputCustomField((index, v)))
+                    .on_input(move |v| Event::InputCustomField((index, v)))
                     .set_secure(field.hide);
 
                 if !field.value.is_empty() {
-                    new_field = new_field.set_copy(Event::HandleInputCopy(index));
+                    new_field = new_field.set_copy(Event::InputCopy(index));
                 }
 
                 let field = Container::new(new_field).width(Length::FillPortion(2));
@@ -210,18 +213,18 @@ where
                 .width(30),
         )
         .padding(0)
-        .on_press(Event::HandleAddNewField)
+        .on_press(Event::AddNewField)
         .style(zebra_ui::styles::button::transparent);
 
         let label_field: SmartInput<'_, Event> = SmartInput::new()
             .set_value(&self.label)
             .set_placeholder(t!("placeholder_label"))
             .padding(self.input_padding)
-            .on_submit(Event::HandleAddNewField)
-            .on_input(Event::HandleInputLabel);
+            .on_submit(Event::AddNewField)
+            .on_input(Event::InputLabel);
         let label_field = Container::new(label_field).width(200);
         let secure_checkbox = Checkbox::new(t!("placeholder_password"), self.check_box_secure)
-            .on_toggle(Event::HandleCheckedSecure)
+            .on_toggle(Event::CheckedSecure)
             .text_size(14);
         let row_new_item = Row::new()
             .push(add_btn)

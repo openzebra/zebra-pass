@@ -22,7 +22,7 @@ pub struct PhraseGenState {
     pub count: usize,
 }
 
-impl<'a> Default for PhraseGenState {
+impl Default for PhraseGenState {
     fn default() -> Self {
         Self {
             count: MAX_NB_WORDS,

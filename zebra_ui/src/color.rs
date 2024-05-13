@@ -99,7 +99,7 @@ impl ZebraPalette {
             a: 1.0,
         },
         warning: Color {
-            r: 255.0 / 255.0,
+            r: 1.0,
             g: 191.0 / 255.0,
             b: 156.0 / 255.0,
             a: 1.0,
@@ -111,7 +111,7 @@ impl ZebraPalette {
             a: 1.0,
         },
         danger: Color {
-            r: 255.0 / 255.0,
+            r: 1.0,
             g: 0.0 / 255.0,
             b: 0.0 / 255.0,
             a: 1.0,

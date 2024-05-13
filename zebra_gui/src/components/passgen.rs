@@ -81,11 +81,8 @@ where
         let mut rng = rand::thread_rng(); // TODO: change to ChaCha
         let mut locked_state = self.state.lock().unwrap(); // TODO: remove unwrap..
 
-        match self.generator.gen(locked_state.length as usize, &mut rng) {
-            Ok(bytes) => {
-                locked_state.value = String::from_utf8_lossy(&bytes).to_string();
-            }
-            Err(_) => {}
+        if let Ok(bytes) = self.generator.gen(locked_state.length as usize, &mut rng) {
+            locked_state.value = String::from_utf8_lossy(&bytes).to_string();
         }
     }
 

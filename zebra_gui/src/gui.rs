@@ -27,7 +27,7 @@ pub enum Routers {
     ErrorPage(pages::error::ErrorPage),
 }
 
-pub struct GUI {
+pub struct Gui {
     core: Arc<Mutex<core::Core>>,
     route: Routers,
 }
@@ -56,7 +56,7 @@ async fn load(_core: Arc<Mutex<core::Core>>) -> Result<(), ()> {
     Ok(())
 }
 
-impl Application for GUI {
+impl Application for Gui {
     type Executor = executor::Default;
     type Message = GlobalMessage;
     type Flags = zebra_lib::core::core::Core;
@@ -66,7 +66,7 @@ impl Application for GUI {
         "Zebrapass".into()
     }
 
-    fn new(mut arg: Self::Flags) -> (GUI, Command<Self::Message>) {
+    fn new(mut arg: Self::Flags) -> (Self, Command<Self::Message>) {
         arg.unlock("qazqaz666").unwrap();
         let core = Arc::new(Mutex::new(arg));
         let tmp = pages::home::Home::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap

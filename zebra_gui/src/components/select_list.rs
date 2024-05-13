@@ -101,13 +101,7 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
-            Event::HandleSelect(index) => {
-                if let Some(event) = &self.on_select {
-                    Some(event(index))
-                } else {
-                    None
-                }
-            }
+            Event::HandleSelect(index) => self.on_select.as_ref().map(|cb| cb(index)),
         }
     }
 
