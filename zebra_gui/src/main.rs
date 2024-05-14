@@ -7,7 +7,7 @@ use error::GUIError;
 use gui::Gui;
 use iced::{advanced::Application, window, Settings, Size};
 use rust_i18n::i18n;
-use zebra_lib::core::core::Core;
+use zebra_lib::core::Core;
 use zebra_ui::config::{WIN_HEIGHT, WIN_WIDTH};
 
 mod components;

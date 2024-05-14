@@ -12,7 +12,7 @@ pub struct Item {
     pub reload: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Default)]
 pub struct Element {
     pub icon: String,
     pub created: String,
@@ -85,20 +85,5 @@ impl std::fmt::Display for Categories {
             Categories::Other(_) => "other",
         };
         write!(f, "{}", text)
-    }
-}
-
-impl Default for Element {
-    fn default() -> Element {
-        Element {
-            icon: String::new(), // TODO: make it defualt icon
-            created: String::new(),
-            updated: String::new(),
-            note: String::new(),
-            name: String::new(),
-            favourite: false,
-            fields: Vec::new(),
-            extra_fields: Vec::new(),
-        }
     }
 }

@@ -7,7 +7,7 @@ use crate::{
     bip39::mnemonic::Mnemonic,
     config::app::{APPLICATION, ORGANIZATION, QUALIFIER},
     errors::ZebraErrors,
-    state::state::State,
+    state::State,
     storage::db::LocalStorage,
 };
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};

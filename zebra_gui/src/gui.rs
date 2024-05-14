@@ -8,7 +8,7 @@ use crate::pages::Page;
 use super::pages;
 use iced::advanced::Application;
 use iced::{executor, Command, Element, Theme};
-use zebra_lib::{core::core, settings::appearance::Themes};
+use zebra_lib::{core::Core, settings::appearance::Themes};
 
 #[derive(Debug)]
 pub enum Routers {
@@ -28,7 +28,7 @@ pub enum Routers {
 }
 
 pub struct Gui {
-    core: Arc<Mutex<core::Core>>,
+    core: Arc<Mutex<Core>>,
     route: Routers,
 }
 
@@ -50,7 +50,7 @@ pub enum GlobalMessage {
     Route(Routers),
 }
 
-async fn load(_core: Arc<Mutex<core::Core>>) -> Result<(), ()> {
+async fn load(_core: Arc<Mutex<Core>>) -> Result<(), ()> {
     std::thread::sleep(std::time::Duration::from_millis(100));
     // TODO: make it load when server sync added.
     Ok(())
@@ -59,7 +59,7 @@ async fn load(_core: Arc<Mutex<core::Core>>) -> Result<(), ()> {
 impl Application for Gui {
     type Executor = executor::Default;
     type Message = GlobalMessage;
-    type Flags = zebra_lib::core::core::Core;
+    type Flags = Core;
     type Theme = Theme;
 
     fn title(&self) -> String {

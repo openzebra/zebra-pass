@@ -31,12 +31,10 @@ pub fn primary_disabled(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
-pub fn bg_inverse(theme: &Theme, status: Status) -> Appearance {
+pub fn bg_inverse(theme: &Theme, _status: Status) -> Appearance {
     let palette = theme.extended_palette();
 
-    match status {
-        _ => Appearance {
-            color: Some(palette.background.base.text),
-        },
+    Appearance {
+        color: Some(palette.background.base.text),
     }
 }

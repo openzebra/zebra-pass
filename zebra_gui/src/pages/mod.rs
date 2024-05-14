@@ -9,7 +9,7 @@ use std::{
 
 use crate::gui::GlobalMessage;
 use iced::{Command, Element, Subscription};
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 
 pub mod add_record;
 pub mod error;

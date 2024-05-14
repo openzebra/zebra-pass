@@ -63,7 +63,7 @@ impl LocalStorage {
         let data: Data<ST> = serde_json::from_str(&json).or(Err(ZebraErrors::StorageDataBroken))?;
         let json_payload =
             serde_json::to_string(&data.payload).or(Err(ZebraErrors::StorageDataBroken))?;
-        let hashsum = self.hash(&json_payload.as_bytes());
+        let hashsum = self.hash(json_payload.as_bytes());
 
         if hashsum != data.hashsum {
             return Err(ZebraErrors::StorageHashsumError);
@@ -79,7 +79,7 @@ impl LocalStorage {
         let last_update = self.get_unix_time()?;
         let json_payload =
             serde_json::to_string(&payload).or(Err(ZebraErrors::StorageDataBroken))?;
-        let hashsum = self.hash(&json_payload.as_bytes());
+        let hashsum = self.hash(json_payload.as_bytes());
         let data = Data {
             payload,
             hashsum,

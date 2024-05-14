@@ -3,7 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use std::sync::{Arc, Mutex};
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 use zebra_ui::config::PRINT_WIDTH;
 
 use crate::{

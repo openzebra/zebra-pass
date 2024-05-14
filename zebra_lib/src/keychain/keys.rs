@@ -193,7 +193,7 @@ impl KeyChain {
     fn ntru_decrypt(&self, bytes: &Arc<Vec<u8>>) -> Result<Vec<u8>, ZebraErrors> {
         let sk = &self.ntrup_keys.0;
 
-        ntru::cipher::parallel_bytes_decrypt(&bytes, &sk, self.num_threads)
+        ntru::cipher::parallel_bytes_decrypt(bytes, sk, self.num_threads)
             .or(Err(ZebraErrors::KeychainDataDecryptError))
     }
 
@@ -243,7 +243,7 @@ impl KeyChain {
         let bytes = Arc::new(bytes);
         let pk = &self.ntrup_keys.1;
 
-        ntru::cipher::parallel_bytes_encrypt(&mut pq_rng, &bytes, &pk, self.num_threads)
+        ntru::cipher::parallel_bytes_encrypt(&mut pq_rng, &bytes, pk, self.num_threads)
             .or(Err(ZebraErrors::KeychainDataEncryptError))
     }
 }

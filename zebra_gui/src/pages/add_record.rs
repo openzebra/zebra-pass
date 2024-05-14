@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 use iced::keyboard::key::Named;
 use iced::widget::{Column, Container, Row, Text};
 use iced::{Command, Element, Length, Subscription};
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 
 use crate::components::add_record_from::AddRecordForm;
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};

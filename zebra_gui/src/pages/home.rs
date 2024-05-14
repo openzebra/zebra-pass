@@ -10,7 +10,7 @@ use crate::rust_i18n::t;
 use iced::widget::{Button, Column, Container, Row, Text};
 use iced::{alignment, Command, Element, Length, Subscription};
 use zebra_lib::core::record;
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::gui::{GlobalMessage, Routers};

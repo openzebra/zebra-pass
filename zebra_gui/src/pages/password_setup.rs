@@ -19,9 +19,9 @@ use std::sync::{Arc, Mutex};
 use zebra_lib::{
     bip39::mnemonic::Mnemonic,
     core::{
-        core::Core,
         email::is_valid_email,
         password_strength::{password_strength, MIN_PASSWORD_SIZE},
+        Core,
     },
     errors::ZebraErrors,
 };

@@ -12,7 +12,7 @@ use iced::{
     widget::{Button, Column, Container, Row, Space, Text},
     Element,
 };
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 use zebra_ui::config::PRINT_WIDTH;
 
 use super::{error::ErrorPage, locale::Locale, options::Options, Page};

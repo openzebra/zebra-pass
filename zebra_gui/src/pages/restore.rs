@@ -4,7 +4,7 @@
 use std::sync::{Arc, Mutex};
 use zebra_lib::{
     bip39::mnemonic::{Language, Mnemonic},
-    core::core::Core,
+    core::Core,
     errors::ZebraErrors,
 };
 use zebra_ui::config::PRINT_WIDTH;

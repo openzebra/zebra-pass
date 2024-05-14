@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 
 use iced::widget::{Column, Container, Row};
 use iced::{Command, Element, Length, Subscription};
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 
 use crate::components::home_nav_bar::{NavBar, NavRoute};
 use crate::gui::{GlobalMessage, Routers};

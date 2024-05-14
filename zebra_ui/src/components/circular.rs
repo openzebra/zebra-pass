@@ -35,7 +35,7 @@ where
     rotation_duration: Duration,
 }
 
-impl<'a, Theme> Circular<Theme>
+impl<Theme> Circular<Theme>
 where
     Theme: StyleSheet,
 {

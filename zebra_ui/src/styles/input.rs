@@ -92,7 +92,8 @@ pub fn danger(theme: &Theme, status: Status) -> Appearance {
 
 pub fn transparent_primary(theme: &Theme, _status: Status) -> Appearance {
     let palette = theme.extended_palette();
-    let active = Appearance {
+
+    Appearance {
         selection: disbaled_color(palette.primary.weak.color),
         placeholder: disbaled_color(palette.primary.base.color),
         background: Background::Color(Color::TRANSPARENT),
@@ -103,14 +104,12 @@ pub fn transparent_primary(theme: &Theme, _status: Status) -> Appearance {
         },
         icon: Color::TRANSPARENT,
         value: palette.primary.base.color,
-    };
-
-    active
+    }
 }
 
 pub fn transparent_danger(theme: &Theme, _status: Status) -> Appearance {
     let palette = theme.extended_palette();
-    let active = Appearance {
+    Appearance {
         selection: disbaled_color(palette.danger.weak.color),
         placeholder: disbaled_color(palette.danger.base.color),
         background: Background::Color(Color::TRANSPARENT),
@@ -121,9 +120,7 @@ pub fn transparent_danger(theme: &Theme, _status: Status) -> Appearance {
         },
         icon: Color::TRANSPARENT,
         value: palette.danger.base.color,
-    };
-
-    active
+    }
 }
 
 fn disbaled_color(mut color: Color) -> Color {

@@ -11,7 +11,7 @@ use crate::rust_i18n::t;
 use iced::alignment::Horizontal;
 use iced::widget::{Button, Column, Container, Row, Space, Text};
 use iced::{clipboard, Command, Element, Length, Subscription};
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 
 use crate::components::home_nav_bar::{NavBar, NavRoute};
 use crate::gui::{GlobalMessage, Routers};

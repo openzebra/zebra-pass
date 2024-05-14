@@ -14,6 +14,12 @@ pub struct CipherSettings {
     pub cipher_orders: Vec<CipherOrders>,
 }
 
+impl Default for CipherSettings {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CipherSettings {
     pub fn new() -> Self {
         Self {

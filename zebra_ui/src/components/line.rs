@@ -17,6 +17,15 @@ pub struct Linear<'a, Theme> {
     alfa: f32,
 }
 
+impl<'a, Theme> Default for Linear<'a, Theme>
+where
+    Theme: DefaultStyle + 'a,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a, Theme> Linear<'a, Theme> {
     /// Creates a new [`Linear`] with the given content.
     pub fn new() -> Self

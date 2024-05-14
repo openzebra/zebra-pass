@@ -4,7 +4,7 @@
 use iced::widget::{Button, Checkbox, Column, Container, Row, Text};
 use iced::{Alignment, Command, Element, Length, Subscription};
 use std::sync::{Arc, Mutex};
-use zebra_lib::{bip39::mnemonic::Mnemonic, core::core::Core, errors::ZebraErrors};
+use zebra_lib::{bip39::mnemonic::Mnemonic, core::Core, errors::ZebraErrors};
 use zebra_ui::config::PRINT_WIDTH;
 
 use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};

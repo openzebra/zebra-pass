@@ -11,7 +11,7 @@ use iced::Element;
 use iced::{
     alignment::Horizontal, event, keyboard::key::Named, Command, Event, Length, Subscription,
 };
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 use zebra_ui::components::circular;
 use zebra_ui::config::PRINT_WIDTH;
 

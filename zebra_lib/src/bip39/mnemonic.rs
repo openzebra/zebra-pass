@@ -25,7 +25,7 @@ pub struct Mnemonic {
     pub size: usize,
 }
 
-fn normalize_utf8_cow<'a>(cow: &mut Cow<'a, str>) {
+fn normalize_utf8_cow(cow: &mut Cow<'_, str>) {
     let is_nfkd = unicode_normalization::is_nfkd_quick(cow.as_ref().chars());
     if is_nfkd != unicode_normalization::IsNormalized::Yes {
         *cow = Cow::Owned(cow.as_ref().nfkd().to_string());
@@ -80,12 +80,12 @@ impl Mnemonic {
         if nb_bits % 32 != 0 {
             return Err(ZebraErrors::Bip39BadEntropyBitCount(nb_bits));
         }
-        if nb_bits < MIN_ENTROPY_BITS || nb_bits > MAX_ENTROPY_BITS {
+        if !(MIN_ENTROPY_BITS..=MAX_ENTROPY_BITS).contains(&nb_bits) {
             return Err(ZebraErrors::Bip39BadEntropyBitCount(nb_bits));
         }
 
         let mut hasher = Sha256::new();
-        hasher.update(&entropy);
+        hasher.update(entropy);
         let check = hasher.finalize();
 
         let mut bits = [false; MAX_ENTROPY_BITS + MAX_CHECKSUM_BITS];
@@ -183,10 +183,7 @@ impl Mnemonic {
 
     pub fn validate(words: &str) -> bool {
         // TODO: make lang detect
-        match Self::mnemonic_to_entropy(Language::English, &words) {
-            Ok(_) => return true,
-            Err(_) => return false,
-        }
+        Self::mnemonic_to_entropy(Language::English, words).is_ok()
     }
 
     pub fn get_seed(&self, password: &str) -> [u8; 64] {
@@ -194,7 +191,7 @@ impl Mnemonic {
         let mnemonic_bytes = binding.as_bytes();
         let salt = self.to_salt(password);
 
-        pbkdf2_hmac_array::<Sha512, 64>(&mnemonic_bytes, salt.as_bytes(), NUMBER_WORDS as u32)
+        pbkdf2_hmac_array::<Sha512, 64>(mnemonic_bytes, salt.as_bytes(), NUMBER_WORDS as u32)
     }
 
     pub fn get(&self) -> String {
@@ -240,7 +237,7 @@ mod test_bip39_mnemonic {
     fn test_invalid_words() {
         let words =
             "getter advice cage absurd amount doctor acoustic avoid letter advice cage above";
-        let r = Mnemonic::mnemonic_to_entropy(Language::English, &words);
+        let r = Mnemonic::mnemonic_to_entropy(Language::English, words);
 
         assert!(r.is_err());
     }

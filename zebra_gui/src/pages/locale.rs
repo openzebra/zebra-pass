@@ -13,7 +13,7 @@ use iced::{
     Element,
 };
 use zebra_lib::settings::language::Language;
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 use zebra_ui::config::PRINT_WIDTH;
 
 use super::{error::ErrorPage, inverview::Interview, Page};

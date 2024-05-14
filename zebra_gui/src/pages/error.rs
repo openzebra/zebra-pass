@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 use crate::rust_i18n::t;
 use iced::widget::{Button, Column, Container, Row, Space, Text};
 use iced::{alignment, window, Element, Length, Subscription};
-use zebra_lib::{core::core::Core, errors::ZebraErrors};
+use zebra_lib::{core::Core, errors::ZebraErrors};
 
 use crate::gui::GlobalMessage;
 

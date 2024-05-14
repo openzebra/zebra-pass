@@ -15,6 +15,12 @@ pub struct AppearanceSettings {
     pub theme: Themes,
 }
 
+impl Default for AppearanceSettings {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AppearanceSettings {
     pub fn new() -> Self {
         Self {
