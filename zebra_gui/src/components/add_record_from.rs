@@ -247,6 +247,8 @@ where
     }
 
     pub fn view_remove_modal(&self) -> Container<'a, Event, Theme, Renderer> {
+        const BTN_WIDTH: u16 = 150;
+
         let close_btn = Button::new(
             zebra_ui::image::close_icon()
                 .style(zebra_ui::styles::svg::primary_hover)
@@ -262,7 +264,6 @@ where
             .align_items(iced::Alignment::End);
         let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
 
-        const BTN_WIDTH: u16 = 150;
         let remove_btn = Button::new(
             Text::new(t!("element_remove_ok"))
                 .size(ITEM_SPACING * 2)
@@ -288,9 +289,19 @@ where
             .push(remove_btn)
             .push(cancel_btn);
 
+        let warning = Text::new(t!(
+            "asknfdfgdsklklklndkjdfljfldnfkjfdjbnfkjdkklbnkkfdnjfnkjlvfgkjlvbfgnklj"
+        ))
+        .horizontal_alignment(iced::alignment::Horizontal::Center)
+        .height(150)
+        .width(Length::Fill)
+        .size(16);
+        let warning = Container::new(warning);
+
         let main_modal_col = Column::new()
             .width(Length::Fill)
             .push(row_header)
+            .push(warning)
             .push(btns_row)
             .push(Space::new(0, ITEM_SPACING))
             .padding(ITEM_SPACING)
@@ -595,7 +606,7 @@ where
                 .into()
         } else if self.remove_modal && !self.read_only {
             Modal::new(main_col, self.view_remove_modal())
-                .on_blur(Event::HandleHidePasswordModal)
+                .on_blur(Event::RemoveElementModalToggle)
                 .into()
         } else {
             Container::new(main_col).into()
