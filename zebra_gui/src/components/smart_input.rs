@@ -3,6 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::widget::{component, text_input, Button, Column, Component, Container, Row, Space, Text};
 use iced::{Element, Renderer, Theme};
+use std::borrow::Cow;
 
 pub struct SmartInput<'a, Message>
 where
@@ -15,7 +16,7 @@ where
     on_submit: Option<Message>,
     padding: u16,
     secured: bool,
-    placeholder: String,
+    placeholder: Cow<'a, str>,
     value: &'a str,
     label: Option<&'a str>,
     font_size: u16,
@@ -48,7 +49,7 @@ where
     pub fn new() -> Self {
         let padding = 0;
         let secured = false;
-        let placeholder = String::new();
+        let placeholder = Cow::default();
         let value = "";
         let label = None;
         let font_size = 14;
@@ -84,7 +85,7 @@ where
         self
     }
 
-    pub fn set_placeholder(mut self, placeholder: String) -> Self {
+    pub fn set_placeholder(mut self, placeholder: Cow<'a, str>) -> Self {
         self.placeholder = placeholder;
 
         self

@@ -277,7 +277,7 @@ where
             .set_value(&self.element.name)
             .padding(INPUT_PADDING)
             .on_input(Event::HandleInputFieldName)
-            .set_placeholder(t!("placeholder_name").to_string());
+            .set_placeholder(t!("placeholder_name"));
 
         if !self.element.name.is_empty() {
             name_field = name_field.set_copy(Event::HandleInputNameFieldCopy);
@@ -297,7 +297,7 @@ where
                     .padding(INPUT_PADDING)
                     .set_secure(field.hide)
                     .on_input(move |v| Event::HandleInputFieldValue(index, v))
-                    .set_placeholder(field.title.clone());
+                    .set_placeholder(field.title.clone().into());
 
                 if field.reload && !self.read_only {
                     input = input.set_reload(Event::HandleReloadInput(index));

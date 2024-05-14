@@ -159,7 +159,7 @@ impl Page for Lock {
             .set_danger(!self.err_message.is_empty())
             .set_font_size(14)
             .set_secure(true)
-            .set_placeholder(t!("placeholder_password").to_string());
+            .set_placeholder(t!("placeholder_password"));
 
         if !self.loading {
             passowrd_input = passowrd_input

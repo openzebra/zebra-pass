@@ -218,7 +218,7 @@ where
 
         let label_field: SmartInput<'_, Event> = SmartInput::new()
             .set_value(&self.label)
-            .set_placeholder(t!("placeholder_label").to_string())
+            .set_placeholder(t!("placeholder_label"))
             .padding(self.input_padding)
             .on_submit(Event::AddNewField)
             .on_input(Event::InputLabel);
