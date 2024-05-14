@@ -3,11 +3,11 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::components::custom_field::CustomFields;
 use crate::components::passgen::{PassGenForm, PassGenState};
-use crate::rust_i18n::t;
 use iced::widget::{
     component, text_editor, Button, Column, Component, Container, Row, Scrollable, Space, Text,
 };
 use iced::{Element, Length, Renderer, Theme};
+use rust_i18n::t;
 use std::sync::{Arc, Mutex};
 
 use super::modal::Modal;
@@ -277,7 +277,7 @@ where
             .set_value(&self.element.name)
             .padding(INPUT_PADDING)
             .on_input(Event::HandleInputFieldName)
-            .set_placeholder(t!("placeholder_name"));
+            .set_placeholder(t!("placeholder_name").to_string());
 
         if !self.element.name.is_empty() {
             name_field = name_field.set_copy(Event::HandleInputNameFieldCopy);

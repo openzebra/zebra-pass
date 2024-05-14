@@ -127,7 +127,8 @@ impl Page for Home {
                         Command::none()
                     }
                     None => {
-                        let route = Routers::ErrorPage(ErrorPage::from(t!("not_found_item")));
+                        let route =
+                            Routers::ErrorPage(ErrorPage::from(t!("not_found_item").to_string()));
 
                         Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                     }
@@ -158,7 +159,8 @@ impl Page for Home {
                         }
                     },
                     None => {
-                        let route = Routers::ErrorPage(ErrorPage::from(t!("not_found_item")));
+                        let route =
+                            Routers::ErrorPage(ErrorPage::from(t!("not_found_item").to_string()));
 
                         Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                     }

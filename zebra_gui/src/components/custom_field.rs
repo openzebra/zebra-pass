@@ -1,9 +1,9 @@
 //! -- Copyright (c) 2024 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use crate::rust_i18n::t;
 use iced::widget::{component, Button, Checkbox, Column, Component, Container, Row, Space, Text};
 use iced::{Element, Length, Padding, Renderer, Theme};
+use rust_i18n::t;
 
 use super::smart_input::SmartInput;
 use zebra_lib::core::record::Item;
@@ -218,7 +218,7 @@ where
 
         let label_field: SmartInput<'_, Event> = SmartInput::new()
             .set_value(&self.label)
-            .set_placeholder(t!("placeholder_label"))
+            .set_placeholder(t!("placeholder_label").to_string())
             .padding(self.input_padding)
             .on_submit(Event::AddNewField)
             .on_input(Event::InputLabel);

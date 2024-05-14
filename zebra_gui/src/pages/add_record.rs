@@ -1,7 +1,7 @@
 //! -- Copyright (c) 2024 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-
+use rust_i18n::t;
 use std::sync::{Arc, Mutex};
 
 use iced::keyboard::key::Named;
@@ -13,7 +13,6 @@ use crate::components::add_record_from::AddRecordForm;
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::select_list;
 use crate::gui::{GlobalMessage, Routers};
-use crate::rust_i18n::t;
 use iced::keyboard;
 use zebra_lib::core::record;
 
@@ -52,32 +51,33 @@ impl Page for AddRecordPage {
                 text: t!(&format!(
                     "item_{}",
                     record::Categories::Login(Default::default())
-                )),
+                ))
+                .to_string(),
                 value: record::Categories::Login(record::Element {
                     fields: vec![
                         record::Item {
-                            title: t!("placeholder_domain"),
+                            title: t!("placeholder_domain").to_string(),
                             value: String::new(),
                             hide: false,
                             copy: true,
                             reload: false,
                         },
                         record::Item {
-                            title: t!("placeholder_username"),
+                            title: t!("placeholder_username").to_string(),
                             value: String::new(),
                             hide: false,
                             copy: true,
                             reload: false,
                         },
                         record::Item {
-                            title: t!("placeholder_email"),
+                            title: t!("placeholder_email").to_string(),
                             value: String::new(),
                             hide: false,
                             copy: true,
                             reload: false,
                         },
                         record::Item {
-                            title: t!("placeholder_password"),
+                            title: t!("placeholder_password").to_string(),
                             value: String::new(),
                             hide: true,
                             copy: true,

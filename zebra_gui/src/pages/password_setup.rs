@@ -159,7 +159,7 @@ impl Page for PasswordSetup {
 
                 if self.email_restore {
                     if self.email.is_empty() {
-                        self.error_msg = t!("empty_email");
+                        self.error_msg = t!("empty_email").to_string();
 
                         return Command::none();
                     }
@@ -167,7 +167,7 @@ impl Page for PasswordSetup {
                     match is_valid_email(&self.email) {
                         Ok(v) => {
                             if !v {
-                                self.error_msg = t!("invalid_email");
+                                self.error_msg = t!("invalid_email").to_string();
 
                                 return Command::none();
                             }
@@ -183,7 +183,7 @@ impl Page for PasswordSetup {
                 let m_ref = match &self.mnemonic {
                     Some(m) => Arc::clone(m),
                     None => {
-                        self.error_msg = t!("mnemonic_is_not_inited");
+                        self.error_msg = t!("mnemonic_is_not_inited").to_string();
 
                         return Command::none();
                     }
@@ -191,14 +191,14 @@ impl Page for PasswordSetup {
                 let strength = match password_strength(&self.password) {
                     Ok(s) => s,
                     Err(e) => {
-                        self.error_msg = t!(&e.to_string());
+                        self.error_msg = t!(&e.to_string()).to_string();
 
                         return Command::none();
                     }
                 };
 
                 if MIN_PASSWORD_SIZE > strength as usize {
-                    self.error_msg = t!("week_password_len");
+                    self.error_msg = t!("week_password_len").to_string();
 
                     return Command::none();
                 }
@@ -447,12 +447,12 @@ impl PasswordSetup {
             .set_value(&self.password)
             .padding(10)
             .set_secure(true)
-            .set_placeholder(t!("placeholder_password"));
+            .set_placeholder(t!("placeholder_password").to_string());
         let mut confirm_passowrd_input = SmartInput::new()
             .set_value(&self.confirm_password)
             .padding(10)
             .set_secure(true)
-            .set_placeholder(t!("placeholder_confirm_password"));
+            .set_placeholder(t!("placeholder_confirm_password").to_string());
 
         if !self.loading {
             passowrd_input = passowrd_input

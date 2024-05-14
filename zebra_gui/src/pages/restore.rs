@@ -122,8 +122,9 @@ impl Page for Restore {
                     .collect();
 
                 if words.len() < self.counts[0] {
-                    self.err_message =
-                        Some(t!("restore_invalid_words_count", count => self.counts[0]));
+                    self.err_message = Some(
+                        t!("restore_invalid_words_count", count => self.counts[0]).to_string(),
+                    );
 
                     return Command::none();
                 }
@@ -138,11 +139,12 @@ impl Page for Restore {
                             }
 
                             self.error_indexs[i] = true;
-                            self.err_message = Some(t!("invalid_dict_bip39"));
+                            self.err_message = Some(t!("invalid_dict_bip39").to_string());
                         }
                         Err(_) => {
                             self.error_indexs[i] = true;
-                            self.err_message = Some(t!("not_found_word_in_dict", word => word));
+                            self.err_message =
+                                Some(t!("not_found_word_in_dict", word => word).to_string());
                         }
                     }
                 }
@@ -164,7 +166,8 @@ impl Page for Restore {
                         Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                     }
                     Err(e) => {
-                        self.err_message = Some(t!("secret_phrase_invalid", code => e.to_string()));
+                        self.err_message =
+                            Some(t!("secret_phrase_invalid", code => e.to_string()).to_string());
                         Command::none()
                     }
                 }

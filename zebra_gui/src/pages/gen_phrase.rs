@@ -9,7 +9,7 @@ use zebra_ui::config::PRINT_WIDTH;
 
 use crate::components::phrasegen::{PhraseGenForm, PhraseGenState};
 use crate::gui::{GlobalMessage, Routers};
-use crate::rust_i18n::t;
+use rust_i18n::t;
 
 use super::error::ErrorPage;
 use super::options::Options;
@@ -72,7 +72,8 @@ impl Page for GenPhrase {
                 let locked_state = match self.phrase_state.lock() {
                     Ok(state) => state,
                     Err(e) => {
-                        self.error_msg = Some(t!("secret_phrase_invalid", code => e.to_string()));
+                        self.error_msg =
+                            Some(t!("secret_phrase_invalid", code => e.to_string()).to_string());
                         return Command::none();
                     }
                 };
@@ -80,6 +81,7 @@ impl Page for GenPhrase {
 
                 match Mnemonic::mnemonic_to_entropy(locked_state.dict, &words_str) {
                     Ok(m) => {
+                        // TODO: remove unwrap.
                         let mut password_setup =
                             PasswordSetup::new(Arc::clone(&self.core)).unwrap();
 
@@ -90,7 +92,8 @@ impl Page for GenPhrase {
                         Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                     }
                     Err(e) => {
-                        self.error_msg = Some(t!("secret_phrase_invalid", code => e.to_string()));
+                        self.error_msg =
+                            Some(t!("secret_phrase_invalid", code => e.to_string()).to_string());
                         Command::none()
                     }
                 }
