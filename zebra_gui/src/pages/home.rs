@@ -243,7 +243,7 @@ impl Home {
             .push(categories);
 
         let form = if let Some(selected) = self.categories_list.get(self.selected_index) {
-            let mut f = AddRecordForm::from(&selected.value.get_value())
+            let mut f = AddRecordForm::from(selected.value.get_value())
                 .set_read_only(self.read_only)
                 .set_edit(HomeMessage::EditForm)
                 .set_title(selected.text.clone())

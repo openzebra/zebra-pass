@@ -69,9 +69,9 @@ impl Page for Locale {
             },
             LocaleMessage::Selected(lang) => match self.core.lock() {
                 Ok(mut core) => {
-                    self.selected = Some(lang.clone());
+                    self.selected = Some(lang);
 
-                    rust_i18n::set_locale(&lang.symbol());
+                    rust_i18n::set_locale(lang.symbol());
                     core.state.settings.locale = lang;
                     core.state_update().unwrap(); // TODO: remove unwrap
 
@@ -88,7 +88,7 @@ impl Page for Locale {
     fn view(&self) -> Element<Self::Message> {
         let locale_pick_list = pick_list(
             self.locales.as_slice(),
-            self.selected.clone(),
+            self.selected,
             LocaleMessage::Selected,
         )
         .text_size(20)

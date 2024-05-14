@@ -235,12 +235,9 @@ impl Page for AddRecordPage {
                 }
             },
             AddRecordPageMessage::HanldeSelectCategories(index) => {
-                match self.categories.get(index) {
-                    Some(_) => {
-                        self.selected_index = index;
-                    }
-                    None => {}
-                };
+                if self.categories.get(index).is_some() {
+                    self.selected_index = index;
+                }
 
                 Command::none()
             }
@@ -275,7 +272,7 @@ impl Page for AddRecordPage {
             .width(200)
             .push(categories);
         let form = if let Some(selected) = self.categories.get(self.selected_index) {
-            let f = AddRecordForm::from(&selected.value.get_value())
+            let f = AddRecordForm::from(selected.value.get_value())
                 .set_title(selected.text.clone())
                 .on_copy(AddRecordPageMessage::Copy)
                 .set_save(AddRecordPageMessage::SaveRecord)

@@ -62,7 +62,7 @@ impl Page for Restore {
         let err_message = None;
         let words = vec![String::new(); count];
         let dict = Language::English;
-        let dicts = [dict.clone()];
+        let dicts = [dict];
         let error_indexs = [false; 24];
 
         Ok(Self {
@@ -178,7 +178,7 @@ impl Page for Restore {
             RestoreMessage::InputPaste((index, v)) => {
                 self.err_message = None;
                 let words: Vec<String> =
-                    v.to_lowercase().split(" ").map(|s| s.to_string()).collect();
+                    v.to_lowercase().split(' ').map(|s| s.to_string()).collect();
 
                 if words.len() == 1 {
                     self.words[index] = v.clone().to_lowercase();
@@ -243,7 +243,7 @@ impl Page for Restore {
             .style(zebra_ui::styles::button::transparent)
             .on_press(RestoreMessage::Next);
         let btns_row = Row::new().push(back_btn).push(forward_btn);
-        let error_message = Text::new(self.err_message.clone().unwrap_or(String::new()))
+        let error_message = Text::new(self.err_message.clone().unwrap_or_default())
             .size(16)
             .style(zebra_ui::styles::text::danger)
             .horizontal_alignment(Horizontal::Center);
