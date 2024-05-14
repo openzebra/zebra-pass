@@ -22,3 +22,4 @@ iced = { git = "https://github.com/hicaru/iced.git", default-features = false, f
 iced_wgpu = "0.12.1"
 dark-light = "1.0.0"
 rand = { version = "0.8.5", features = ["small_rng"] }
+chrono = "0.4.38"

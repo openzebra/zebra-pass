@@ -15,8 +15,8 @@ pub struct Item {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Default)]
 pub struct Element {
     pub icon: String,
-    pub created: String,
-    pub updated: String,
+    pub created: i64,
+    pub updated: i64,
     pub favourite: bool,
     pub note: String,
     pub name: String,

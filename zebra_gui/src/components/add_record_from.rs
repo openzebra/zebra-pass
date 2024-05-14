@@ -3,6 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::components::custom_field::CustomFields;
 use crate::components::passgen::{PassGenForm, PassGenState};
+use chrono::Local;
 use iced::widget::{
     component, text_editor, Button, Column, Component, Container, Row, Scrollable, Space, Text,
 };
@@ -129,6 +130,11 @@ where
                 if let Some(on_submit) = &self.on_input {
                     let mut new_element = self.element.clone();
 
+                    if new_element.created == 0 {
+                        new_element.created = Local::now().timestamp();
+                    }
+
+                    new_element.updated = Local::now().timestamp();
                     new_element.name = value;
 
                     Some(on_submit(new_element))
@@ -157,9 +163,12 @@ where
                 if let Some(on_submit) = &self.on_input {
                     let mut new_element = self.element.clone();
 
+                    new_element.updated = Local::now().timestamp();
+
                     match new_element.fields.get_mut(index) {
                         Some(el) => {
                             el.value = value;
+
                             Some(on_submit(new_element))
                         }
                         None => None,
@@ -174,6 +183,7 @@ where
                 if let Some(on_submit) = &self.on_input {
                     let mut new_element = self.element.clone();
 
+                    new_element.updated = Local::now().timestamp();
                     new_element.note = self.content.text();
 
                     Some(on_submit(new_element))
@@ -187,6 +197,7 @@ where
                     Ok(state) => {
                         let mut new_element = self.element.clone();
 
+                        new_element.updated = Local::now().timestamp();
                         self.password_modal = false;
 
                         match new_element.fields.get_mut(self.modal_index_element) {
@@ -207,6 +218,7 @@ where
                 if let Some(on_submit) = &self.on_input {
                     let mut new_element = self.element.clone();
 
+                    new_element.updated = Local::now().timestamp();
                     new_element.extra_fields = new_list;
 
                     Some(on_submit(new_element))

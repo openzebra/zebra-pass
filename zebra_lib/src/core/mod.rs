@@ -264,8 +264,8 @@ mod core_tests {
         let data = vec![Categories::Login(Element {
             icon: "test_icon_url".to_string(),
             name: String::new(),
-            created: "".to_string(),
-            updated: "".to_string(),
+            created: 0,
+            updated: 0,
             note: String::new(),
             favourite: false,
             fields: vec![],
