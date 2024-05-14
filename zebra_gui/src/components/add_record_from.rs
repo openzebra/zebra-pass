@@ -262,27 +262,36 @@ where
             .align_items(iced::Alignment::End);
         let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
 
+        const BTN_WIDTH: u16 = 150;
         let remove_btn = Button::new(
-            Text::new(t!("ok"))
+            Text::new(t!("element_remove_ok"))
                 .size(ITEM_SPACING * 2)
                 .horizontal_alignment(iced::alignment::Horizontal::Center),
         )
+        .width(BTN_WIDTH)
         .style(zebra_ui::styles::button::outline_primary)
         .padding(ITEM_SPACING)
         .on_press(Event::HandleSavePassword);
         let cancel_btn = Button::new(
-            Text::new(t!("cancel"))
+            Text::new(t!("element_remove_cancel"))
                 .size(ITEM_SPACING * 2)
                 .horizontal_alignment(iced::alignment::Horizontal::Center),
         )
+        .width(BTN_WIDTH)
         .style(zebra_ui::styles::button::outline_primary)
         .padding(ITEM_SPACING)
-        .on_press(Event::HandleSavePassword);
+        .on_press(Event::RemoveElementModalToggle);
+
+        let btns_row = Row::new()
+            .align_items(iced::Alignment::Center)
+            .spacing(5)
+            .push(remove_btn)
+            .push(cancel_btn);
 
         let main_modal_col = Column::new()
+            .width(Length::Fill)
             .push(row_header)
-            .push(remove_btn)
-            .push(cancel_btn)
+            .push(btns_row)
             .push(Space::new(0, ITEM_SPACING))
             .padding(ITEM_SPACING)
             .align_items(iced::Alignment::Center);

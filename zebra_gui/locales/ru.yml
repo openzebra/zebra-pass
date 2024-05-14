@@ -78,4 +78,5 @@ edit_password: 'Изменить пароль'
 created_at: 'Создан'
 updated_at: 'Обновлялся'
 remove_element_btn: 'Удалить элемент!'
-
+element_remove_ok: 'Удалить'
+element_remove_cancel: 'Отмена'
