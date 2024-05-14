@@ -146,59 +146,37 @@ impl Application for Gui {
 
     fn subscription(&self) -> iced::Subscription<Self::Message> {
         iced::Subscription::batch([match &self.route {
-            Routers::Loading(v) => v.subscription().map(|msg| GlobalMessage::LoadMessage(msg)),
-            Routers::ErrorPage(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::ErrorPageMessage(msg)),
-            Routers::Interview(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::InterviewMessage(msg)),
-            Routers::Locale(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::LocaleMessage(msg)),
-            Routers::Options(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::OptionsMessage(msg)),
-            Routers::GenPhrase(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::GenPhraseMessage(msg)),
-            Routers::Restore(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::RestoreMessage(msg)),
-            Routers::PasswordSetup(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::PasswordSetupMessage(msg)),
-            Routers::Home(v) => v.subscription().map(|msg| GlobalMessage::HomeMessage(msg)),
-            Routers::Settings(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::SettingsMessage(msg)),
-            Routers::Generator(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::GeneratorMessage(msg)),
-            Routers::Lock(v) => v.subscription().map(|msg| GlobalMessage::LockMessage(msg)),
-            Routers::AddRecord(v) => v
-                .subscription()
-                .map(|msg| GlobalMessage::AddRecordPageMessage(msg)),
+            Routers::Loading(v) => v.subscription().map(GlobalMessage::LoadMessage),
+            Routers::ErrorPage(v) => v.subscription().map(GlobalMessage::ErrorPageMessage),
+            Routers::Interview(v) => v.subscription().map(GlobalMessage::InterviewMessage),
+            Routers::Locale(v) => v.subscription().map(GlobalMessage::LocaleMessage),
+            Routers::Options(v) => v.subscription().map(GlobalMessage::OptionsMessage),
+            Routers::GenPhrase(v) => v.subscription().map(GlobalMessage::GenPhraseMessage),
+            Routers::Restore(v) => v.subscription().map(GlobalMessage::RestoreMessage),
+            Routers::PasswordSetup(v) => v.subscription().map(GlobalMessage::PasswordSetupMessage),
+            Routers::Home(v) => v.subscription().map(GlobalMessage::HomeMessage),
+            Routers::Settings(v) => v.subscription().map(GlobalMessage::SettingsMessage),
+            Routers::Generator(v) => v.subscription().map(GlobalMessage::GeneratorMessage),
+            Routers::Lock(v) => v.subscription().map(GlobalMessage::LockMessage),
+            Routers::AddRecord(v) => v.subscription().map(GlobalMessage::AddRecordPageMessage),
         }])
     }
 
     fn view(&self) -> Element<'_, Self::Message, Self::Theme> {
         match &self.route {
-            Routers::Loading(l) => l.view().map(|msg| GlobalMessage::LoadMessage(msg)),
-            Routers::Locale(l) => l.view().map(|msg| GlobalMessage::LocaleMessage(msg)),
-            Routers::Interview(l) => l.view().map(|msg| GlobalMessage::InterviewMessage(msg)),
-            Routers::Options(l) => l.view().map(|msg| GlobalMessage::OptionsMessage(msg)),
-            Routers::GenPhrase(l) => l.view().map(|msg| GlobalMessage::GenPhraseMessage(msg)),
-            Routers::Restore(l) => l.view().map(|msg| GlobalMessage::RestoreMessage(msg)),
-            Routers::PasswordSetup(l) => {
-                l.view().map(|msg| GlobalMessage::PasswordSetupMessage(msg))
-            }
-            Routers::Home(l) => l.view().map(|msg| GlobalMessage::HomeMessage(msg)),
-            Routers::Lock(l) => l.view().map(|msg| GlobalMessage::LockMessage(msg)),
-            Routers::Generator(l) => l.view().map(|msg| GlobalMessage::GeneratorMessage(msg)),
-            Routers::Settings(l) => l.view().map(|msg| GlobalMessage::SettingsMessage(msg)),
-            Routers::AddRecord(l) => l.view().map(|msg| GlobalMessage::AddRecordPageMessage(msg)),
-            Routers::ErrorPage(l) => l.view().map(|msg| GlobalMessage::ErrorPageMessage(msg)),
+            Routers::Loading(l) => l.view().map(GlobalMessage::LoadMessage),
+            Routers::Locale(l) => l.view().map(GlobalMessage::LocaleMessage),
+            Routers::Interview(l) => l.view().map(GlobalMessage::InterviewMessage),
+            Routers::Options(l) => l.view().map(GlobalMessage::OptionsMessage),
+            Routers::GenPhrase(l) => l.view().map(GlobalMessage::GenPhraseMessage),
+            Routers::Restore(l) => l.view().map(GlobalMessage::RestoreMessage),
+            Routers::PasswordSetup(l) => l.view().map(GlobalMessage::PasswordSetupMessage),
+            Routers::Home(l) => l.view().map(GlobalMessage::HomeMessage),
+            Routers::Lock(l) => l.view().map(GlobalMessage::LockMessage),
+            Routers::Generator(l) => l.view().map(GlobalMessage::GeneratorMessage),
+            Routers::Settings(l) => l.view().map(GlobalMessage::SettingsMessage),
+            Routers::AddRecord(l) => l.view().map(GlobalMessage::AddRecordPageMessage),
+            Routers::ErrorPage(l) => l.view().map(GlobalMessage::ErrorPageMessage),
         }
     }
 
