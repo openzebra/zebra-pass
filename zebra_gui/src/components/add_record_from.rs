@@ -17,6 +17,9 @@ use super::smart_input::SmartInput;
 use zebra_lib::core::record;
 
 const DATA_FORMAT: &str = "%d.%m.%Y %H:%M:%S";
+const INPUT_PADDING: u16 = 12;
+const INDENT_HEAD: u16 = 16;
+const ITEM_SPACING: u16 = 8;
 
 pub struct AddRecordForm<'a, Message>
 where
@@ -28,9 +31,11 @@ where
     on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
     on_save: Option<Message>,
     on_edit: Option<Message>,
+    on_remove: Option<Message>,
     content: text_editor::Content,
     read_only: bool,
     password_modal: bool,
+    remove_modal: bool,
     modal_index_element: usize,
     pass_gen_state: Arc<Mutex<PassGenState>>,
 }
@@ -38,6 +43,7 @@ where
 #[derive(Debug, Clone)]
 pub enum Event {
     ReloadPassword,
+    RemoveElementModalToggle,
     HandleSave,
     HandleEdit,
     HandleHidePasswordModal,
@@ -71,14 +77,22 @@ where
             on_copy: None,
             on_save: None,
             on_edit: None,
+            on_remove: None,
             content: text_editor::Content::with_text(&element.note),
             password_modal: false,
+            remove_modal: false,
             modal_index_element: 0,
         }
     }
 
     pub fn set_save(mut self, msg: Message) -> Self {
         self.on_save = Some(msg);
+
+        self
+    }
+
+    pub fn set_remove(mut self, msg: Message) -> Self {
+        self.on_remove = Some(msg);
 
         self
     }
@@ -159,6 +173,124 @@ where
 
         Some(Container::new(col))
     }
+
+    pub fn view_remove_button(&self) -> Option<Container<'a, Event, Theme, Renderer>> {
+        let remove_button = Button::new(Text::new(t!("remove_element_btn")).size(14))
+            .padding(0)
+            .on_press(Event::RemoveElementModalToggle)
+            .style(zebra_ui::styles::button::ref_danger);
+        let col = Column::new()
+            .push(Space::new(0, 5))
+            .push(remove_button)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Start);
+
+        Some(Container::new(col))
+    }
+
+    pub fn view_password_gen_modal(&self) -> Container<'a, Event, Theme, Renderer> {
+        let close_btn = Button::new(
+            zebra_ui::image::close_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(Event::HandleHidePasswordModal);
+        let close_btn = Column::new()
+            .push(close_btn)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::End);
+        let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
+
+        let pass_gen = match PassGenForm::new(Arc::clone(&self.pass_gen_state)) {
+            Ok(pass) => pass.height(200),
+            Err(e) => {
+                let error = Text::new(e.to_string())
+                    .style(zebra_ui::styles::text::danger)
+                    .size(24);
+
+                return Container::new(error);
+            }
+        };
+        let pass_gen = Container::new(pass_gen);
+        let save_btn = Button::new(
+            Text::new(match self.element.fields.get(self.modal_index_element) {
+                Some(el) => {
+                    if el.value.is_empty() {
+                        t!("save_password")
+                    } else {
+                        t!("edit_password")
+                    }
+                }
+                None => t!("edit_password"),
+            })
+            .size(ITEM_SPACING * 2)
+            .horizontal_alignment(iced::alignment::Horizontal::Center),
+        )
+        .style(zebra_ui::styles::button::outline_primary)
+        .padding(ITEM_SPACING)
+        .on_press(Event::HandleSavePassword);
+
+        let main_modal_col = Column::new()
+            .push(row_header)
+            .push(pass_gen)
+            .push(save_btn)
+            .push(Space::new(0, ITEM_SPACING))
+            .padding(ITEM_SPACING)
+            .align_items(iced::Alignment::Center);
+
+        Container::new(main_modal_col)
+            .width(400)
+            .style(zebra_ui::styles::container::primary_bordered_modal)
+    }
+
+    pub fn view_remove_modal(&self) -> Container<'a, Event, Theme, Renderer> {
+        let close_btn = Button::new(
+            zebra_ui::image::close_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(Event::RemoveElementModalToggle);
+        let close_btn = Column::new()
+            .push(close_btn)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::End);
+        let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
+
+        let remove_btn = Button::new(
+            Text::new(t!("ok"))
+                .size(ITEM_SPACING * 2)
+                .horizontal_alignment(iced::alignment::Horizontal::Center),
+        )
+        .style(zebra_ui::styles::button::outline_primary)
+        .padding(ITEM_SPACING)
+        .on_press(Event::HandleSavePassword);
+        let cancel_btn = Button::new(
+            Text::new(t!("cancel"))
+                .size(ITEM_SPACING * 2)
+                .horizontal_alignment(iced::alignment::Horizontal::Center),
+        )
+        .style(zebra_ui::styles::button::outline_primary)
+        .padding(ITEM_SPACING)
+        .on_press(Event::HandleSavePassword);
+
+        let main_modal_col = Column::new()
+            .push(row_header)
+            .push(remove_btn)
+            .push(cancel_btn)
+            .push(Space::new(0, ITEM_SPACING))
+            .padding(ITEM_SPACING)
+            .align_items(iced::Alignment::Center);
+
+        Container::new(main_modal_col)
+            .width(400)
+            .style(zebra_ui::styles::container::primary_bordered_modal)
+    }
 }
 
 impl<'a, Message> Component<Message, Theme, Renderer> for AddRecordForm<'a, Message>
@@ -170,6 +302,10 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
+            Event::RemoveElementModalToggle => {
+                self.remove_modal = !self.remove_modal;
+                None
+            }
             Event::HandleInputFieldName(value) => {
                 if let Some(on_submit) = &self.on_input {
                     let mut new_element = self.element.clone();
@@ -293,10 +429,6 @@ where
         &self,
         _state: &Self::State,
     ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
-        const INPUT_PADDING: u16 = 12;
-        const INDENT_HEAD: u16 = 16;
-        const ITEM_SPACING: u16 = 8;
-
         let title = Text::new(&self.title)
             .size(24)
             .width(Length::Fill)
@@ -435,6 +567,7 @@ where
                 Some(notes)
             })
             .push_maybe(self.view_timestamp())
+            .push_maybe(self.view_remove_button())
             .push(Space::new(0, INDENT_HEAD));
         let scrolling = Scrollable::new(scrol_col)
             .height(Length::Fill)
@@ -448,62 +581,11 @@ where
             .push(scrolling);
 
         if self.password_modal && !self.read_only {
-            let close_btn = Button::new(
-                zebra_ui::image::close_icon()
-                    .style(zebra_ui::styles::svg::primary_hover)
-                    .height(30)
-                    .width(30),
-            )
-            .padding(0)
-            .style(zebra_ui::styles::button::transparent)
-            .on_press(Event::HandleHidePasswordModal);
-            let close_btn = Column::new()
-                .push(close_btn)
-                .width(Length::Fill)
-                .align_items(iced::Alignment::End);
-            let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
-
-            let pass_gen = match PassGenForm::new(Arc::clone(&self.pass_gen_state)) {
-                Ok(pass) => pass.height(200),
-                Err(e) => {
-                    let error = Text::new(e.to_string())
-                        .style(zebra_ui::styles::text::danger)
-                        .size(24);
-
-                    return Container::new(error).into();
-                }
-            };
-            let pass_gen = Container::new(pass_gen);
-            let save_btn = Button::new(
-                Text::new(match self.element.fields.get(self.modal_index_element) {
-                    Some(el) => {
-                        if el.value.is_empty() {
-                            t!("save_password")
-                        } else {
-                            t!("edit_password")
-                        }
-                    }
-                    None => t!("edit_password"),
-                })
-                .size(ITEM_SPACING * 2)
-                .horizontal_alignment(iced::alignment::Horizontal::Center),
-            )
-            .style(zebra_ui::styles::button::outline_primary)
-            .padding(ITEM_SPACING)
-            .on_press(Event::HandleSavePassword);
-
-            let main_modal_col = Column::new()
-                .push(row_header)
-                .push(pass_gen)
-                .push(save_btn)
-                .push(Space::new(0, ITEM_SPACING))
-                .padding(ITEM_SPACING)
-                .align_items(iced::Alignment::Center);
-
-            let modal = Container::new(main_modal_col)
-                .width(400)
-                .style(zebra_ui::styles::container::primary_bordered_modal);
-            Modal::new(main_col, modal)
+            Modal::new(main_col, self.view_password_gen_modal())
+                .on_blur(Event::HandleHidePasswordModal)
+                .into()
+        } else if self.remove_modal && !self.read_only {
+            Modal::new(main_col, self.view_remove_modal())
                 .on_blur(Event::HandleHidePasswordModal)
                 .into()
         } else {

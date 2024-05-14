@@ -77,4 +77,5 @@ not_found_item: 'Элемент не найден, попробуйте сбро
 edit_password: 'Изменить пароль'
 created_at: 'Создан'
 updated_at: 'Обновлялся'
+remove_element_btn: 'Удалить элемент!'
 

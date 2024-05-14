@@ -77,4 +77,4 @@ edit_password: 'Edit password'
 not_found_item: 'Not found item, try reset zebra'
 created_at: 'Created At'
 updated_at: 'Updated at'
-
+remove_element_btn: 'Remove Element'
