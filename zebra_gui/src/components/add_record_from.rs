@@ -3,7 +3,8 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use crate::components::custom_field::CustomFields;
 use crate::components::passgen::{PassGenForm, PassGenState};
-use chrono::Local;
+
+use chrono::{Local, MappedLocalTime, TimeZone};
 use iced::widget::{
     component, text_editor, Button, Column, Component, Container, Row, Scrollable, Space, Text,
 };
@@ -14,6 +15,8 @@ use std::sync::{Arc, Mutex};
 use super::modal::Modal;
 use super::smart_input::SmartInput;
 use zebra_lib::core::record;
+
+const DATA_FORMAT: &str = "%d.%m.%Y %H:%M:%S";
 
 pub struct AddRecordForm<'a, Message>
 where
@@ -115,6 +118,47 @@ where
 
         self
     }
+
+    pub fn view_timestamp(&self) -> Option<Container<'a, Event, Theme, Renderer>> {
+        const TEXT_SIZE: u16 = 13;
+        if self.element.created == 0 {
+            return None;
+        }
+
+        let timestamp_created = match Local.timestamp_opt(self.element.created, 0) {
+            MappedLocalTime::Single(t) => t,
+            _ => return None,
+        };
+        let timestamp_updated = match Local.timestamp_opt(self.element.updated, 0) {
+            MappedLocalTime::Single(t) => t,
+            _ => return None,
+        };
+        let created_at_date = format!(
+            "{}: {}",
+            t!("created_at"),
+            timestamp_created.format(DATA_FORMAT)
+        );
+        let updated_at_date = format!(
+            "{}: {}",
+            t!("updated_at"),
+            timestamp_updated.format(DATA_FORMAT)
+        );
+
+        let upadted_at = Text::new(updated_at_date)
+            .size(TEXT_SIZE)
+            .style(zebra_ui::styles::text::muted);
+        let created_at = Text::new(created_at_date)
+            .size(TEXT_SIZE)
+            .style(zebra_ui::styles::text::muted);
+
+        let col = Column::new()
+            .push(created_at)
+            .push(upadted_at)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Start);
+
+        Some(Container::new(col))
+    }
 }
 
 impl<'a, Message> Component<Message, Theme, Renderer> for AddRecordForm<'a, Message>
@@ -200,11 +244,13 @@ where
                     self.password_modal = false;
 
                     match new_element.fields.get_mut(self.modal_index_element) {
-                        Some(el) => el.value = state.value.to_string(),
-                        None => return None,
-                    };
+                        Some(el) => {
+                            el.value = state.value.to_string();
 
-                    self.on_input.as_ref().map(|on_input| on_input(new_element));
+                            return self.on_input.as_ref().map(|on_input| on_input(new_element));
+                        }
+                        None => return None,
+                    }
                 }
 
                 None
@@ -388,6 +434,7 @@ where
             } else {
                 Some(notes)
             })
+            .push_maybe(self.view_timestamp())
             .push(Space::new(0, INDENT_HEAD));
         let scrolling = Scrollable::new(scrol_col)
             .height(Length::Fill)
