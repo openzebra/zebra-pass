@@ -193,26 +193,21 @@ where
             }
             Event::HandleSave => self.on_save.clone(),
             Event::HandleSavePassword => {
-                match self.pass_gen_state.lock() {
-                    Ok(state) => {
-                        let mut new_element = self.element.clone();
+                if let Ok(state) = self.pass_gen_state.lock() {
+                    let mut new_element = self.element.clone();
 
-                        new_element.updated = Local::now().timestamp();
-                        self.password_modal = false;
+                    new_element.updated = Local::now().timestamp();
+                    self.password_modal = false;
 
-                        match new_element.fields.get_mut(self.modal_index_element) {
-                            Some(el) => el.value = state.value.to_string(),
-                            None => return None,
-                        };
+                    match new_element.fields.get_mut(self.modal_index_element) {
+                        Some(el) => el.value = state.value.to_string(),
+                        None => return None,
+                    };
 
-                        self.on_input.as_ref().map(|on_input| on_input(new_element))
-                    }
-                    Err(e) => {
-                        dbg!(e);
-                        // TODO: make error hanlde
-                        None
-                    }
+                    self.on_input.as_ref().map(|on_input| on_input(new_element));
                 }
+
+                None
             }
             Event::HandleChangeCustomField(new_list) => {
                 if let Some(on_submit) = &self.on_input {
