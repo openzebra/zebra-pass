@@ -35,6 +35,7 @@ pub enum HomeMessage {
     RouteSettings,
     AddRecord,
     EditForm,
+    RemoveElementForm,
     Copy(String),
     HanldeSelectCategories(usize),
     HanldeInputForm(record::Element),
@@ -72,6 +73,24 @@ impl Page for Home {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
+            HomeMessage::RemoveElementForm => match self.core.lock() {
+                Ok(mut core) => {
+                    self.categories_list.remove(self.selected_index);
+                    core.data.remove(self.selected_index);
+
+                    match core.data_update() {
+                        Ok(_) => Command::none(),
+                        Err(e) => {
+                            let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                            Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                        }
+                    }
+                }
+                Err(e) => {
+                    let route = Routers::ErrorPage(ErrorPage::from(e.to_string()));
+                    Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
+                }
+            },
             HomeMessage::Copy(value) => iced::clipboard::write::<GlobalMessage>(value),
             HomeMessage::RouteGen => match Generator::new(Arc::clone(&self.core)) {
                 Ok(gen) => {
@@ -248,6 +267,7 @@ impl Home {
             let mut f = AddRecordForm::from(selected.value.get_value())
                 .set_read_only(self.read_only)
                 .set_edit(HomeMessage::EditForm)
+                .set_remove(HomeMessage::RemoveElementForm)
                 .set_title(selected.text.clone())
                 .on_copy(HomeMessage::Copy);
 

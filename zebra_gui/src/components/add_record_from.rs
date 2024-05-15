@@ -176,6 +176,10 @@ where
     }
 
     pub fn view_remove_button(&self) -> Option<Container<'a, Event, Theme, Renderer>> {
+        if self.read_only || self.on_remove.is_none() {
+            return None;
+        }
+
         let remove_button = Button::new(Text::new(t!("remove_element_btn")).size(14))
             .padding(0)
             .on_press(Event::RemoveElementModalToggle)
