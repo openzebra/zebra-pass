@@ -45,6 +45,7 @@ pub enum Event {
     ReloadPassword,
     RemoveElementModalToggle,
     HandleSave,
+    HandleRemoveElement,
     HandleEdit,
     HandleHidePasswordModal,
     HandleInputNameFieldCopy,
@@ -270,9 +271,9 @@ where
                 .horizontal_alignment(iced::alignment::Horizontal::Center),
         )
         .width(BTN_WIDTH)
-        .style(zebra_ui::styles::button::outline_primary)
+        .style(zebra_ui::styles::button::outline_danger)
         .padding(ITEM_SPACING)
-        .on_press(Event::HandleSavePassword);
+        .on_press(Event::HandleRemoveElement);
         let cancel_btn = Button::new(
             Text::new(t!("element_remove_cancel"))
                 .size(ITEM_SPACING * 2)
@@ -289,14 +290,11 @@ where
             .push(remove_btn)
             .push(cancel_btn);
 
-        let warning = Text::new(t!(
-            "asknfdfgdsklklklndkjdfljfldnfkjfdjbnfkjdkklbnkkfdnjfnkjlvfgkjlvbfgnklj"
-        ))
-        .horizontal_alignment(iced::alignment::Horizontal::Center)
-        .height(150)
-        .width(Length::Fill)
-        .size(16);
-        let warning = Container::new(warning);
+        let warning = Text::new(t!("remove_element_warning"))
+            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .width(Length::Fill)
+            .size(16);
+        let warning = Container::new(warning).height(60).width(Length::Fill);
 
         let main_modal_col = Column::new()
             .width(Length::Fill)
@@ -322,6 +320,7 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
+            Event::HandleRemoveElement => self.on_remove.clone(),
             Event::RemoveElementModalToggle => {
                 self.remove_modal = !self.remove_modal;
                 None

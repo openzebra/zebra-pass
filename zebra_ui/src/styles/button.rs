@@ -145,6 +145,40 @@ pub fn ref_danger(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
+pub fn outline_danger(theme: &Theme, status: Status) -> Appearance {
+    let palette = theme.extended_palette();
+    let base = Appearance {
+        background: Some(Color::TRANSPARENT.into()),
+        text_color: palette.danger.base.color,
+        border: Border {
+            color: palette.danger.weak.color,
+            width: 1.0,
+            radius: BORDER_RADIUS.into(),
+        },
+        shadow: Default::default(),
+    };
+
+    match status {
+        Status::Active => Appearance { ..base },
+        Status::Pressed => Appearance {
+            background: Some(palette.danger.weak.color.into()),
+            text_color: palette.background.base.text,
+            border: Border {
+                color: palette.danger.base.color,
+                width: 1.0,
+                radius: BORDER_RADIUS.into(),
+            },
+            ..base
+        },
+        Status::Hovered => Appearance {
+            background: Some(palette.danger.base.color.into()),
+            text_color: palette.background.base.text,
+            ..base
+        },
+        Status::Disabled => disabled(base),
+    }
+}
+
 fn disabled(appearance: Appearance) -> Appearance {
     Appearance {
         background: appearance
