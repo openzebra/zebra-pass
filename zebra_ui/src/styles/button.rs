@@ -2,14 +2,14 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use iced::{
-    widget::button::{Appearance, Status},
+    widget::button::{Status, Style},
     Border, Color, Theme,
 };
 
 use crate::config::BORDER_RADIUS;
 
-pub fn transparent(_theme: &Theme, _status: Status) -> Appearance {
-    Appearance {
+pub fn transparent(_theme: &Theme, _status: Status) -> Style {
+    Style {
         background: None,
         ..Default::default()
     }
