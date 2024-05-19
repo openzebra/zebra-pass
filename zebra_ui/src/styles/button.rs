@@ -8,8 +8,8 @@ use iced::{
 
 use crate::config::BORDER_RADIUS;
 
-pub fn transparent(_theme: &Theme, _status: Status) -> Style {
-    Style {
+pub fn transparent(_theme: &Theme, _status: Status) -> Appearance {
+    Appearance {
         background: None,
         ..Default::default()
     }

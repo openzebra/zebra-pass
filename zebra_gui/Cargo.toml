@@ -13,7 +13,7 @@ zebra_ui = { path = "../zebra_ui" }
 zebra_lib = { path = "../zebra_lib" }
 tokio = { version = "1.34.0", features = ["signal"] }
 rust-i18n = "3.0.1"
-iced = { git = "https://github.com/hicaru/iced.git", default-features = false, features = [
+iced = { version = "0.12.1", default-features = false, features = [
   "svg",
   "image",
   "lazy",

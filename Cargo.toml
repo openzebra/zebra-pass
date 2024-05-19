@@ -17,7 +17,7 @@ name = "zebra_gui"
 path = "zebra_gui/src/main.rs"
 
 [dependencies]
-iced = { git = "https://github.com/hicaru/iced.git", default-features = false, features = [
+iced = { version = "0.12.1", default-features = false, features = [
     "svg",
     "image",
     "lazy",
