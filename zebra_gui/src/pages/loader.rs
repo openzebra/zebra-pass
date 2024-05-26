@@ -109,8 +109,8 @@ impl Page for Loader {
         Container::new(main_row)
             .height(Length::Fill)
             .width(Length::Fill)
-            .center_x()
-            .center_y()
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .into()
     }
 }
