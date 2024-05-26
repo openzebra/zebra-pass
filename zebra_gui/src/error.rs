@@ -5,7 +5,7 @@ use crate::rust_i18n::t;
 use iced::advanced::Application;
 use iced::widget::{Column, Row, Text};
 use iced::{executor, Command, Element};
-use iced::{Alignment, Length, Theme};
+use iced::{Alignment, Length, Renderer, Theme};
 
 pub struct GUIError {
     error: String,
@@ -19,6 +19,7 @@ impl Application for GUIError {
     type Message = ErrorMessage;
     type Flags = String;
     type Theme = Theme;
+    type Renderer = Renderer;
 
     fn title(&self) -> String {
         "ZebraPass Error".into()

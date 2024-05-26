@@ -7,7 +7,7 @@ use crate::pages::Page;
 
 use super::pages;
 use iced::advanced::Application;
-use iced::{executor, Command, Element, Theme};
+use iced::{executor, Command, Element, Renderer, Theme};
 use zebra_lib::{core::Core, settings::appearance::Themes};
 
 #[derive(Debug)]
@@ -61,6 +61,7 @@ impl Application for Gui {
     type Message = GlobalMessage;
     type Flags = Core;
     type Theme = Theme;
+    type Renderer = Renderer;
 
     fn title(&self) -> String {
         "Zebrapass".into()

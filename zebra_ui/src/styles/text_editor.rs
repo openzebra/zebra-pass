@@ -1,15 +1,15 @@
 //! -- Copyright (c) 2024 Rina Khasanshin
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
-use iced::widget::text_editor::{Appearance, Status};
+use iced::widget::text_editor::{Status, Style};
 use iced::{Border, Color, Theme};
 
 use crate::config::BORDER_RADIUS;
 
-pub fn primary(theme: &Theme, status: Status) -> Appearance {
+pub fn primary(theme: &Theme, status: Status) -> Style {
     let palette = theme.extended_palette();
 
-    let active = Appearance {
+    let active = Style {
         background: Color::TRANSPARENT.into(),
         border: Border {
             radius: BORDER_RADIUS.into(),
@@ -24,21 +24,21 @@ pub fn primary(theme: &Theme, status: Status) -> Appearance {
 
     match status {
         Status::Active => active,
-        Status::Hovered => Appearance {
+        Status::Hovered => Style {
             border: Border {
                 color: palette.primary.strong.color,
                 ..active.border
             },
             ..active
         },
-        Status::Focused => Appearance {
+        Status::Focused => Style {
             border: Border {
                 color: palette.primary.strong.color,
                 ..active.border
             },
             ..active
         },
-        Status::Disabled => Appearance {
+        Status::Disabled => Style {
             background: Color::TRANSPARENT.into(),
             value: active.placeholder,
             ..active

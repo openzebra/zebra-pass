@@ -8,24 +8,24 @@ use iced::{
 
 use crate::config::BORDER_RADIUS;
 
-pub fn transparent(_theme: &Theme, _status: Status) -> Appearance {
-    Appearance {
+pub fn transparent(_theme: &Theme, _status: Status) -> Style {
+    Style {
         background: None,
         ..Default::default()
     }
 }
 
-pub fn primary_rude(theme: &Theme, status: Status) -> Appearance {
+pub fn primary_rude(theme: &Theme, status: Status) -> Style {
     let mut base = primary(theme, status);
 
     base.border.radius = 0.0.into();
 
-    Appearance { ..base }
+    Style { ..base }
 }
 
-pub fn primary(theme: &Theme, status: Status) -> Appearance {
+pub fn primary(theme: &Theme, status: Status) -> Style {
     let palette = theme.extended_palette();
-    let base = Appearance {
+    let base = Style {
         background: Some(palette.primary.strong.color.into()),
         text_color: palette.background.base.text,
         border: Border {
@@ -37,8 +37,8 @@ pub fn primary(theme: &Theme, status: Status) -> Appearance {
     };
 
     match status {
-        Status::Active => Appearance { ..base },
-        Status::Pressed => Appearance {
+        Status::Active => Style { ..base },
+        Status::Pressed => Style {
             background: Some(palette.primary.strong.color.into()),
             text_color: palette.background.base.text,
             border: Border {
@@ -48,7 +48,7 @@ pub fn primary(theme: &Theme, status: Status) -> Appearance {
             },
             ..base
         },
-        Status::Hovered => Appearance {
+        Status::Hovered => Style {
             background: Some(palette.primary.strong.color.into()),
             text_color: palette.background.base.text,
             ..base
@@ -57,9 +57,9 @@ pub fn primary(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
-pub fn outline_primary(theme: &Theme, status: Status) -> Appearance {
+pub fn outline_primary(theme: &Theme, status: Status) -> Style {
     let palette = theme.extended_palette();
-    let base = Appearance {
+    let base = Style {
         background: Some(Color::TRANSPARENT.into()),
         text_color: palette.background.base.text,
         border: Border {
@@ -71,8 +71,8 @@ pub fn outline_primary(theme: &Theme, status: Status) -> Appearance {
     };
 
     match status {
-        Status::Active => Appearance { ..base },
-        Status::Pressed => Appearance {
+        Status::Active => Style { ..base },
+        Status::Pressed => Style {
             background: Some(palette.primary.weak.color.into()),
             text_color: palette.background.base.color,
             border: Border {
@@ -82,7 +82,7 @@ pub fn outline_primary(theme: &Theme, status: Status) -> Appearance {
             },
             ..base
         },
-        Status::Hovered => Appearance {
+        Status::Hovered => Style {
             background: Some(palette.primary.base.color.into()),
             text_color: palette.background.base.color,
             ..base
@@ -91,9 +91,9 @@ pub fn outline_primary(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
-pub fn ref_primary(theme: &Theme, status: Status) -> Appearance {
+pub fn ref_primary(theme: &Theme, status: Status) -> Style {
     let palette = theme.extended_palette();
-    let base = Appearance {
+    let base = Style {
         background: Some(Color::TRANSPARENT.into()),
         text_color: palette.primary.strong.color,
         border: Border {
@@ -105,12 +105,12 @@ pub fn ref_primary(theme: &Theme, status: Status) -> Appearance {
     };
 
     match status {
-        Status::Active => Appearance { ..base },
-        Status::Pressed => Appearance {
+        Status::Active => Style { ..base },
+        Status::Pressed => Style {
             text_color: palette.primary.weak.color,
             ..base
         },
-        Status::Hovered => Appearance {
+        Status::Hovered => Style {
             text_color: palette.primary.weak.color,
             ..base
         },
@@ -118,9 +118,9 @@ pub fn ref_primary(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
-pub fn ref_danger(theme: &Theme, status: Status) -> Appearance {
+pub fn ref_danger(theme: &Theme, status: Status) -> Style {
     let palette = theme.extended_palette();
-    let base = Appearance {
+    let base = Style {
         background: Some(Color::TRANSPARENT.into()),
         text_color: palette.danger.strong.color,
         border: Border {
@@ -132,12 +132,12 @@ pub fn ref_danger(theme: &Theme, status: Status) -> Appearance {
     };
 
     match status {
-        Status::Active => Appearance { ..base },
-        Status::Pressed => Appearance {
+        Status::Active => Style { ..base },
+        Status::Pressed => Style {
             text_color: palette.danger.weak.color,
             ..base
         },
-        Status::Hovered => Appearance {
+        Status::Hovered => Style {
             text_color: palette.danger.weak.color,
             ..base
         },
@@ -145,9 +145,9 @@ pub fn ref_danger(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
-pub fn outline_danger(theme: &Theme, status: Status) -> Appearance {
+pub fn outline_danger(theme: &Theme, status: Status) -> Style {
     let palette = theme.extended_palette();
-    let base = Appearance {
+    let base = Style {
         background: Some(Color::TRANSPARENT.into()),
         text_color: palette.danger.base.color,
         border: Border {
@@ -159,8 +159,8 @@ pub fn outline_danger(theme: &Theme, status: Status) -> Appearance {
     };
 
     match status {
-        Status::Active => Appearance { ..base },
-        Status::Pressed => Appearance {
+        Status::Active => Style { ..base },
+        Status::Pressed => Style {
             background: Some(palette.danger.weak.color.into()),
             text_color: palette.background.base.text,
             border: Border {
@@ -170,7 +170,7 @@ pub fn outline_danger(theme: &Theme, status: Status) -> Appearance {
             },
             ..base
         },
-        Status::Hovered => Appearance {
+        Status::Hovered => Style {
             background: Some(palette.danger.base.color.into()),
             text_color: palette.background.base.text,
             ..base
@@ -179,8 +179,8 @@ pub fn outline_danger(theme: &Theme, status: Status) -> Appearance {
     }
 }
 
-fn disabled(appearance: Appearance) -> Appearance {
-    Appearance {
+fn disabled(appearance: Style) -> Style {
+    Style {
         background: appearance
             .background
             .map(|background| background.scale_alpha(0.5)),

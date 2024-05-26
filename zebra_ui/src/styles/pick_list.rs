@@ -3,16 +3,16 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use iced::{
-    widget::pick_list::{Appearance, Status},
+    widget::pick_list::{Status, Style},
     Border, Theme,
 };
 
 use crate::config::BORDER_RADIUS;
 
-pub fn primary_field(theme: &Theme, status: Status) -> Appearance {
+pub fn primary_field(theme: &Theme, status: Status) -> Style {
     let palette = theme.extended_palette();
 
-    let active = Appearance {
+    let active = Style {
         text_color: palette.background.base.text,
         background: palette.background.base.color.into(),
         placeholder_color: palette.background.strong.color,
@@ -26,14 +26,14 @@ pub fn primary_field(theme: &Theme, status: Status) -> Appearance {
 
     match status {
         Status::Active => active,
-        Status::Hovered => Appearance {
+        Status::Hovered => Style {
             border: Border {
                 color: palette.primary.strong.color,
                 ..active.border
             },
             ..active
         },
-        Status::Opened => Appearance {
+        Status::Opened => Style {
             border: Border {
                 radius: [BORDER_RADIUS, BORDER_RADIUS, 0.0, 0.0].into(),
                 color: palette.primary.strong.color,

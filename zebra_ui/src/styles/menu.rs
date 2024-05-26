@@ -2,14 +2,14 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use iced::{overlay::menu::Appearance, Border, Theme};
+use iced::{overlay::menu::Style, Border, Theme};
 
 use crate::config::BORDER_RADIUS;
 
-pub fn primary_menu(theme: &Theme) -> Appearance {
+pub fn primary_menu(theme: &Theme) -> Style {
     let palette = theme.extended_palette();
 
-    Appearance {
+    Style {
         background: palette.background.base.color.into(),
         border: Border {
             width: 1.0,

@@ -4,12 +4,12 @@
 use iced::{
     widget::{
         container,
-        scrollable::{Appearance, Scrollbar, Scroller, Status},
+        scrollable::{Scrollbar, Scroller, Status, Style},
     },
     Color, Theme,
 };
 
-pub fn scroll_transparent(_theme: &Theme, _status: Status) -> Appearance {
+pub fn scroll_transparent(_theme: &Theme, _status: Status) -> Style {
     let scrollbar = Scrollbar {
         background: Some(Color::TRANSPARENT.into()),
         border: Default::default(),
@@ -19,8 +19,8 @@ pub fn scroll_transparent(_theme: &Theme, _status: Status) -> Appearance {
         },
     };
 
-    Appearance {
-        container: container::Appearance::default(),
+    Style {
+        container: container::Style::default(),
         vertical_scrollbar: scrollbar,
         horizontal_scrollbar: scrollbar,
         gap: None,
