@@ -292,9 +292,9 @@ impl Page for AddRecordPage {
 
         NavBar::<Self::Message>::new()
             .set_route(NavRoute::None)
-            .on_gen(AddRecordPageMessage::RouteGen)
-            .on_settings(AddRecordPageMessage::RouteSettings)
-            .on_home(AddRecordPageMessage::RouteHome)
+            .on_gen(&AddRecordPageMessage::RouteGen)
+            .on_settings(&AddRecordPageMessage::RouteSettings)
+            .on_home(&AddRecordPageMessage::RouteHome)
             .view(main_container)
             .into()
     }

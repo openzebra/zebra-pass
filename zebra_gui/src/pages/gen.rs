@@ -183,9 +183,9 @@ impl Page for Generator {
 
         NavBar::<Self::Message>::new()
             .set_route(NavRoute::Gen)
-            .on_home(GeneratorMessage::RouteHome)
-            .on_settings(GeneratorMessage::RouteSettings)
-            .on_add(GeneratorMessage::AddRecord)
+            .on_home(&GeneratorMessage::RouteHome)
+            .on_settings(&GeneratorMessage::RouteSettings)
+            .on_add(&GeneratorMessage::AddRecord)
             .view(container)
             .into()
     }

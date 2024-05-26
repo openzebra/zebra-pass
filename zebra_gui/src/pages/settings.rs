@@ -92,9 +92,9 @@ impl Page for Settings {
 
         NavBar::<Self::Message>::new()
             .set_route(NavRoute::Settings)
-            .on_home(SettingsMessage::RouteHome)
-            .on_gen(SettingsMessage::RouteGen)
-            .on_add(SettingsMessage::AddRecord)
+            .on_home(&SettingsMessage::RouteHome)
+            .on_gen(&SettingsMessage::RouteGen)
+            .on_add(&SettingsMessage::AddRecord)
             .view(content)
             .into()
     }

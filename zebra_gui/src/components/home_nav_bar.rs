@@ -14,15 +14,15 @@ pub enum NavRoute {
     None,
 }
 
-pub struct NavBar<Message: Clone> {
-    on_home: Option<Message>,
-    on_gen: Option<Message>,
-    on_settings: Option<Message>,
-    on_add: Option<Message>,
+pub struct NavBar<'a, Message> {
+    on_home: Option<&'a Message>,
+    on_gen: Option<&'a Message>,
+    on_settings: Option<&'a Message>,
+    on_add: Option<&'a Message>,
     route: NavRoute,
 }
 
-impl<'a, Message: Clone + 'a> NavBar<Message> {
+impl<'a, Message: Clone + 'a> NavBar<'a, Message> {
     pub fn new() -> Self {
         Self {
             route: NavRoute::Home,
@@ -39,25 +39,25 @@ impl<'a, Message: Clone + 'a> NavBar<Message> {
         self
     }
 
-    pub fn on_add(mut self, msg: Message) -> Self {
+    pub fn on_add(mut self, msg: &'a Message) -> Self {
         self.on_add = Some(msg);
 
         self
     }
 
-    pub fn on_home(mut self, msg: Message) -> Self {
+    pub fn on_home(mut self, msg: &'a Message) -> Self {
         self.on_home = Some(msg);
 
         self
     }
 
-    pub fn on_gen(mut self, msg: Message) -> Self {
+    pub fn on_gen(mut self, msg: &'a Message) -> Self {
         self.on_gen = Some(msg);
 
         self
     }
 
-    pub fn on_settings(mut self, msg: Message) -> Self {
+    pub fn on_settings(mut self, msg: &'a Message) -> Self {
         self.on_settings = Some(msg);
 
         self
