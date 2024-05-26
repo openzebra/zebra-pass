@@ -3,10 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
 use iced::alignment::Horizontal;
-use iced::overlay::menu;
-use iced::widget::{
-    component, pick_list, scrollable, Button, Column, Component, Container, Row, Space, Text,
-};
+use iced::widget::{component, pick_list, Button, Column, Component, Container, Row, Space, Text};
 use iced::{Alignment, Element, Length};
 use iced::{Renderer, Theme};
 use std::sync::{Arc, Mutex};
@@ -33,14 +30,14 @@ impl Default for PhraseGenState {
 }
 
 #[derive(Debug)]
-pub struct PhraseGenForm<Message>
+pub struct PhraseGenForm<'a, Message>
 where
     Message: Clone,
 {
     state: Arc<Mutex<PhraseGenState>>,
     counts: [usize; 5],
     dicts: [mnemonic::Language; 1],
-    on_copy: Option<Message>,
+    on_copy: Option<&'a Message>,
 }
 
 #[derive(Clone)]
@@ -51,7 +48,7 @@ pub enum Event {
     LanguageSelected(mnemonic::Language),
 }
 
-impl<Message> PhraseGenForm<Message>
+impl<'a, Message> PhraseGenForm<'a, Message>
 where
     Message: Clone,
 {
@@ -77,7 +74,7 @@ where
         })
     }
 
-    pub fn set_on_copy(mut self, on_copy: Message) -> Self {
+    pub fn set_on_copy(mut self, on_copy: &'a Message) -> Self {
         self.on_copy = Some(on_copy);
 
         self
@@ -115,7 +112,7 @@ where
             .align_items(Alignment::Center)
     }
 
-    pub fn view_content(&self) -> Column<'_, Event> {
+    pub fn view_content(&'a self) -> Column<'a, Event> {
         let count_pick_list = pick_list(
             self.counts.as_slice(),
             Some(self.state.lock().unwrap().count), // TODO: remove unwrap..
@@ -123,13 +120,7 @@ where
         )
         .text_size(16)
         .padding(4)
-        .style(pick_list::Style {
-            field: Box::new(zebra_ui::styles::pick_list::primary_field),
-            menu: menu::Style {
-                list: Box::new(zebra_ui::styles::menu::primary_menu),
-                scrollable: Box::new(scrollable::default),
-            },
-        })
+        .style(zebra_ui::styles::pick_list::primary_field)
         .width(80);
         let language_pick_list = pick_list(
             self.dicts.as_slice(),
@@ -138,13 +129,7 @@ where
         )
         .text_size(16)
         .padding(4)
-        .style(pick_list::Style {
-            field: Box::new(zebra_ui::styles::pick_list::primary_field),
-            menu: menu::Style {
-                list: Box::new(zebra_ui::styles::menu::primary_menu),
-                scrollable: Box::new(scrollable::default),
-            },
-        })
+        .style(zebra_ui::styles::pick_list::primary_field)
         .width(150);
         let reload_btn = Button::new(
             zebra_ui::image::reload_icon()
@@ -155,15 +140,15 @@ where
         .padding(0)
         .style(zebra_ui::styles::button::transparent)
         .on_press(Event::ReGenerate);
-        let copy_btn = Button::new(
-            zebra_ui::image::copy_icon()
-                .style(zebra_ui::styles::svg::primary_hover)
-                .height(30)
-                .width(30),
-        )
-        .padding(0)
-        .style(zebra_ui::styles::button::transparent)
-        .on_press(Event::Copy);
+        let icon = zebra_ui::image::copy_icon()
+            .style(zebra_ui::styles::svg::primary_hover)
+            .height(30)
+            .width(30);
+        let copy_btn = Button::new(icon)
+            .padding(0)
+            .style(zebra_ui::styles::button::transparent)
+            .on_press(Event::Copy);
+
         let header_row = Row::new()
             .spacing(10)
             .push(reload_btn)
@@ -201,7 +186,7 @@ where
     }
 }
 
-impl<Message> Component<Message, Theme, Renderer> for PhraseGenForm<Message>
+impl<'a, Message> Component<Message, Theme, Renderer> for PhraseGenForm<'a, Message>
 where
     Message: Clone,
 {
@@ -210,7 +195,13 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
-            Event::Copy => self.on_copy.clone(),
+            Event::Copy => {
+                if let Some(message) = self.on_copy {
+                    Some(message.clone())
+                } else {
+                    None
+                }
+            }
             Event::ReGenerate => {
                 self.regenerate();
 
@@ -249,11 +240,11 @@ where
     }
 }
 
-impl<'a, Message> From<PhraseGenForm<Message>> for Element<'a, Message>
+impl<'a, Message> From<PhraseGenForm<'a, Message>> for Element<'a, Message>
 where
     Message: 'a + Clone,
 {
-    fn from(form: PhraseGenForm<Message>) -> Self {
+    fn from(form: PhraseGenForm<'a, Message>) -> Self {
         component(form)
     }
 }

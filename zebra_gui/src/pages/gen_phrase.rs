@@ -149,7 +149,7 @@ impl Page for GenPhrase {
             .align_items(Alignment::Start)
             .width(380);
         let phrase_gen_warp = match PhraseGenForm::new(Arc::clone(&self.phrase_state)) {
-            Ok(elem) => Container::new(elem.set_on_copy(GenPhraseMessage::CopyWords)),
+            Ok(elem) => Container::new(elem.set_on_copy(&GenPhraseMessage::CopyWords)),
             Err(e) => {
                 let err_msg = Text::new(e.to_string())
                     .style(zebra_ui::styles::text::danger)

@@ -194,7 +194,7 @@ impl Page for Generator {
 impl Generator {
     pub fn view_phrase_gen(&self) -> Container<GeneratorMessage> {
         match PhraseGenForm::new(Arc::clone(&self.phrase_state)) {
-            Ok(elem) => Container::new(elem.set_on_copy(GeneratorMessage::CopyWords))
+            Ok(elem) => Container::new(elem.set_on_copy(&GeneratorMessage::CopyWords))
                 .width(Length::Fill)
                 .height(Length::Fill),
 

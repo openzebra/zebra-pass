@@ -143,7 +143,7 @@ pub fn reload_icon() -> Svg<'static> {
         .content_fit(ContentFit::Cover)
 }
 
-pub fn copy_icon() -> Svg<'static> {
+pub fn copy_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(COPY_ICON);
     Svg::new(h)
         .height(Length::Fill)

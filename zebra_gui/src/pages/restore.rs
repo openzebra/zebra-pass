@@ -283,13 +283,7 @@ impl Restore {
         )
         .text_size(16)
         .padding(4)
-        .style(pick_list::Style {
-            field: Box::new(zebra_ui::styles::pick_list::primary_field),
-            menu: menu::Style {
-                list: Box::new(zebra_ui::styles::menu::primary_menu),
-                scrollable: Box::new(scrollable::default),
-            },
-        })
+        .style(zebra_ui::styles::pick_list::primary_field)
         .width(80);
         let language_pick_list = pick_list(
             self.dicts.as_slice(),
@@ -298,13 +292,7 @@ impl Restore {
         )
         .text_size(16)
         .padding(4)
-        .style(pick_list::Style {
-            field: Box::new(zebra_ui::styles::pick_list::primary_field),
-            menu: menu::Style {
-                list: Box::new(zebra_ui::styles::menu::primary_menu),
-                scrollable: Box::new(scrollable::default),
-            },
-        })
+        .style(zebra_ui::styles::pick_list::primary_field)
         .width(150);
 
         Row::new()

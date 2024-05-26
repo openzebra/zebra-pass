@@ -7,9 +7,9 @@ use crate::{
     gui::{GlobalMessage, Routers},
     rust_i18n::t,
 };
-use iced::{alignment::Horizontal, overlay::menu, Command, Length, Subscription};
+use iced::{alignment::Horizontal, Command, Length, Subscription};
 use iced::{
-    widget::{pick_list, scrollable, Button, Column, Container, Row, Space, Text},
+    widget::{pick_list, Button, Column, Container, Row, Space, Text},
     Element,
 };
 use zebra_lib::settings::language::Language;
@@ -94,13 +94,7 @@ impl Page for Locale {
         .text_size(20)
         .padding(5)
         .width(220)
-        .style(pick_list::Style {
-            field: Box::new(zebra_ui::styles::pick_list::primary_field),
-            menu: menu::Style {
-                list: Box::new(zebra_ui::styles::menu::primary_menu),
-                scrollable: Box::new(scrollable::default),
-            },
-        });
+        .style(zebra_ui::styles::pick_list::primary_field);
 
         let zebra_print = zebra_ui::image::zebra_print_view();
         let title = Text::new(t!("welcome"))
