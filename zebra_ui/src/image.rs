@@ -29,7 +29,7 @@ const CLOSE_ICON: &[u8] = include_bytes!("../static/icons/close.svg");
 
 const BITWARDEN_LOGO: &[u8] = include_bytes!("../static/icons/bitwarden.svg");
 
-pub fn zebra_print_view() -> Svg<'static> {
+pub fn zebra_print_view<'a>() -> Svg<'a> {
     let h = Handle::from_memory(PRINT);
     Svg::new(h)
         .height(Length::Fill)
@@ -43,7 +43,7 @@ pub fn bad_zebra_view() -> Svg<'static> {
     Svg::new(h).style(super::styles::svg::bg_inverse)
 }
 
-pub fn bitwarden_logo_view() -> Svg<'static> {
+pub fn bitwarden_logo_view<'a>() -> Svg<'a> {
     let h = Handle::from_memory(BITWARDEN_LOGO);
     Svg::new(h)
         .height(Length::Fill)
@@ -52,7 +52,7 @@ pub fn bitwarden_logo_view() -> Svg<'static> {
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn close_eye_icon() -> Svg<'static> {
+pub fn close_eye_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(CLOSE_EYE_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -61,7 +61,7 @@ pub fn close_eye_icon() -> Svg<'static> {
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn close_icon() -> Svg<'static> {
+pub fn close_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(CLOSE_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -69,7 +69,7 @@ pub fn close_icon() -> Svg<'static> {
         .content_fit(ContentFit::Cover)
 }
 
-pub fn trash_icon() -> Svg<'static> {
+pub fn trash_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(TRASH_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -78,7 +78,7 @@ pub fn trash_icon() -> Svg<'static> {
         .style(super::styles::svg::primary_hover)
 }
 
-pub fn open_eye_icon() -> Svg<'static> {
+pub fn open_eye_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(OPEN_EYE_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -86,7 +86,7 @@ pub fn open_eye_icon() -> Svg<'static> {
         .content_fit(ContentFit::Cover)
 }
 
-pub fn zebra_logo_view() -> Svg<'static> {
+pub fn zebra_logo_view<'a>() -> Svg<'a> {
     let h = Handle::from_memory(ZEBRA_LOGO);
     Svg::new(h)
         .height(Length::Fill)
@@ -99,7 +99,7 @@ pub fn zebra_app_icon() -> icon::Icon {
     icon::from_file_data(APP_ICON, None).unwrap()
 }
 
-pub fn zebra_heat() -> Svg<'static> {
+pub fn zebra_heat<'a>() -> Svg<'a> {
     let h = Handle::from_memory(ZEBRAS_HEAT);
     Svg::new(h)
         .height(Length::Fill)
@@ -108,7 +108,7 @@ pub fn zebra_heat() -> Svg<'static> {
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn zebra_hooves() -> Svg<'static> {
+pub fn zebra_hooves<'a>() -> Svg<'a> {
     let h = Handle::from_memory(HOOVES_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -117,7 +117,7 @@ pub fn zebra_hooves() -> Svg<'static> {
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn magic_icon() -> Svg<'static> {
+pub fn magic_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(MAGIC_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -126,7 +126,7 @@ pub fn magic_icon() -> Svg<'static> {
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn add_icon() -> Svg<'static> {
+pub fn add_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(ADD_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -135,7 +135,7 @@ pub fn add_icon() -> Svg<'static> {
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn reload_icon() -> Svg<'static> {
+pub fn reload_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(RELOAD_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -151,7 +151,7 @@ pub fn copy_icon<'a>() -> Svg<'a> {
         .content_fit(ContentFit::Cover)
 }
 
-pub fn rust_logo() -> Svg<'static> {
+pub fn rust_logo<'a>() -> Svg<'a> {
     let h = Handle::from_memory(RUST_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -160,7 +160,7 @@ pub fn rust_logo() -> Svg<'static> {
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn atom() -> Svg<'static> {
+pub fn atom<'a>() -> Svg<'a> {
     let h = Handle::from_memory(ATOM);
     Svg::new(h)
         .height(Length::Fill)
@@ -169,21 +169,21 @@ pub fn atom() -> Svg<'static> {
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn lock_icon() -> Svg<'static> {
+pub fn lock_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(LOCK_ICON);
     Svg::new(h)
         .content_fit(ContentFit::Cover)
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn gear_icon() -> Svg<'static> {
+pub fn gear_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(GEAR_ICON);
     Svg::new(h)
         .content_fit(ContentFit::Cover)
         .style(super::styles::svg::bg_inverse)
 }
 
-pub fn back_icon() -> Svg<'static> {
+pub fn back_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(BACK_ICON);
     Svg::new(h)
         .height(Length::Fill)
@@ -192,7 +192,7 @@ pub fn back_icon() -> Svg<'static> {
         .style(super::styles::svg::primary_hover)
 }
 
-pub fn forward_icon() -> Svg<'static> {
+pub fn forward_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(FORWARD_ICON);
     Svg::new(h)
         .height(Length::Fill)

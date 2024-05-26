@@ -22,7 +22,7 @@ pub struct NavBar<'a, Message> {
     route: NavRoute,
 }
 
-impl<'a, Message: Clone + 'a> NavBar<'a, Message> {
+impl<'a, Message: Clone> NavBar<'a, Message> {
     pub fn new() -> Self {
         Self {
             route: NavRoute::Home,
@@ -97,7 +97,7 @@ impl<'a, Message: Clone + 'a> NavBar<'a, Message> {
         )
         .padding(0)
         .style(zebra_ui::styles::button::transparent)
-        .on_press_maybe(self.on_add.clone());
+        .on_press_maybe(self.on_add.cloned());
         let row_btns = Row::new()
             .push(add_btn)
             .height(Length::Fill)
@@ -141,7 +141,7 @@ impl<'a, Message: Clone + 'a> NavBar<'a, Message> {
         ))
         .padding(0)
         .style(zebra_ui::styles::button::transparent)
-        .on_press_maybe(self.on_home.clone());
+        .on_press_maybe(self.on_home.cloned());
 
         Row::new()
             .align_items(iced::Alignment::Center)
@@ -168,7 +168,7 @@ impl<'a, Message: Clone + 'a> NavBar<'a, Message> {
         ))
         .padding(0)
         .style(zebra_ui::styles::button::transparent)
-        .on_press_maybe(self.on_gen.clone());
+        .on_press_maybe(self.on_gen.cloned());
 
         Row::new()
             .align_items(iced::Alignment::Center)
@@ -195,7 +195,7 @@ impl<'a, Message: Clone + 'a> NavBar<'a, Message> {
         ))
         .padding(0)
         .style(zebra_ui::styles::button::transparent)
-        .on_press_maybe(self.on_settings.clone());
+        .on_press_maybe(self.on_settings.cloned());
 
         Row::new()
             .align_items(iced::Alignment::Center)

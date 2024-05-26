@@ -20,14 +20,11 @@ use super::{
     password_setup::{LastRoute, PasswordSetup},
     Page,
 };
+use iced::widget::{pick_list, text_input, Button, Column, Container, Row, Space, Text};
 use iced::{alignment::Horizontal, Command, Length, Subscription};
 use iced::{
     keyboard::{self, key::Named},
     Element,
-};
-use iced::{
-    overlay::menu,
-    widget::{pick_list, scrollable, text_input, Button, Column, Container, Row, Space, Text},
 };
 
 #[derive(Debug)]

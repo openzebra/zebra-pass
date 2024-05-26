@@ -195,13 +195,7 @@ where
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
-            Event::Copy => {
-                if let Some(message) = self.on_copy {
-                    Some(message.clone())
-                } else {
-                    None
-                }
-            }
+            Event::Copy => self.on_copy.cloned(),
             Event::ReGenerate => {
                 self.regenerate();
 

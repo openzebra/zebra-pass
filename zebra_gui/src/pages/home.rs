@@ -140,7 +140,7 @@ impl Page for Home {
             HomeMessage::HanldeInputForm(new_element) => {
                 match self.categories_list.get_mut(self.selected_index) {
                     Some(element) => {
-                        element.text = element.value.get_value().name.clone();
+                        element.text.clone_from(&element.value.get_value().name);
                         element.value = element.value.update_element(new_element);
 
                         Command::none()
