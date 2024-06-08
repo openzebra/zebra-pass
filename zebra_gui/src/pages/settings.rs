@@ -19,11 +19,21 @@ use super::gen::Generator;
 use super::home::Home;
 use super::Page;
 
+#[derive(Debug, Clone)]
+enum SettingsOptions {
+    Profile,
+    General,
+    Crypto,
+    Advanced,
+    Network,
+}
+
 #[derive(Debug)]
 pub struct Settings {
     core: Arc<Mutex<Core>>,
     selected_index: usize,
-    options_list: Vec<select_list::SelectListField<String>>,
+    selected_option: SettingsOptions,
+    options_list: Vec<select_list::SelectListField<SettingsOptions>>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -38,28 +48,33 @@ impl Page for Settings {
     type Message = SettingsMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        let options_list: Vec<select_list::SelectListField<String>> = vec![
+        let options_list: Vec<select_list::SelectListField<SettingsOptions>> = vec![
+            select_list::SelectListField {
+                text: t!("profile").to_string(),
+                value: SettingsOptions::Profile,
+            },
             select_list::SelectListField {
                 text: t!("general").to_string(),
-                value: String::new(),
+                value: SettingsOptions::General,
             },
             select_list::SelectListField {
                 text: t!("advanced").to_string(),
-                value: String::new(),
+                value: SettingsOptions::Advanced,
             },
             select_list::SelectListField {
                 text: t!("crypto").to_string(),
-                value: String::new(),
+                value: SettingsOptions::Crypto,
             },
             select_list::SelectListField {
                 text: t!("network").to_string(),
-                value: String::new(),
+                value: SettingsOptions::Network,
             },
         ];
         Ok(Self {
             core,
             options_list,
             selected_index: 0,
+            selected_option: SettingsOptions::Profile,
         })
     }
 
@@ -107,7 +122,11 @@ impl Page for Settings {
                 }
             },
             SettingsMessage::HanldeSelectOption(index) => {
-                self.selected_index = index;
+                if let Some(v) = self.options_list.get(index) {
+                    self.selected_index = index;
+                    self.selected_option = v.value.clone();
+                }
+
                 Command::none()
             }
         }
@@ -130,7 +149,13 @@ impl Page for Settings {
             .height(Length::Fill)
             .width(200)
             .push(categories);
-        let page = Row::new();
+        let page = match self.selected_option {
+            SettingsOptions::Profile => self.view_profile(),
+            SettingsOptions::Network => self.view_network(),
+            SettingsOptions::Advanced => self.view_advanced(),
+            SettingsOptions::General => self.view_general(),
+            SettingsOptions::Crypto => self.view_crypto(),
+        };
         let row = Row::new().push(left_search_col).push(vline).push(page);
         let content = Container::new(row);
 
@@ -144,4 +169,36 @@ impl Page for Settings {
     }
 }
 
-// impl Settings {}
+impl Settings {
+    pub fn view_profile(&self) -> Container<SettingsMessage> {
+        // profile info, export secret phrase, change password,
+        let main_col = Column::new();
+
+        Container::new(main_col)
+    }
+
+    pub fn view_general(&self) -> Container<SettingsMessage> {
+        // theme, locale.
+        let main_col = Column::new();
+
+        Container::new(main_col)
+    }
+
+    pub fn view_advanced(&self) -> Container<SettingsMessage> {
+        let main_col = Column::new();
+
+        Container::new(main_col)
+    }
+
+    pub fn view_crypto(&self) -> Container<SettingsMessage> {
+        let main_col = Column::new();
+
+        Container::new(main_col)
+    }
+
+    pub fn view_network(&self) -> Container<SettingsMessage> {
+        let main_col = Column::new();
+
+        Container::new(main_col)
+    }
+}
