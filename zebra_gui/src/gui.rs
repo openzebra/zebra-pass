@@ -68,10 +68,10 @@ impl Application for Gui {
     }
 
     fn new(mut arg: Self::Flags) -> (Self, Command<Self::Message>) {
-        // arg.unlock("qazqaz666").unwrap();
+        arg.unlock("qazqaz666").unwrap();
         let core = Arc::new(Mutex::new(arg));
-        let tmp = pages::home::Home::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
-        let route = Routers::Home(tmp);
+        let tmp = pages::settings::Settings::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
+        let route = Routers::Settings(tmp);
         // let loader = pages::loader::Loader::new(Arc::clone(&core)).unwrap(); // TODO: Remove unwrap
         // let route = Routers::Loading(loader);
         let core_ref = Arc::clone(&core);

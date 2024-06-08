@@ -8,8 +8,10 @@ use iced::widget::{Column, Container, Row};
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::Core, errors::ZebraErrors};
 
-use crate::components::home_nav_bar::{NavBar, NavRoute};
+use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
+use crate::components::select_list;
 use crate::gui::{GlobalMessage, Routers};
+use crate::rust_i18n::t;
 
 use super::add_record::AddRecordPage;
 use super::error::ErrorPage;
@@ -20,6 +22,8 @@ use super::Page;
 #[derive(Debug)]
 pub struct Settings {
     core: Arc<Mutex<Core>>,
+    selected_index: usize,
+    options_list: Vec<select_list::SelectListField<String>>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -27,13 +31,36 @@ pub enum SettingsMessage {
     RouteHome,
     RouteGen,
     AddRecord,
+    HanldeSelectOption(usize),
 }
 
 impl Page for Settings {
     type Message = SettingsMessage;
 
     fn new(core: Arc<Mutex<Core>>) -> Result<Self, ZebraErrors> {
-        Ok(Self { core })
+        let options_list: Vec<select_list::SelectListField<String>> = vec![
+            select_list::SelectListField {
+                text: t!("general").to_string(),
+                value: String::new(),
+            },
+            select_list::SelectListField {
+                text: t!("advanced").to_string(),
+                value: String::new(),
+            },
+            select_list::SelectListField {
+                text: t!("crypto").to_string(),
+                value: String::new(),
+            },
+            select_list::SelectListField {
+                text: t!("network").to_string(),
+                value: String::new(),
+            },
+        ];
+        Ok(Self {
+            core,
+            options_list,
+            selected_index: 0,
+        })
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
@@ -79,16 +106,33 @@ impl Page for Settings {
                     Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
                 }
             },
+            SettingsMessage::HanldeSelectOption(index) => {
+                self.selected_index = index;
+                Command::none()
+            }
         }
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let records = &self.core.lock().unwrap().data;
-        let content = Container::new(if records.is_empty() {
-            self.view_no_records()
-        } else {
-            self.view_records()
-        });
+        let categories = select_list::SelectList::from(&self.options_list)
+            .on_select(SettingsMessage::HanldeSelectOption)
+            .set_selected_index(self.selected_index)
+            .set_text_horizontal_alignmen(iced::alignment::Horizontal::Left)
+            .set_line_gap(10)
+            .set_field_padding(8);
+        let categories = Container::new(categories);
+        let vline = zebra_ui::components::line::Linear::new()
+            .width(Length::Fixed(1.0))
+            .height(Length::Fill)
+            .style(zebra_ui::styles::line::line_secondary)
+            .alfa(LINE_ALFA_CHANNEL);
+        let left_search_col = Column::new()
+            .height(Length::Fill)
+            .width(200)
+            .push(categories);
+        let page = Row::new();
+        let row = Row::new().push(left_search_col).push(vline).push(page);
+        let content = Container::new(row);
 
         NavBar::<Self::Message>::new()
             .set_route(NavRoute::Settings)
@@ -100,17 +144,4 @@ impl Page for Settings {
     }
 }
 
-impl Settings {
-    pub fn view_no_records(&self) -> Row<SettingsMessage> {
-        Row::new()
-    }
-
-    pub fn view_records(&self) -> Row<SettingsMessage> {
-        let vline = zebra_ui::components::line::Linear::new()
-            .width(Length::Fixed(1.0))
-            .height(Length::Fill);
-        let left_search_col = Column::new().height(Length::Fill).width(200);
-
-        Row::new().push(left_search_col).push(vline)
-    }
-}
+// impl Settings {}

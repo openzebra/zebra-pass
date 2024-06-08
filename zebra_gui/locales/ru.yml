@@ -81,3 +81,8 @@ remove_element_btn: 'Удалить элемент!'
 element_remove_ok: 'Удалить'
 element_remove_cancel: 'Отмена'
 remove_element_warning: 'Безвозвратно удалить запись'
+general: 'Общие'
+advanced: 'Продвинутые'
+crypto: 'Криптография'
+network: 'Сеть'
+
