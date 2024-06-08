@@ -4,7 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use iced::widget::{Column, Container, Row};
+use iced::widget::{Column, Container, Row, Text};
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::Core, errors::ZebraErrors};
 
@@ -171,8 +171,9 @@ impl Page for Settings {
 
 impl Settings {
     pub fn view_profile(&self) -> Container<SettingsMessage> {
+        let title = Text::new(&self.options_list[self.selected_index].text);
         // profile info, export secret phrase, change password,
-        let main_col = Column::new();
+        let main_col = Column::new().push(title);
 
         Container::new(main_col)
     }
