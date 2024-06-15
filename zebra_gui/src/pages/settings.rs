@@ -2,9 +2,15 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::sync::{Arc, Mutex};
+use std::{
+    borrow::Cow,
+    sync::{Arc, Mutex},
+};
 
-use iced::widget::{Column, Container, Row, Text};
+use iced::{
+    advanced::Widget,
+    widget::{Column, Container, Row, Space, Text},
+};
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::Core, errors::ZebraErrors};
 
@@ -170,10 +176,44 @@ impl Page for Settings {
 }
 
 impl Settings {
+    pub fn view_element<'a>(
+        &self,
+        title: &'a str,
+        value: &'a str,
+    ) -> Container<'a, SettingsMessage> {
+        let title = Text::new(title).size(16);
+        let value = Text::new(value)
+            .size(14)
+            .style(zebra_ui::styles::text::muted);
+        let col = Column::new().push(title).push(value);
+        let row = Row::new().push(col);
+
+        Container::new(row)
+    }
+
     pub fn view_profile(&self) -> Container<SettingsMessage> {
-        let title = Text::new(&self.options_list[self.selected_index].text);
+        // TODO: remove unwerap.
+        let core = self.core.lock().unwrap();
+        let title = Text::new(&self.options_list[self.selected_index].text)
+            .size(24)
+            .horizontal_alignment(iced::alignment::Horizontal::Left)
+            .width(Length::Fill);
+        // let addr = core.state.address.to_string();
+        let mb_email = core.state.email.clone().map(Text::new);
+
         // profile info, export secret phrase, change password,
-        let main_col = Column::new().push(title);
+        let address = self.view_element("Address", "dsadsadasd");
+        let border_col = Column::new().push(address).push_maybe(mb_email);
+        let border = Container::new(border_col)
+            .padding(8)
+            .width(Length::Fill)
+            .style(zebra_ui::styles::container::primary_bordered);
+        let main_col = Column::new()
+            .align_items(iced::Alignment::Center)
+            .padding(16)
+            .push(title)
+            .push(Space::new(0, 16))
+            .push(border);
 
         Container::new(main_col)
     }
