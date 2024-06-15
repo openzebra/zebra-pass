@@ -16,10 +16,10 @@ use crate::{
     storage::db::LocalStorage,
 };
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
-use std::fmt;
+use std::{borrow::Cow, fmt};
 
 pub struct Core {
-    pub state: State,
+    pub state: State<'static>,
     pub data: Vec<Categories>,
     keys: Option<KeyChain>,
     db: LocalStorage,
@@ -86,7 +86,7 @@ impl Core {
         let restoreble = email.is_empty();
 
         if restoreble {
-            self.state.email = Some(email.to_string());
+            self.state.email = Some(Cow::from(email.to_owned()));
         }
 
         self.state.restoreble = restoreble;
@@ -189,8 +189,8 @@ impl Core {
         let data_cipher = bip39_keys.encrypt(json.as_bytes().to_vec(), orders)?;
 
         self.keys = Some(bip39_keys);
-        self.state.secure_data_store = data_cipher;
-        self.state.secure_key_store = keys_cipher;
+        self.state.secure_data_store = Cow::from(data_cipher);
+        self.state.secure_key_store = Cow::from(keys_cipher);
         self.state.address = self.get_address()?;
         self.state.inited = true;
         self.state.state_update(&self.db)?;
@@ -205,16 +205,17 @@ impl Core {
         let json = serde_json::to_string(&self.data).or(Err(ZebraErrors::GuardBrokenData))?;
         let data_cipher = bip39_keys.encrypt(json.as_bytes().to_vec(), orders)?;
 
-        self.state.secure_data_store = data_cipher;
+        self.state.secure_data_store = Cow::from(data_cipher);
         self.state_update()?;
 
         Ok(())
     }
 
-    fn get_address(&self) -> Result<String, ZebraErrors> {
+    fn get_address<'a>(&self) -> Result<Cow<'a, str>, ZebraErrors> {
         let keys = self.keys.as_ref().ok_or(ZebraErrors::GuardIsNotEnable)?;
+        let hex = Cow::from(hex::encode(keys.get_address()));
 
-        Ok(hex::encode(keys.get_address()))
+        Ok(hex)
     }
 }
 

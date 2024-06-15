@@ -2,6 +2,8 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
+use std::borrow::Cow;
+
 use crate::{
     errors::ZebraErrors,
     settings::{
@@ -12,9 +14,9 @@ use crate::{
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct State {
+pub struct State<'a> {
     // Email for possible send emails or server iteraction
-    pub email: Option<String>,
+    pub email: Option<Cow<'a, str>>,
     // Server sync, for online mode, maybe more then one device sync.
     pub server_sync: bool,
     // Possible to restore password via Zebras server
@@ -22,12 +24,12 @@ pub struct State {
     // flag for understand first start or not
     pub inited: bool,
     // shasum of pubKey(Bip39) need for sync and save data on server.
-    pub address: String,
+    pub address: Cow<'a, str>,
 
     // ecrypted keys session.
-    pub secure_key_store: String,
+    pub secure_key_store: Cow<'a, str>,
     // encrypted user data.
-    pub secure_data_store: String,
+    pub secure_data_store: Cow<'a, str>,
 
     // settings.
     pub settings: SettingsPayload,
@@ -36,13 +38,13 @@ pub struct State {
     pub ready: bool,
 }
 
-impl Default for State {
+impl<'a> Default for State<'a> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl State {
+impl<'a> State<'a> {
     pub fn new() -> Self {
         let appearance = AppearanceSettings::new();
         let cipher = CipherSettings::new();
@@ -58,9 +60,9 @@ impl State {
             server_sync: false,
             restoreble: false,
             inited: false,
-            address: String::default(),
-            secure_key_store: String::default(),
-            secure_data_store: String::default(),
+            address: Cow::default(),
+            secure_key_store: Cow::default(),
+            secure_data_store: Cow::default(),
             ready: false,
         }
     }
@@ -106,8 +108,8 @@ mod settings_tests {
         state.sync(&db).unwrap();
 
         state.settings.cipher.difficulty = 123;
-        state.secure_key_store = String::from("test keys");
-        state.secure_data_store = String::from("test data");
+        state.secure_key_store = Cow::from("test keys");
+        state.secure_data_store = Cow::from("test data");
 
         state.state_update(&db).unwrap();
 
