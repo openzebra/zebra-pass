@@ -8,4 +8,5 @@ pub mod modal;
 pub mod passgen;
 pub mod phrasegen;
 pub mod select_list;
+pub mod smart_field;
 pub mod smart_input;

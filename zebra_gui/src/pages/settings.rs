@@ -178,8 +178,8 @@ impl Page for Settings {
 impl Settings {
     pub fn view_element<'a>(
         &self,
-        title: &'a str,
-        value: &'a str,
+        title: Cow<'a, str>,
+        value: Cow<'a, str>,
     ) -> Container<'a, SettingsMessage> {
         let title = Text::new(title).size(16);
         let value = Text::new(value)
@@ -202,7 +202,7 @@ impl Settings {
         let mb_email = core.state.email.clone().map(Text::new);
 
         // profile info, export secret phrase, change password,
-        let address = self.view_element("Address", "dsadsadasd");
+        let address = self.view_element(t!("address"), core.state.address.clone());
         let border_col = Column::new().push(address).push_maybe(mb_email);
         let border = Container::new(border_col)
             .padding(8)
