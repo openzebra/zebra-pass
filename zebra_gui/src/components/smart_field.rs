@@ -12,6 +12,8 @@ where
 {
     on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
     container_padding: Padding,
+    label_size: u16,
+    value_size: u16,
     label: Cow<'a, str>,
     value: Cow<'a, str>,
 }
@@ -36,9 +38,31 @@ where
         Self {
             container_padding: Padding::ZERO,
             on_copy: None,
+            label_size: 16,
+            value_size: 14,
             label: Cow::default(),
             value: Cow::default(),
         }
+    }
+
+    pub fn set_label(mut self, label: Cow<'a, str>) -> Self {
+        self.label = label;
+        self
+    }
+
+    pub fn set_value(mut self, value: Cow<'a, str>) -> Self {
+        self.value = value;
+        self
+    }
+
+    pub fn set_label_size(mut self, size: u16) -> Self {
+        self.label_size = size;
+        self
+    }
+
+    pub fn set_value_size(mut self, size: u16) -> Self {
+        self.value_size = size;
+        self
     }
 
     pub fn set_padding<P: Into<Padding>>(mut self, padding: P) -> Self {
@@ -71,9 +95,9 @@ where
         &self,
         _state: &Self::State,
     ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
-        let title = Text::new(self.label.as_ref()).size(16);
+        let title = Text::new(self.label.as_ref()).size(self.label_size);
         let value = Text::new(self.value.as_ref())
-            .size(14)
+            .size(self.value_size)
             .style(zebra_ui::styles::text::muted);
         let col = Column::new().push(title).push(value);
         let row = Row::new().push(col);
