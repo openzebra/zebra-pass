@@ -83,7 +83,7 @@ impl Core {
     ) -> Result<(), ZebraErrors> {
         self.bip39_cipher_from_password(password.as_bytes(), m, words_salt)?;
 
-        let restoreble = email.is_empty();
+        let restoreble = !email.is_empty();
 
         if restoreble {
             self.state.email = Some(Cow::from(email.to_owned()));

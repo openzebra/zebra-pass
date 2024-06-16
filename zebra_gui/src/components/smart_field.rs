@@ -5,6 +5,7 @@ use std::borrow::Cow;
 
 use iced::widget::{component, Button, Column, Component, Container, Row, Space, Text};
 use iced::{Element, Length, Padding, Renderer, Theme};
+use zebra_lib::utils::truncate_string;
 
 pub struct SmartFields<'a, Message>
 where
@@ -19,7 +20,9 @@ where
 }
 
 #[derive(Debug, Clone)]
-pub enum Event {}
+pub enum Event {
+    Copy,
+}
 
 impl<'a, Message> Default for SmartFields<'a, Message>
 where
@@ -88,7 +91,15 @@ where
     type Event = Event;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
-        match event {}
+        match event {
+            Event::Copy => {
+                if let Some(cb) = &self.on_copy {
+                    Some(cb(self.value.to_string()))
+                } else {
+                    None
+                }
+            }
+        }
     }
 
     fn view(
@@ -96,11 +107,28 @@ where
         _state: &Self::State,
     ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
         let title = Text::new(self.label.as_ref()).size(self.label_size);
-        let value = Text::new(self.value.as_ref())
+        let value = Text::new(truncate_string(self.value.as_ref(), 20))
             .size(self.value_size)
             .style(zebra_ui::styles::text::muted);
-        let col = Column::new().push(title).push(value);
-        let row = Row::new().push(col);
+        let col = Column::new().width(Length::Fill).push(title).push(value);
+        let mut row = Row::new()
+            .width(Length::Fill)
+            .align_items(iced::Alignment::Center)
+            .push(col);
+
+        if self.on_copy.is_some() {
+            let copy_btn = Button::new(
+                zebra_ui::image::copy_icon()
+                    .style(zebra_ui::styles::svg::primary_hover)
+                    .height(25)
+                    .width(25),
+            )
+            .padding(0)
+            .style(zebra_ui::styles::button::transparent)
+            .on_press(Event::Copy);
+
+            row = row.push(copy_btn);
+        }
 
         Container::new(row)
             .padding(self.container_padding)

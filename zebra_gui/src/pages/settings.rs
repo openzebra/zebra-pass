@@ -2,22 +2,23 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::{
-    borrow::Cow,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 use iced::{
-    advanced::Widget,
     widget::{Column, Container, Row, Space, Text},
+    Theme,
 };
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::Core, errors::ZebraErrors};
 
-use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::select_list;
+use crate::components::{
+    home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL},
+    smart_field::SmartFields,
+};
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
+use zebra_ui::components::line::Linear;
 
 use super::add_record::AddRecordPage;
 use super::error::ErrorPage;
@@ -42,12 +43,13 @@ pub struct Settings {
     options_list: Vec<select_list::SelectListField<SettingsOptions>>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum SettingsMessage {
     RouteHome,
     RouteGen,
     AddRecord,
     HanldeSelectOption(usize),
+    CopyValue(String),
 }
 
 impl Page for Settings {
@@ -135,6 +137,7 @@ impl Page for Settings {
 
                 Command::none()
             }
+            SettingsMessage::CopyValue(value) => iced::clipboard::write::<GlobalMessage>(value),
         }
     }
 
@@ -176,19 +179,12 @@ impl Page for Settings {
 }
 
 impl Settings {
-    pub fn view_element<'a>(
-        &self,
-        title: Cow<'a, str>,
-        value: Cow<'a, str>,
-    ) -> Container<'a, SettingsMessage> {
-        let title = Text::new(title).size(16);
-        let value = Text::new(value)
-            .size(14)
-            .style(zebra_ui::styles::text::muted);
-        let col = Column::new().push(title).push(value);
-        let row = Row::new().push(col);
-
-        Container::new(row)
+    pub fn view_hline(&self) -> Linear<Theme> {
+        Linear::new()
+            .height(Length::Fixed(0.5))
+            .width(Length::Fill)
+            .style(zebra_ui::styles::line::line_secondary)
+            .alfa(LINE_ALFA_CHANNEL)
     }
 
     pub fn view_profile(&self) -> Container<SettingsMessage> {
@@ -198,12 +194,25 @@ impl Settings {
             .size(24)
             .horizontal_alignment(iced::alignment::Horizontal::Left)
             .width(Length::Fill);
-        // let addr = core.state.address.to_string();
-        let mb_email = core.state.email.clone().map(Text::new);
 
-        // profile info, export secret phrase, change password,
-        let address = self.view_element(t!("address"), core.state.address.clone());
-        let border_col = Column::new().push(address).push_maybe(mb_email);
+        let address = SmartFields::new()
+            .set_label(t!("address"))
+            .set_padding(8)
+            .on_copy(SettingsMessage::CopyValue)
+            .set_value(core.state.address.clone());
+        let address = Container::new(address);
+
+        let email = SmartFields::new()
+            .set_label(t!("email"))
+            .set_padding(8)
+            .on_copy(SettingsMessage::CopyValue)
+            .set_value(core.state.email.clone().unwrap_or(t!("not_set")));
+        let email = Container::new(email);
+
+        let border_col = Column::new()
+            .push(address)
+            .push(self.view_hline())
+            .push(email);
         let border = Container::new(border_col)
             .padding(8)
             .width(Length::Fill)
