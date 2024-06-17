@@ -18,6 +18,7 @@ where
     value_size: u16,
     label: Cow<'a, str>,
     value: Cow<'a, str>,
+    use_truncate: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -48,7 +49,13 @@ where
             value_size: 14,
             label: Cow::default(),
             value: Cow::default(),
+            use_truncate: false,
         }
+    }
+
+    pub fn set_truncate(mut self, value: bool) -> Self {
+        self.use_truncate = value;
+        self
     }
 
     pub fn set_label(mut self, label: Cow<'a, str>) -> Self {
@@ -116,9 +123,13 @@ where
         _state: &Self::State,
     ) -> iced::advanced::graphics::core::Element<'_, Self::Event, Theme, Renderer> {
         let title = Text::new(self.label.as_ref()).size(self.label_size);
-        let value = Text::new(truncate_string(self.value.as_ref(), 20))
-            .size(self.value_size)
-            .style(zebra_ui::styles::text::muted);
+        let value = Text::new(if self.use_truncate {
+            truncate_string(self.value.as_ref(), 20)
+        } else {
+            self.value.clone()
+        })
+        .size(self.value_size)
+        .style(zebra_ui::styles::text::muted);
         let col = Column::new().width(Length::Fill).push(title).push(value);
         let mut row = Row::new()
             .spacing(5)

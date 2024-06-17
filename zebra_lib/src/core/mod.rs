@@ -61,6 +61,10 @@ impl Core {
         self.db.get_path()
     }
 
+    pub fn get_data_size(&self) -> u64 {
+        self.db.get_db_size()
+    }
+
     pub fn sync(&mut self) -> Result<(), ZebraErrors> {
         self.state.sync(&self.db)?;
 

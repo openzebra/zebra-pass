@@ -61,6 +61,10 @@ impl LocalStorage {
         self.path.data_dir()
     }
 
+    pub fn get_db_size(&self) -> u64 {
+        self.tree.size_on_disk().unwrap_or(0)
+    }
+
     pub fn get<ST>(&self, key: &str) -> Result<ST, ZebraErrors>
     where
         ST: for<'a> Deserialize<'a> + Serialize,

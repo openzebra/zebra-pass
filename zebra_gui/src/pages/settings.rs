@@ -206,6 +206,7 @@ impl Settings {
         let address = SmartFields::new()
             .set_label(t!("address"))
             .set_padding(8)
+            .set_truncate(true)
             .on_copy(SettingsMessage::CopyValue)
             .set_value(core.state.address.clone());
         let address = Container::new(address);
@@ -218,6 +219,12 @@ impl Settings {
             .set_value(core.state.email.clone().unwrap_or(t!("not_set")));
         let email = Container::new(email);
 
+        let records = SmartFields::new()
+            .set_label(t!("amount_of_records"))
+            .set_padding(8)
+            .set_value(core.data.len().to_string().into());
+        let records = Container::new(records);
+
         let data_dir_path = core.get_data_dir().to_string_lossy().to_string();
         let data_dir = SmartFields::new()
             .set_label(t!("database_path"))
@@ -226,12 +233,22 @@ impl Settings {
             .set_value(Cow::Owned(data_dir_path));
         let data_dir = Container::new(data_dir);
 
+        let data_size = SmartFields::new()
+            .set_label(t!("database_size"))
+            .set_padding(8)
+            .set_value(format!("{} bytes", core.get_data_size()).into());
+        let data_size = Container::new(data_size);
+
         let border_col = Column::new()
             .push(address)
             .push(self.view_hline())
             .push(email)
             .push(self.view_hline())
-            .push(data_dir);
+            .push(data_dir)
+            .push(self.view_hline())
+            .push(records)
+            .push(self.view_hline())
+            .push(data_size);
         let border = Container::new(border_col)
             .padding(8)
             .width(Length::Fill)
