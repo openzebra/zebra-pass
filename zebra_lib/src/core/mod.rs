@@ -65,6 +65,10 @@ impl Core {
         self.db.get_db_size()
     }
 
+    pub fn get_storage_version(&self) -> u16 {
+        self.state.version
+    }
+
     pub fn sync(&mut self) -> Result<(), ZebraErrors> {
         self.state.sync(&self.db)?;
 

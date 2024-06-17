@@ -8,8 +8,8 @@ use std::{
 };
 
 use iced::{
-    widget::{Column, Container, Row, Space, Text},
-    Theme,
+    widget::{Button, Column, Container, Row, Space, Text},
+    Padding, Theme,
 };
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::Core, errors::ZebraErrors};
@@ -54,6 +54,8 @@ pub enum SettingsMessage {
     HanldeSelectOption(usize),
     CopyValue(String),
     EditEmail,
+    Remove,
+    Export,
 }
 
 impl Page for Settings {
@@ -146,6 +148,14 @@ impl Page for Settings {
                 //
                 Command::none()
             }
+            SettingsMessage::Remove => {
+                //
+                Command::none()
+            }
+            SettingsMessage::Export => {
+                //
+                Command::none()
+            }
         }
     }
 
@@ -196,6 +206,9 @@ impl Settings {
     }
 
     pub fn view_profile(&self) -> Container<SettingsMessage> {
+        const MAIN_PADDING: f32 = 16.0;
+        const ITEM_PADDING: f32 = 8.0;
+
         // TODO: remove unwerap.
         let core = self.core.lock().unwrap();
         let title = Text::new(&self.options_list[self.selected_index].text)
@@ -205,7 +218,7 @@ impl Settings {
 
         let address = SmartFields::new()
             .set_label(t!("address"))
-            .set_padding(8)
+            .set_padding(ITEM_PADDING)
             .set_truncate(true)
             .on_copy(SettingsMessage::CopyValue)
             .set_value(core.state.address.clone());
@@ -213,7 +226,7 @@ impl Settings {
 
         let email = SmartFields::new()
             .set_label(t!("email"))
-            .set_padding(8)
+            .set_padding(ITEM_PADDING)
             .on_copy(SettingsMessage::CopyValue)
             .on_edit(SettingsMessage::EditEmail)
             .set_value(core.state.email.clone().unwrap_or(t!("not_set")));
@@ -221,23 +234,36 @@ impl Settings {
 
         let records = SmartFields::new()
             .set_label(t!("amount_of_records"))
-            .set_padding(8)
+            .set_padding(ITEM_PADDING)
+            .on_export(SettingsMessage::Export)
             .set_value(core.data.len().to_string().into());
         let records = Container::new(records);
 
         let data_dir_path = core.get_data_dir().to_string_lossy().to_string();
         let data_dir = SmartFields::new()
             .set_label(t!("database_path"))
-            .set_padding(8)
+            .set_padding(ITEM_PADDING)
             .on_copy(SettingsMessage::CopyValue)
             .set_value(Cow::Owned(data_dir_path));
         let data_dir = Container::new(data_dir);
 
         let data_size = SmartFields::new()
             .set_label(t!("database_size"))
-            .set_padding(8)
+            .set_padding(ITEM_PADDING)
             .set_value(format!("{} bytes", core.get_data_size()).into());
         let data_size = Container::new(data_size);
+
+        let storage_version = SmartFields::new()
+            .set_label(t!("storage_version"))
+            .set_padding(ITEM_PADDING)
+            .set_value(format!("V{}", core.get_storage_version()).into());
+        let storage_version = Container::new(storage_version);
+
+        let remove_button = Button::new(Text::new(t!("remove")).size(14))
+            .padding(0)
+            .on_press(SettingsMessage::Remove)
+            .style(zebra_ui::styles::button::ref_danger);
+        let remove_button_row = Row::new().width(Length::Fill).push(remove_button);
 
         let border_col = Column::new()
             .push(address)
@@ -248,17 +274,26 @@ impl Settings {
             .push(self.view_hline())
             .push(records)
             .push(self.view_hline())
-            .push(data_size);
+            .push(data_size)
+            .push(self.view_hline())
+            .push(storage_version);
         let border = Container::new(border_col)
-            .padding(8)
+            .padding(Padding {
+                left: ITEM_PADDING,
+                right: ITEM_PADDING,
+                top: 0.0,
+                bottom: 0.0,
+            })
             .width(Length::Fill)
             .style(zebra_ui::styles::container::primary_bordered);
         let main_col = Column::new()
             .align_items(iced::Alignment::Center)
-            .padding(16)
+            .padding(MAIN_PADDING)
             .push(title)
-            .push(Space::new(0, 16))
-            .push(border);
+            .push(Space::new(0, MAIN_PADDING))
+            .push(border)
+            .push(Space::new(0, MAIN_PADDING))
+            .push(remove_button_row);
 
         Container::new(main_col)
     }

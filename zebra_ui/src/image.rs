@@ -27,6 +27,7 @@ const ZEBRA_BAD: &[u8] = include_bytes!("../static/icons/bad-zebra.svg");
 const TRASH_ICON: &[u8] = include_bytes!("../static/icons/trash.svg");
 const CLOSE_ICON: &[u8] = include_bytes!("../static/icons/close.svg");
 const EDIT_ICON: &[u8] = include_bytes!("../static/icons/edit.svg");
+const EXPORT_ICON: &[u8] = include_bytes!("../static/icons/export.svg");
 
 const BITWARDEN_LOGO: &[u8] = include_bytes!("../static/icons/bitwarden.svg");
 
@@ -64,6 +65,11 @@ pub fn close_eye_icon<'a>() -> Svg<'a> {
 
 pub fn edit_icon<'a>() -> Svg<'a> {
     let h = Handle::from_memory(EDIT_ICON);
+    Svg::new(h).height(Length::Fill).width(Length::Fill)
+}
+
+pub fn export_icon<'a>() -> Svg<'a> {
+    let h = Handle::from_memory(EXPORT_ICON);
     Svg::new(h).height(Length::Fill).width(Length::Fill)
 }
 

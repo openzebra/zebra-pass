@@ -13,6 +13,7 @@ where
 {
     on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
     on_edit: Option<Message>,
+    on_export: Option<Message>,
     container_padding: Padding,
     label_size: u16,
     value_size: u16,
@@ -25,6 +26,7 @@ where
 pub enum Event {
     Copy,
     Edit,
+    Export,
 }
 
 impl<'a, Message> Default for SmartFields<'a, Message>
@@ -45,6 +47,7 @@ where
             container_padding: Padding::ZERO,
             on_copy: None,
             on_edit: None,
+            on_export: None,
             label_size: 16,
             value_size: 14,
             label: Cow::default(),
@@ -88,6 +91,11 @@ where
         self
     }
 
+    pub fn on_export(mut self, msg: Message) -> Self {
+        self.on_export = Some(msg);
+        self
+    }
+
     pub fn on_copy<F>(mut self, callback: F) -> Self
     where
         F: 'a + Fn(String) -> Message,
@@ -115,6 +123,7 @@ where
                 }
             }
             Event::Edit => self.on_edit.clone(),
+            Event::Export => self.on_export.clone(),
         }
     }
 
@@ -163,6 +172,20 @@ where
             .on_press(Event::Copy);
 
             row = row.push(copy_btn);
+        }
+
+        if self.on_export.is_some() {
+            let export_btn = Button::new(
+                zebra_ui::image::export_icon()
+                    .style(zebra_ui::styles::svg::primary_hover)
+                    .height(25)
+                    .width(25),
+            )
+            .padding(0)
+            .style(zebra_ui::styles::button::transparent)
+            .on_press(Event::Export);
+
+            row = row.push(export_btn);
         }
 
         Container::new(row)

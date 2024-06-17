@@ -36,6 +36,9 @@ pub struct State<'a> {
 
     // if we ready to work with storage
     pub ready: bool,
+
+    // A data store version.
+    pub version: u16,
 }
 
 impl<'a> Default for State<'a> {
@@ -64,6 +67,7 @@ impl<'a> State<'a> {
             secure_key_store: Cow::default(),
             secure_data_store: Cow::default(),
             ready: false,
+            version: 0,
         }
     }
 
