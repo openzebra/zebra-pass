@@ -8,7 +8,10 @@ extern crate serde_json;
 use directories::ProjectDirs;
 use sha2::{Digest, Sha256};
 use sled::{Db, IVec};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{
+    path::Path,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -28,6 +31,7 @@ pub struct Data<ST> {
 pub struct LocalStorage {
     tree: Db,
     version: u16,
+    path: ProjectDirs,
 }
 
 impl LocalStorage {
@@ -46,7 +50,15 @@ impl LocalStorage {
         };
         let version = 0;
 
-        Ok(LocalStorage { tree, version })
+        Ok(LocalStorage {
+            tree,
+            version,
+            path,
+        })
+    }
+
+    pub fn get_path(&self) -> &Path {
+        self.path.data_dir()
     }
 
     pub fn get<ST>(&self, key: &str) -> Result<ST, ZebraErrors>

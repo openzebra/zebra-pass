@@ -16,7 +16,7 @@ use crate::{
     storage::db::LocalStorage,
 };
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
-use std::{borrow::Cow, fmt};
+use std::{borrow::Cow, fmt, path::Path};
 
 pub struct Core {
     pub state: State<'static>,
@@ -55,6 +55,10 @@ impl Core {
             data,
             keys,
         })
+    }
+
+    pub fn get_data_dir(&self) -> &Path {
+        self.db.get_path()
     }
 
     pub fn sync(&mut self) -> Result<(), ZebraErrors> {

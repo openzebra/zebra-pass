@@ -2,7 +2,10 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::sync::{Arc, Mutex};
+use std::{
+    borrow::Cow,
+    sync::{Arc, Mutex},
+};
 
 use iced::{
     widget::{Column, Container, Row, Space, Text},
@@ -50,6 +53,7 @@ pub enum SettingsMessage {
     AddRecord,
     HanldeSelectOption(usize),
     CopyValue(String),
+    EditEmail,
 }
 
 impl Page for Settings {
@@ -138,6 +142,10 @@ impl Page for Settings {
                 Command::none()
             }
             SettingsMessage::CopyValue(value) => iced::clipboard::write::<GlobalMessage>(value),
+            SettingsMessage::EditEmail => {
+                //
+                Command::none()
+            }
         }
     }
 
@@ -206,13 +214,24 @@ impl Settings {
             .set_label(t!("email"))
             .set_padding(8)
             .on_copy(SettingsMessage::CopyValue)
+            .on_edit(SettingsMessage::EditEmail)
             .set_value(core.state.email.clone().unwrap_or(t!("not_set")));
         let email = Container::new(email);
+
+        let data_dir_path = core.get_data_dir().to_string_lossy().to_string();
+        let data_dir = SmartFields::new()
+            .set_label(t!("database_path"))
+            .set_padding(8)
+            .on_copy(SettingsMessage::CopyValue)
+            .set_value(Cow::Owned(data_dir_path));
+        let data_dir = Container::new(data_dir);
 
         let border_col = Column::new()
             .push(address)
             .push(self.view_hline())
-            .push(email);
+            .push(email)
+            .push(self.view_hline())
+            .push(data_dir);
         let border = Container::new(border_col)
             .padding(8)
             .width(Length::Fill)

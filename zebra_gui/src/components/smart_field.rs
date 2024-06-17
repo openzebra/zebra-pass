@@ -3,7 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 use std::borrow::Cow;
 
-use iced::widget::{component, Button, Column, Component, Container, Row, Space, Text};
+use iced::widget::{component, Button, Column, Component, Container, Row, Text};
 use iced::{Element, Length, Padding, Renderer, Theme};
 use zebra_lib::utils::truncate_string;
 
@@ -12,6 +12,7 @@ where
     Message: Clone,
 {
     on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
+    on_edit: Option<Message>,
     container_padding: Padding,
     label_size: u16,
     value_size: u16,
@@ -22,6 +23,7 @@ where
 #[derive(Debug, Clone)]
 pub enum Event {
     Copy,
+    Edit,
 }
 
 impl<'a, Message> Default for SmartFields<'a, Message>
@@ -41,6 +43,7 @@ where
         Self {
             container_padding: Padding::ZERO,
             on_copy: None,
+            on_edit: None,
             label_size: 16,
             value_size: 14,
             label: Cow::default(),
@@ -73,6 +76,11 @@ where
         self
     }
 
+    pub fn on_edit(mut self, msg: Message) -> Self {
+        self.on_edit = Some(msg);
+        self
+    }
+
     pub fn on_copy<F>(mut self, callback: F) -> Self
     where
         F: 'a + Fn(String) -> Message,
@@ -99,6 +107,7 @@ where
                     None
                 }
             }
+            Event::Edit => self.on_edit.clone(),
         }
     }
 
@@ -112,9 +121,24 @@ where
             .style(zebra_ui::styles::text::muted);
         let col = Column::new().width(Length::Fill).push(title).push(value);
         let mut row = Row::new()
+            .spacing(5)
             .width(Length::Fill)
             .align_items(iced::Alignment::Center)
             .push(col);
+
+        if self.on_edit.is_some() {
+            let edit_btn = Button::new(
+                zebra_ui::image::edit_icon()
+                    .style(zebra_ui::styles::svg::primary_hover)
+                    .height(25)
+                    .width(25),
+            )
+            .padding(0)
+            .style(zebra_ui::styles::button::transparent)
+            .on_press(Event::Edit);
+
+            row = row.push(edit_btn);
+        }
 
         if self.on_copy.is_some() {
             let copy_btn = Button::new(
