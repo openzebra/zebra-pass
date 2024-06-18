@@ -4,13 +4,14 @@
 use std::borrow::Cow;
 
 use iced::{
-    widget::{component, Column, Component, Container},
+    widget::{component, Button, Column, Component, Container, Row, Space, Text},
     Padding,
 };
 use iced::{Element, Length, Renderer, Theme};
 use rust_i18n::t;
 use zebra_ui::components::line::Linear;
 
+use super::modal::Modal;
 use crate::components::{home_nav_bar::LINE_ALFA_CHANNEL, smart_field::SmartFields};
 
 pub struct ProfileViewForm<'a, Message>
@@ -25,6 +26,9 @@ where
     records_len: String,
     main_padding: f32,
     item_padding: f32,
+    edit_email_modal: bool,
+    export_records_modal: bool,
+    export_data_base_modal: bool,
     on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
     on_edit_email: Option<Message>,
     on_export_database: Option<Message>,
@@ -34,8 +38,11 @@ where
 #[derive(Debug, Clone)]
 pub enum Event {
     CopyValue(String),
-    EditEmail,
+    EditEmailModal,
+    ExportRecordsModal,
+    ExportDatabaseModal,
     ExportRecords,
+    EditEmail,
     ExportDatabase,
 }
 
@@ -62,6 +69,9 @@ where
             records_len: String::new(),
             item_padding: Default::default(),
             main_padding: Default::default(),
+            edit_email_modal: false,
+            export_records_modal: false,
+            export_data_base_modal: false,
             on_copy: None,
             on_edit_email: None,
             on_export_database: None,
@@ -125,6 +135,117 @@ where
             .style(zebra_ui::styles::line::line_secondary)
             .alfa(LINE_ALFA_CHANNEL)
     }
+
+    pub fn view_edit_email_modal(&self) -> Container<'a, Event, Theme, Renderer> {
+        let close_btn = Button::new(
+            zebra_ui::image::close_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(Event::ExportDatabaseModal);
+        let close_btn = Column::new()
+            .push(close_btn)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::End);
+        let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
+
+        let save_btn = Button::new(
+            Text::new("")
+                .size(self.item_padding * 2.0)
+                .horizontal_alignment(iced::alignment::Horizontal::Center),
+        )
+        .style(zebra_ui::styles::button::outline_primary)
+        .padding(self.item_padding)
+        .on_press(Event::ExportDatabaseModal);
+
+        let main_modal_col = Column::new()
+            .push(row_header)
+            .push(save_btn)
+            .push(Space::new(0, self.item_padding))
+            .padding(self.item_padding)
+            .align_items(iced::Alignment::Center);
+
+        Container::new(main_modal_col)
+            .width(400)
+            .style(zebra_ui::styles::container::primary_bordered_modal)
+    }
+
+    pub fn view_export_records_modal(&self) -> Container<'a, Event, Theme, Renderer> {
+        let close_btn = Button::new(
+            zebra_ui::image::close_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(Event::ExportDatabaseModal);
+        let close_btn = Column::new()
+            .push(close_btn)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::End);
+        let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
+
+        let save_btn = Button::new(
+            Text::new("")
+                .size(self.item_padding * 2.0)
+                .horizontal_alignment(iced::alignment::Horizontal::Center),
+        )
+        .style(zebra_ui::styles::button::outline_primary)
+        .padding(self.item_padding)
+        .on_press(Event::ExportDatabaseModal);
+
+        let main_modal_col = Column::new()
+            .push(row_header)
+            .push(save_btn)
+            .push(Space::new(0, self.item_padding))
+            .padding(self.item_padding)
+            .align_items(iced::Alignment::Center);
+
+        Container::new(main_modal_col)
+            .width(400)
+            .style(zebra_ui::styles::container::primary_bordered_modal)
+    }
+
+    pub fn view_export_data_base_modal(&self) -> Container<'a, Event, Theme, Renderer> {
+        let close_btn = Button::new(
+            zebra_ui::image::close_icon()
+                .style(zebra_ui::styles::svg::primary_hover)
+                .height(30)
+                .width(30),
+        )
+        .padding(0)
+        .style(zebra_ui::styles::button::transparent)
+        .on_press(Event::ExportDatabaseModal);
+        let close_btn = Column::new()
+            .push(close_btn)
+            .width(Length::Fill)
+            .align_items(iced::Alignment::End);
+        let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
+
+        let save_btn = Button::new(
+            Text::new("")
+                .size(self.item_padding * 2.0)
+                .horizontal_alignment(iced::alignment::Horizontal::Center),
+        )
+        .style(zebra_ui::styles::button::outline_primary)
+        .padding(self.item_padding)
+        .on_press(Event::ExportDatabaseModal);
+
+        let main_modal_col = Column::new()
+            .push(row_header)
+            .push(save_btn)
+            .push(Space::new(0, self.item_padding))
+            .padding(self.item_padding)
+            .align_items(iced::Alignment::Center);
+
+        Container::new(main_modal_col)
+            .width(400)
+            .style(zebra_ui::styles::container::primary_bordered_modal)
+    }
 }
 
 impl<'a, Message> Component<Message, Theme, Renderer> for ProfileViewForm<'a, Message>
@@ -140,6 +261,21 @@ where
             Event::ExportRecords => self.on_export_records.clone(),
             Event::EditEmail => self.on_edit_email.clone(),
             Event::ExportDatabase => self.on_export_database.clone(),
+            Event::ExportRecordsModal => {
+                self.export_records_modal = !self.export_records_modal;
+
+                None
+            }
+            Event::EditEmailModal => {
+                self.edit_email_modal = !self.edit_email_modal;
+
+                None
+            }
+            Event::ExportDatabaseModal => {
+                self.export_data_base_modal = !self.export_data_base_modal;
+
+                None
+            }
         }
     }
 
@@ -159,14 +295,14 @@ where
             .set_label(t!("email"))
             .set_padding(self.item_padding)
             .on_copy(Event::CopyValue)
-            .on_edit(Event::EditEmail)
+            .on_edit(Event::EditEmailModal)
             .set_value(&self.email);
         let email = Container::new(email);
 
         let records = SmartFields::new()
             .set_label(t!("amount_of_records"))
             .set_padding(self.item_padding)
-            .on_export(Event::ExportRecords)
+            .on_export(Event::ExportRecordsModal)
             .set_value(&self.records_len);
         let records = Container::new(records);
 
@@ -174,7 +310,7 @@ where
             .set_label(t!("database_path"))
             .set_padding(self.item_padding)
             .on_copy(Event::CopyValue)
-            .on_export(Event::ExportDatabase)
+            .on_export(Event::ExportDatabaseModal)
             .set_value(&self.data_dir_path);
         let data_dir = Container::new(data_dir);
 
@@ -203,16 +339,30 @@ where
             .push(self.view_hline())
             .push(storage_version);
 
-        Container::new(border_col)
-            .padding(Padding {
-                left: self.item_padding,
-                right: self.item_padding,
-                top: 0.0,
-                bottom: 0.0,
-            })
-            .width(Length::Fill)
-            .style(zebra_ui::styles::container::primary_bordered)
-            .into()
+        if self.export_data_base_modal {
+            Modal::new(border_col, self.view_export_data_base_modal())
+                .on_blur(Event::ExportDatabaseModal)
+                .into()
+        } else if self.export_records_modal {
+            Modal::new(border_col, self.view_export_records_modal())
+                .on_blur(Event::ExportRecordsModal)
+                .into()
+        } else if self.edit_email_modal {
+            Modal::new(border_col, self.view_edit_email_modal())
+                .on_blur(Event::EditEmailModal)
+                .into()
+        } else {
+            Container::new(border_col)
+                .padding(Padding {
+                    left: self.item_padding,
+                    right: self.item_padding,
+                    top: 0.0,
+                    bottom: 0.0,
+                })
+                .width(Length::Fill)
+                .style(zebra_ui::styles::container::primary_bordered)
+                .into()
+        }
     }
 }
 

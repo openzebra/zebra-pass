@@ -4,10 +4,7 @@
 
 use std::sync::{Arc, Mutex, MutexGuard};
 
-use iced::{
-    widget::{Button, Column, Container, Row, Space, Text},
-    Theme,
-};
+use iced::widget::{Button, Column, Container, Row, Space, Text};
 use iced::{Command, Element, Length, Subscription};
 use zebra_lib::{core::Core, errors::ZebraErrors};
 
@@ -15,7 +12,6 @@ use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::{profile_view::ProfileViewForm, select_list};
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
-use zebra_ui::components::line::Linear;
 
 use super::add_record::AddRecordPage;
 use super::error::ErrorPage;
@@ -217,6 +213,7 @@ impl Settings {
             .set_email(core.state.email.clone().unwrap_or(t!("not_set")))
             .set_address(core.state.address.clone())
             .set_data_dir_path(core.get_data_dir().to_string_lossy().to_string().into())
+            .on_copy(SettingsMessage::CopyValue)
             .set_main_padding(MAIN_PADDING)
             .set_item_padding(ITEM_PADDING);
         let profile_view = Container::new(profile_view);
