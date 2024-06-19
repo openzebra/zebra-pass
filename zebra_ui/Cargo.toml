@@ -17,3 +17,4 @@ iced = { git = "https://github.com/hicaru/iced.git", default-features = false, f
 ] }
 lyon_algorithms = "1.0.4"
 iced_wgpu = "0.12.1"
+rfd = "0.14.1"

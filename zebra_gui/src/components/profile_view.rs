@@ -4,7 +4,6 @@
 use std::borrow::Cow;
 
 use iced::{
-    advanced::Widget,
     widget::{component, Button, Column, Component, Container, Row, Space, Text},
     Padding,
 };
@@ -120,6 +119,11 @@ where
         self
     }
 
+    pub fn on_edit_email(mut self, msg: Message) -> Self {
+        self.on_edit_email = Some(msg);
+        self
+    }
+
     pub fn on_copy<F>(mut self, callback: F) -> Self
     where
         F: 'a + Fn(String) -> Message,
@@ -160,7 +164,7 @@ where
         )
         .style(zebra_ui::styles::button::outline_primary)
         .padding(self.item_padding)
-        .on_press(Event::ExportDatabaseModal);
+        .on_press(Event::EditEmail);
 
         let main_modal_col = Column::new()
             .push(row_header)
@@ -241,7 +245,7 @@ where
         )
         .style(zebra_ui::styles::button::outline_primary)
         .padding(self.item_padding)
-        .on_press(Event::ExportDatabaseModal);
+        .on_press(Event::ExportDatabase);
 
         let main_modal_col = Column::new()
             .spacing(self.item_padding)
