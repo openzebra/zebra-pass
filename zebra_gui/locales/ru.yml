@@ -94,3 +94,9 @@ database_size: 'Размер базы данных'
 storage_version: 'Версия хранилища'
 remove: 'Удалить'
 not_set: 'Не установлен'
+export_data_base_modal_description: 'Создайте резервную копию вашей зашифрованной базы данных с тем же паролем.'
+export_data_base_modal_title: 'Резервную копию'
+export_btn: 'Экспортировать'
+
+
+

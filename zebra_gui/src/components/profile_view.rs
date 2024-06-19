@@ -4,6 +4,7 @@
 use std::borrow::Cow;
 
 use iced::{
+    advanced::Widget,
     widget::{component, Button, Column, Component, Container, Row, Space, Text},
     Padding,
 };
@@ -211,6 +212,7 @@ where
     }
 
     pub fn view_export_data_base_modal(&self) -> Container<'a, Event, Theme, Renderer> {
+        let title = Text::new(t!("export_data_base_modal_title")).size(18);
         let close_btn = Button::new(
             zebra_ui::image::close_icon()
                 .style(zebra_ui::styles::svg::primary_hover)
@@ -224,10 +226,16 @@ where
             .push(close_btn)
             .width(Length::Fill)
             .align_items(iced::Alignment::End);
-        let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
+        let row_header = Row::new()
+            .padding(8)
+            .align_items(iced::Alignment::Center)
+            .push(title)
+            .push(close_btn)
+            .width(Length::Fill);
+        let description = Text::new(t!("export_data_base_modal_description")).size(14);
 
         let save_btn = Button::new(
-            Text::new("")
+            Text::new(t!("export_btn"))
                 .size(self.item_padding * 2.0)
                 .horizontal_alignment(iced::alignment::Horizontal::Center),
         )
@@ -236,7 +244,9 @@ where
         .on_press(Event::ExportDatabaseModal);
 
         let main_modal_col = Column::new()
+            .spacing(self.item_padding)
             .push(row_header)
+            .push(description)
             .push(save_btn)
             .push(Space::new(0, self.item_padding))
             .padding(self.item_padding)
@@ -338,30 +348,30 @@ where
             .push(data_size)
             .push(self.view_hline())
             .push(storage_version);
+        let main_content = Container::new(border_col)
+            .padding(Padding {
+                left: self.item_padding,
+                right: self.item_padding,
+                top: 0.0,
+                bottom: 0.0,
+            })
+            .width(Length::Fill)
+            .style(zebra_ui::styles::container::primary_bordered);
 
         if self.export_data_base_modal {
-            Modal::new(border_col, self.view_export_data_base_modal())
+            Modal::new(main_content, self.view_export_data_base_modal())
                 .on_blur(Event::ExportDatabaseModal)
                 .into()
         } else if self.export_records_modal {
-            Modal::new(border_col, self.view_export_records_modal())
+            Modal::new(main_content, self.view_export_records_modal())
                 .on_blur(Event::ExportRecordsModal)
                 .into()
         } else if self.edit_email_modal {
-            Modal::new(border_col, self.view_edit_email_modal())
+            Modal::new(main_content, self.view_edit_email_modal())
                 .on_blur(Event::EditEmailModal)
                 .into()
         } else {
-            Container::new(border_col)
-                .padding(Padding {
-                    left: self.item_padding,
-                    right: self.item_padding,
-                    top: 0.0,
-                    bottom: 0.0,
-                })
-                .width(Length::Fill)
-                .style(zebra_ui::styles::container::primary_bordered)
-                .into()
+            Container::new(main_content).into()
         }
     }
 }
