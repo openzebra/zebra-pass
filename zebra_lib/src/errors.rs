@@ -51,6 +51,8 @@ pub enum ZebraErrors {
     SyncStateLock,
 
     RegexError,
+
+    DialogClosed,
 }
 
 impl fmt::Display for ZebraErrors {

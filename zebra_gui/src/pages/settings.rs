@@ -12,6 +12,9 @@ use iced::{Command, Element, Length, Subscription};
 use iced::{Renderer, Theme};
 use zebra_lib::{core::Core, errors::ZebraErrors};
 
+use dirs;
+use rfd::FileDialog;
+
 use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::modal::Modal;
 use crate::components::{profile_view::ProfileViewForm, select_list};
@@ -27,20 +30,14 @@ use super::Page;
 const MAIN_PADDING: f32 = 16.0;
 const ITEM_PADDING: f32 = 8.0;
 
-#[derive(Debug, Clone)]
-pub enum Error {
-    DialogClosed,
-    IoError(std::io::ErrorKind),
-}
-
-async fn save_file() -> Result<PathBuf, Error> {
+async fn save_file() -> Result<PathBuf, ZebraErrors> {
     let path = rfd::AsyncFileDialog::new()
         .save_file()
         .await
         .as_ref()
         .map(rfd::FileHandle::path)
         .map(Path::to_owned)
-        .ok_or(Error::DialogClosed)?;
+        .ok_or(ZebraErrors::DialogClosed)?;
 
     Ok(path)
 }
@@ -179,7 +176,17 @@ impl Page for Settings {
                 Command::none()
             }
             SettingsMessage::ExportDatabase => {
-                //
+                if let Some(home_dir) = dirs::home_dir() {
+                    let files = FileDialog::new()
+                        .set_file_name("zebrapass.db")
+                        .set_directory(home_dir)
+                        .save_file();
+
+                    if let Some(files) = files {
+                        dbg!(files);
+                    }
+                }
+
                 Command::none()
             }
             SettingsMessage::RemoveModal => {
@@ -290,6 +297,7 @@ impl Settings {
             .set_data_dir_path(core.get_data_dir().to_string_lossy().to_string().into())
             .on_copy(SettingsMessage::CopyValue)
             .on_edit_email(SettingsMessage::EditEmail)
+            .on_export_database(SettingsMessage::ExportDatabase)
             .set_main_padding(MAIN_PADDING)
             .set_item_padding(ITEM_PADDING);
         let profile_view = Container::new(profile_view);

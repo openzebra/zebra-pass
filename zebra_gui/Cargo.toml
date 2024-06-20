@@ -24,3 +24,4 @@ dark-light = "1.0.0"
 rand = { version = "0.8.5", features = ["small_rng"] }
 chrono = "0.4.38"
 rfd = "0.13"
+dirs = "5.0.1"

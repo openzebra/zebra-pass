@@ -28,7 +28,6 @@ where
     item_padding: f32,
     edit_email_modal: bool,
     export_records_modal: bool,
-    export_data_base_modal: bool,
     on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
     on_edit_email: Option<Message>,
     on_export_database: Option<Message>,
@@ -40,7 +39,6 @@ pub enum Event {
     CopyValue(String),
     EditEmailModal,
     ExportRecordsModal,
-    ExportDatabaseModal,
     ExportRecords,
     EditEmail,
     ExportDatabase,
@@ -71,11 +69,10 @@ where
             main_padding: Default::default(),
             edit_email_modal: false,
             export_records_modal: false,
-            export_data_base_modal: false,
             on_copy: None,
             on_edit_email: None,
-            on_export_database: None,
             on_export_records: None,
+            on_export_database: None,
         }
     }
 
@@ -124,6 +121,11 @@ where
         self
     }
 
+    pub fn on_export_database(mut self, msg: Message) -> Self {
+        self.on_export_database = Some(msg);
+        self
+    }
+
     pub fn on_copy<F>(mut self, callback: F) -> Self
     where
         F: 'a + Fn(String) -> Message,
@@ -150,7 +152,7 @@ where
         )
         .padding(0)
         .style(zebra_ui::styles::button::transparent)
-        .on_press(Event::ExportDatabaseModal);
+        .on_press(Event::EditEmailModal);
         let close_btn = Column::new()
             .push(close_btn)
             .width(Length::Fill)
@@ -187,7 +189,7 @@ where
         )
         .padding(0)
         .style(zebra_ui::styles::button::transparent)
-        .on_press(Event::ExportDatabaseModal);
+        .on_press(Event::ExportRecordsModal);
         let close_btn = Column::new()
             .push(close_btn)
             .width(Length::Fill)
@@ -201,56 +203,10 @@ where
         )
         .style(zebra_ui::styles::button::outline_primary)
         .padding(self.item_padding)
-        .on_press(Event::ExportDatabaseModal);
+        .on_press(Event::ExportRecordsModal);
 
         let main_modal_col = Column::new()
             .push(row_header)
-            .push(save_btn)
-            .push(Space::new(0, self.item_padding))
-            .padding(self.item_padding)
-            .align_items(iced::Alignment::Center);
-
-        Container::new(main_modal_col)
-            .width(400)
-            .style(zebra_ui::styles::container::primary_bordered_modal)
-    }
-
-    pub fn view_export_data_base_modal(&self) -> Container<'a, Event, Theme, Renderer> {
-        let title = Text::new(t!("export_data_base_modal_title")).size(18);
-        let close_btn = Button::new(
-            zebra_ui::image::close_icon()
-                .style(zebra_ui::styles::svg::primary_hover)
-                .height(30)
-                .width(30),
-        )
-        .padding(0)
-        .style(zebra_ui::styles::button::transparent)
-        .on_press(Event::ExportDatabaseModal);
-        let close_btn = Column::new()
-            .push(close_btn)
-            .width(Length::Fill)
-            .align_items(iced::Alignment::End);
-        let row_header = Row::new()
-            .padding(8)
-            .align_items(iced::Alignment::Center)
-            .push(title)
-            .push(close_btn)
-            .width(Length::Fill);
-        let description = Text::new(t!("export_data_base_modal_description")).size(14);
-
-        let save_btn = Button::new(
-            Text::new(t!("export_btn"))
-                .size(self.item_padding * 2.0)
-                .horizontal_alignment(iced::alignment::Horizontal::Center),
-        )
-        .style(zebra_ui::styles::button::outline_primary)
-        .padding(self.item_padding)
-        .on_press(Event::ExportDatabase);
-
-        let main_modal_col = Column::new()
-            .spacing(self.item_padding)
-            .push(row_header)
-            .push(description)
             .push(save_btn)
             .push(Space::new(0, self.item_padding))
             .padding(self.item_padding)
@@ -282,11 +238,6 @@ where
             }
             Event::EditEmailModal => {
                 self.edit_email_modal = !self.edit_email_modal;
-
-                None
-            }
-            Event::ExportDatabaseModal => {
-                self.export_data_base_modal = !self.export_data_base_modal;
 
                 None
             }
@@ -324,7 +275,7 @@ where
             .set_label(t!("database_path"))
             .set_padding(self.item_padding)
             .on_copy(Event::CopyValue)
-            .on_export(Event::ExportDatabaseModal)
+            .on_export(Event::ExportDatabase)
             .set_value(&self.data_dir_path);
         let data_dir = Container::new(data_dir);
 
@@ -362,11 +313,7 @@ where
             .width(Length::Fill)
             .style(zebra_ui::styles::container::primary_bordered);
 
-        if self.export_data_base_modal {
-            Modal::new(main_content, self.view_export_data_base_modal())
-                .on_blur(Event::ExportDatabaseModal)
-                .into()
-        } else if self.export_records_modal {
+        if self.export_records_modal {
             Modal::new(main_content, self.view_export_records_modal())
                 .on_blur(Event::ExportRecordsModal)
                 .into()

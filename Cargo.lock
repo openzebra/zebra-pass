@@ -882,7 +882,7 @@ checksum = "2a76fa97167fa740dcdbfe18e8895601e1bc36525f09b044e00916e717c03a3c"
 dependencies = [
  "dconf_rs",
  "detect-desktop-environment",
- "dirs",
+ "dirs 4.0.0",
  "objc",
  "rust-ini",
  "web-sys",
@@ -935,6 +935,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca3aa72a6f96ea37bbc5aa912f6788242832f75369bdfdadcb0e38423f100059"
 dependencies = [
  "dirs-sys 0.3.7",
+]
+
+[[package]]
+name = "dirs"
+version = "5.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44c45a9d03d6676652bcb5e724c7e988de1acad23a711b5217ab9cbecbec2225"
+dependencies = [
+ "dirs-sys 0.4.1",
 ]
 
 [[package]]
@@ -5391,6 +5400,7 @@ version = "0.0.1"
 dependencies = [
  "chrono",
  "dark-light",
+ "dirs 5.0.1",
  "iced",
  "iced_lazy",
  "iced_wgpu 0.12.1",
@@ -5409,6 +5419,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "dark-light",
+ "dirs 5.0.1",
  "iced",
  "iced_wgpu 0.12.1",
  "rand",

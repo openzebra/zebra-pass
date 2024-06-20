@@ -37,3 +37,4 @@ rand = { version = "0.8.5", features = ["small_rng"] }
 lyon_algorithms = "1.0.4"
 iced_wgpu = "0.12.1"
 rfd = "0.13"
+dirs = "5.0.1"
