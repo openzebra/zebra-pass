@@ -181,6 +181,9 @@ impl Page for Settings {
                         .set_file_name("zebrapass.db")
                         .set_directory(home_dir)
                         .save_file();
+                    let core = self.core.lock().unwrap();
+
+                    dbg!(core.export_bytes());
 
                     if let Some(files) = files {
                         dbg!(files);

@@ -69,6 +69,10 @@ impl Core {
         self.state.version
     }
 
+    pub fn export_bytes(&self) -> Vec<(Vec<u8>, Vec<u8>, impl Iterator<Item = Vec<Vec<u8>>>)> {
+        self.db.export_bytes()
+    }
+
     pub fn sync(&mut self) -> Result<(), ZebraErrors> {
         self.state.sync(&self.db)?;
 

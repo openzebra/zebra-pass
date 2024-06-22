@@ -57,6 +57,10 @@ impl LocalStorage {
         })
     }
 
+    pub fn export_bytes(&self) -> Vec<(Vec<u8>, Vec<u8>, impl Iterator<Item = Vec<Vec<u8>>>)> {
+        self.tree.export()
+    }
+
     pub fn get_path(&self) -> &Path {
         self.path.data_dir()
     }
