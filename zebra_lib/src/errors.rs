@@ -13,6 +13,10 @@ pub enum ZebraErrors {
     StorageHashsumError,
     StorageWriteError,
     StorageTimeWentBackwards,
+    FailToloadBytesTree,
+    FailToCreateFile,
+    FailToWriteFile,
+
     //Guard Errors:
     GuardIsNotEnable,
     GuardInvalidPassword,

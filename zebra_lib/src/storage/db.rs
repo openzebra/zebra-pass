@@ -5,10 +5,15 @@ extern crate hex;
 extern crate serde;
 extern crate serde_json;
 
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
+
 use directories::ProjectDirs;
 use sha2::{Digest, Sha256};
 use sled::{Db, IVec};
 use std::{
+    fs::File,
     path::Path,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -57,8 +62,20 @@ impl LocalStorage {
         })
     }
 
-    pub fn export_bytes(&self) -> Vec<(Vec<u8>, Vec<u8>, impl Iterator<Item = Vec<Vec<u8>>>)> {
-        self.tree.export()
+    pub fn save_as_file(&self, path: &Path) -> Result<(), ZebraErrors> {
+        let export = self.tree.export();
+
+        for (_, _, collection_iter) in export {
+            for mut kv in collection_iter {
+                let bytes = kv.pop().ok_or(ZebraErrors::FailToloadBytesTree)?;
+                let mut file = File::create(path).or(Err(ZebraErrors::FailToCreateFile))?;
+
+                file.write_all(&bytes)
+                    .or(Err(ZebraErrors::FailToWriteFile))?;
+            }
+        }
+
+        Ok(())
     }
 
     pub fn get_path(&self) -> &Path {
