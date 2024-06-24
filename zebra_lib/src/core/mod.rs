@@ -70,7 +70,7 @@ impl Core {
     }
 
     pub fn export_bytes(&self) {
-        self.db.export_bytes();
+        // self.db.export_bytes();
     }
 
     pub fn sync(&mut self) -> Result<(), ZebraErrors> {

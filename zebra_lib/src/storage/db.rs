@@ -12,11 +12,7 @@ use std::path::Path;
 use directories::ProjectDirs;
 use sha2::{Digest, Sha256};
 use sled::{Db, IVec};
-use std::{
-    fs::File,
-    path::Path,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
