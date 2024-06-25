@@ -160,7 +160,7 @@ where
         let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
 
         let save_btn = Button::new(
-            Text::new("")
+            Text::new(t!("save_email_btn"))
                 .size(self.item_padding * 2.0)
                 .horizontal_alignment(iced::alignment::Horizontal::Center),
         )

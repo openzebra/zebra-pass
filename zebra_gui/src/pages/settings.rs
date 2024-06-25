@@ -2,10 +2,7 @@
 //! -- Email: hicarus@yandex.ru
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 
-use std::{
-    path::{Path, PathBuf},
-    sync::{Arc, Mutex, MutexGuard},
-};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 use iced::widget::{Button, Column, Container, Row, Space, Text};
 use iced::{Command, Element, Length, Subscription};
@@ -29,18 +26,6 @@ use super::Page;
 
 const MAIN_PADDING: f32 = 16.0;
 const ITEM_PADDING: f32 = 8.0;
-
-async fn save_file() -> Result<PathBuf, ZebraErrors> {
-    let path = rfd::AsyncFileDialog::new()
-        .save_file()
-        .await
-        .as_ref()
-        .map(rfd::FileHandle::path)
-        .map(Path::to_owned)
-        .ok_or(ZebraErrors::DialogClosed)?;
-
-    Ok(path)
-}
 
 #[derive(Debug, Clone)]
 enum SettingsOptions {
@@ -162,8 +147,8 @@ impl Page for Settings {
             }
             SettingsMessage::CopyValue(value) => iced::clipboard::write::<GlobalMessage>(value),
             SettingsMessage::EditEmail => {
-                let route = Routers::ErrorPage(ErrorPage::from("works".to_string()));
-                Command::perform(save_file(), |_| GlobalMessage::Route(route))
+                dbg!("export_emial");
+                Command::none()
             }
             SettingsMessage::Remove => {
                 //
