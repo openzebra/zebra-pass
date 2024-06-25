@@ -52,7 +52,7 @@ pub enum SettingsMessage {
     AddRecord,
     HanldeSelectOption(usize),
     CopyValue(String),
-    EditEmail,
+    EditEmail(String),
     Remove,
     RemoveModal,
     ExportRecords,
@@ -146,8 +146,8 @@ impl Page for Settings {
                 Command::none()
             }
             SettingsMessage::CopyValue(value) => iced::clipboard::write::<GlobalMessage>(value),
-            SettingsMessage::EditEmail => {
-                dbg!("export_emial");
+            SettingsMessage::EditEmail(value) => {
+                let _ = self.core.lock().map(|mut core| core.set_email(value));
                 Command::none()
             }
             SettingsMessage::Remove => {
@@ -296,7 +296,7 @@ impl Settings {
             .set_data_size(core.get_data_size())
             .set_records_len(core.data.len())
             .set_storage_version(core.get_storage_version())
-            .set_email(core.state.email.clone().unwrap_or(t!("not_set")))
+            .set_email(core.state.email.clone().unwrap_or_default())
             .set_address(core.state.address.clone())
             .set_data_dir_path(core.get_data_dir().to_string_lossy().to_string().into())
             .on_copy(SettingsMessage::CopyValue)

@@ -4,7 +4,7 @@
 use std::borrow::Cow;
 
 use iced::{
-    widget::{component, Button, Column, Component, Container, Row, Space, Text},
+    widget::{component, text_input, Button, Column, Component, Container, Row, Space, Text},
     Padding,
 };
 use iced::{Element, Length, Renderer, Theme};
@@ -29,7 +29,7 @@ where
     edit_email_modal: bool,
     export_records_modal: bool,
     on_copy: Option<Box<dyn Fn(String) -> Message + 'a>>,
-    on_edit_email: Option<Message>,
+    on_edit_email: Option<Box<dyn Fn(String) -> Message + 'a>>,
     on_export_database: Option<Message>,
     on_export_records: Option<Message>,
 }
@@ -42,6 +42,7 @@ pub enum Event {
     ExportRecords,
     EditEmail,
     ExportDatabase,
+    InputEmail(String),
 }
 
 impl<'a, Message> Default for ProfileViewForm<'a, Message>
@@ -116,8 +117,12 @@ where
         self
     }
 
-    pub fn on_edit_email(mut self, msg: Message) -> Self {
-        self.on_edit_email = Some(msg);
+    pub fn on_edit_email<F>(mut self, callback: F) -> Self
+    where
+        F: 'a + Fn(String) -> Message,
+    {
+        self.on_edit_email = Some(Box::new(callback));
+
         self
     }
 
@@ -158,6 +163,17 @@ where
             .width(Length::Fill)
             .align_items(iced::Alignment::End);
         let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
+        let description = Text::new(t!("edit_email_description"))
+            .size(14)
+            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .style(zebra_ui::styles::text::warn);
+        let email_input = text_input(&t!("placeholder_email"), &self.email)
+            .size(14)
+            .width(200)
+            .on_submit(Event::EditEmail)
+            .on_input(Event::InputEmail)
+            .padding(8)
+            .style(zebra_ui::styles::input::primary);
 
         let save_btn = Button::new(
             Text::new(t!("save_email_btn"))
@@ -170,6 +186,10 @@ where
 
         let main_modal_col = Column::new()
             .push(row_header)
+            .push(description)
+            .push(Space::new(0, 8))
+            .push(email_input)
+            .push(Space::new(0, 8))
             .push(save_btn)
             .push(Space::new(0, self.item_padding))
             .padding(self.item_padding)
@@ -229,8 +249,16 @@ where
         match event {
             Event::CopyValue(value) => self.on_copy.as_ref().map(|e| e(value)),
             Event::ExportRecords => self.on_export_records.clone(),
-            Event::EditEmail => self.on_edit_email.clone(),
+            Event::EditEmail => self
+                .on_edit_email
+                .as_ref()
+                .map(|cb| cb(self.email.to_string())),
             Event::ExportDatabase => self.on_export_database.clone(),
+            Event::InputEmail(value) => {
+                self.email = value.into();
+
+                None
+            }
             Event::ExportRecordsModal => {
                 self.export_records_modal = !self.export_records_modal;
 

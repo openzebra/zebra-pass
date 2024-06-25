@@ -91,6 +91,14 @@ impl Core {
         Ok(())
     }
 
+    pub fn set_email(&mut self, email: String) -> Result<(), ZebraErrors> {
+        // TODO: add email verify
+        self.state.email = Some(email.into());
+        self.state_update()?;
+
+        Ok(())
+    }
+
     pub fn init_data(
         &mut self,
         server_sync: bool,

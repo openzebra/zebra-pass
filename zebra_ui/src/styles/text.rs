@@ -12,6 +12,14 @@ pub fn danger(theme: &Theme) -> Style {
     }
 }
 
+pub fn warn(theme: &Theme) -> Style {
+    let palette = theme.extended_palette();
+
+    Style {
+        color: Some(palette.danger.weak.color),
+    }
+}
+
 pub fn muted(theme: &Theme) -> Style {
     let palette = theme.extended_palette();
     let mut color = palette.background.base.text;
