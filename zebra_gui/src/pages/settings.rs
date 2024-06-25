@@ -162,8 +162,6 @@ impl Page for Settings {
             }
             SettingsMessage::CopyValue(value) => iced::clipboard::write::<GlobalMessage>(value),
             SettingsMessage::EditEmail => {
-                //
-                // Command::none()
                 let route = Routers::ErrorPage(ErrorPage::from("works".to_string()));
                 Command::perform(save_file(), |_| GlobalMessage::Route(route))
             }
@@ -176,21 +174,39 @@ impl Page for Settings {
                 Command::none()
             }
             SettingsMessage::ExportDatabase => {
+                let error_msg;
+
                 if let Some(home_dir) = dirs::home_dir() {
                     let files = FileDialog::new()
-                        .set_file_name("zebrapass.db")
+                        .set_file_name("zebrapass.zebra")
                         .set_directory(home_dir)
                         .save_file();
 
-                    if let Some(files) = files {
-                        //TODO:  remove unwrap.
-                        let core = self.core.lock().unwrap();
-
-                        dbg!(files);
+                    if let Some(path) = files {
+                        match self.core.lock() {
+                            Ok(core) => {
+                                match core.export_to_file(&path) {
+                                    Ok(_) => {
+                                        return Command::none();
+                                    }
+                                    Err(e) => {
+                                        error_msg = e.to_string();
+                                    }
+                                };
+                            }
+                            Err(e) => {
+                                error_msg = e.to_string();
+                            }
+                        }
+                    } else {
+                        error_msg = t!("cannot_load_save_dir").to_string();
                     }
+                } else {
+                    error_msg = t!("cannot_get_access_home_dir").to_string();
                 }
 
-                Command::none()
+                let route = Routers::ErrorPage(ErrorPage::from(error_msg));
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             SettingsMessage::RemoveModal => {
                 self.remove_modal = !self.remove_modal;

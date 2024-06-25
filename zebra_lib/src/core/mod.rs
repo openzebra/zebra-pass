@@ -69,8 +69,10 @@ impl Core {
         self.state.version
     }
 
-    pub fn export_bytes(&self) {
-        // self.db.export_bytes();
+    pub fn export_to_file(&self, path: &Path) -> Result<(), ZebraErrors> {
+        self.db.save_as_file(path)?;
+
+        Ok(())
     }
 
     pub fn sync(&mut self) -> Result<(), ZebraErrors> {

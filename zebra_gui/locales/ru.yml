@@ -94,4 +94,5 @@ database_size: 'Размер базы данных'
 storage_version: 'Версия хранилища'
 remove: 'Удалить'
 not_set: 'Не установлен'
-
+cannot_get_access_home_dir: 'Не удается получить доступ к домашнему каталогу'
+cannot_load_save_dir: 'Не удается сохранить файл в каталоге'
