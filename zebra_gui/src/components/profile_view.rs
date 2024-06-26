@@ -169,7 +169,7 @@ where
             .style(zebra_ui::styles::text::warn);
         let email_input = text_input(&t!("placeholder_email"), &self.email)
             .size(14)
-            .width(200)
+            .width(250)
             .on_submit(Event::EditEmail)
             .on_input(Event::InputEmail)
             .padding(8)
@@ -215,9 +215,13 @@ where
             .width(Length::Fill)
             .align_items(iced::Alignment::End);
         let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
+        let description = Text::new(t!("export_records_description"))
+            .size(14)
+            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .style(zebra_ui::styles::text::warn);
 
-        let save_btn = Button::new(
-            Text::new("")
+        let export_btn = Button::new(
+            Text::new(t!("export_btn"))
                 .size(self.item_padding * 2.0)
                 .horizontal_alignment(iced::alignment::Horizontal::Center),
         )
@@ -227,7 +231,10 @@ where
 
         let main_modal_col = Column::new()
             .push(row_header)
-            .push(save_btn)
+            .push(Space::new(0, 8))
+            .push(description)
+            .push(Space::new(0, 8))
+            .push(export_btn)
             .push(Space::new(0, self.item_padding))
             .padding(self.item_padding)
             .align_items(iced::Alignment::Center);
