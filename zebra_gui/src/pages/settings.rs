@@ -297,18 +297,18 @@ impl Settings {
             .align_items(iced::Alignment::End);
         let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
 
-        let save_btn = Button::new(
-            Text::new("")
+        let ok_btn = Button::new(
+            Text::new(t!("remove"))
                 .size(MAIN_PADDING)
                 .horizontal_alignment(iced::alignment::Horizontal::Center),
         )
-        .style(zebra_ui::styles::button::outline_primary)
+        .style(zebra_ui::styles::button::outline_danger)
         .padding(ITEM_PADDING)
-        .on_press(SettingsMessage::RemoveModal);
+        .on_press(SettingsMessage::Remove);
 
         let main_modal_col = Column::new()
             .push(row_header)
-            .push(save_btn)
+            .push(ok_btn)
             .push(Space::new(0, ITEM_PADDING))
             .padding(ITEM_PADDING)
             .align_items(iced::Alignment::Center);
