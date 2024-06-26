@@ -180,7 +180,7 @@ impl Page for Settings {
                             }
                         }
                     } else {
-                        error_msg = t!("cannot_load_save_dir").to_string();
+                        return Command::none();
                     }
                 } else {
                     error_msg = t!("cannot_get_access_home_dir").to_string();
@@ -215,7 +215,7 @@ impl Page for Settings {
                             }
                         }
                     } else {
-                        error_msg = t!("cannot_load_save_dir").to_string();
+                        return Command::none();
                     }
                 } else {
                     error_msg = t!("cannot_get_access_home_dir").to_string();
