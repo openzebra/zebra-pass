@@ -155,8 +155,39 @@ impl Page for Settings {
                 Command::none()
             }
             SettingsMessage::ExportRecords => {
-                //
-                Command::none()
+                let error_msg;
+
+                if let Some(home_dir) = dirs::home_dir() {
+                    let files = FileDialog::new()
+                        .set_file_name("zebrarecords.json")
+                        .set_directory(home_dir)
+                        .save_file();
+
+                    if let Some(path) = files {
+                        match self.core.lock() {
+                            Ok(core) => {
+                                match core.export_json(&path) {
+                                    Ok(_) => {
+                                        return Command::none();
+                                    }
+                                    Err(e) => {
+                                        error_msg = e.to_string();
+                                    }
+                                };
+                            }
+                            Err(e) => {
+                                error_msg = e.to_string();
+                            }
+                        }
+                    } else {
+                        error_msg = t!("cannot_load_save_dir").to_string();
+                    }
+                } else {
+                    error_msg = t!("cannot_get_access_home_dir").to_string();
+                }
+
+                let route = Routers::ErrorPage(ErrorPage::from(error_msg));
+                Command::perform(std::future::ready(1), |_| GlobalMessage::Route(route))
             }
             SettingsMessage::ExportDatabase => {
                 let error_msg;
@@ -302,6 +333,7 @@ impl Settings {
             .on_copy(SettingsMessage::CopyValue)
             .on_edit_email(SettingsMessage::EditEmail)
             .on_export_database(SettingsMessage::ExportDatabase)
+            .on_export_records(SettingsMessage::ExportRecords)
             .set_main_padding(MAIN_PADDING)
             .set_item_padding(ITEM_PADDING);
         let profile_view = Container::new(profile_view);

@@ -6,6 +6,10 @@ pub mod passgen;
 pub mod password_strength;
 pub mod record;
 
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
+
 use crate::core::record::Categories;
 use crate::keychain::keys::{KeyChain, AES_KEY_SIZE};
 use crate::{
@@ -16,7 +20,7 @@ use crate::{
     storage::db::LocalStorage,
 };
 use ntrulp::params::params1277::{PUBLICKEYS_BYTES, SECRETKEYS_BYTES};
-use std::{borrow::Cow, fmt, path::Path};
+use std::{borrow::Cow, fmt};
 
 pub struct Core {
     pub state: State<'static>,
@@ -89,6 +93,17 @@ impl Core {
         self.update()?;
 
         Ok(())
+    }
+
+    pub fn export_json(&self, path: &Path) -> Result<String, ZebraErrors> {
+        let json =
+            serde_json::to_string_pretty(&self.data).or(Err(ZebraErrors::FailToConvertJson))?;
+        let mut file = File::create(path).or(Err(ZebraErrors::FailToCreateFile))?;
+
+        file.write_all(json.as_bytes())
+            .or(Err(ZebraErrors::FailToWriteFile))?;
+
+        Ok(json)
     }
 
     pub fn set_email(&mut self, email: String) -> Result<(), ZebraErrors> {

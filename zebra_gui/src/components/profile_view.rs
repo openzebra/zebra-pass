@@ -126,6 +126,11 @@ where
         self
     }
 
+    pub fn on_export_records(mut self, msg: Message) -> Self {
+        self.on_export_records = Some(msg);
+        self
+    }
+
     pub fn on_export_database(mut self, msg: Message) -> Self {
         self.on_export_database = Some(msg);
         self
@@ -227,7 +232,7 @@ where
         )
         .style(zebra_ui::styles::button::outline_primary)
         .padding(self.item_padding)
-        .on_press(Event::ExportRecordsModal);
+        .on_press(Event::ExportRecords);
 
         let main_modal_col = Column::new()
             .push(row_header)
@@ -255,7 +260,10 @@ where
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<Message> {
         match event {
             Event::CopyValue(value) => self.on_copy.as_ref().map(|e| e(value)),
-            Event::ExportRecords => self.on_export_records.clone(),
+            Event::ExportRecords => {
+                self.export_records_modal = !self.export_records_modal;
+                self.on_export_records.clone()
+            }
             Event::EditEmail => self
                 .on_edit_email
                 .as_ref()

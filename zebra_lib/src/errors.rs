@@ -16,6 +16,7 @@ pub enum ZebraErrors {
     FailToloadBytesTree,
     FailToCreateFile,
     FailToWriteFile,
+    FailToConvertJson,
 
     //Guard Errors:
     GuardIsNotEnable,
