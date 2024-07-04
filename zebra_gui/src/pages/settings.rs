@@ -4,7 +4,7 @@
 
 use std::sync::{Arc, Mutex, MutexGuard};
 
-use iced::widget::{Button, Column, Container, Row, Space, Text};
+use iced::widget::{Button, Checkbox, Column, Container, Row, Space, Text};
 use iced::{Command, Element, Length, Subscription};
 use iced::{Renderer, Theme};
 use zebra_lib::{core::Core, errors::ZebraErrors};
@@ -41,6 +41,7 @@ pub struct Settings {
     core: Arc<Mutex<Core>>,
     remove_modal: bool,
     selected_index: usize,
+    local_remove: bool,
     selected_option: SettingsOptions,
     options_list: Vec<select_list::SelectListField<SettingsOptions>>,
 }
@@ -55,6 +56,7 @@ pub enum SettingsMessage {
     EditEmail(String),
     Remove,
     RemoveModal,
+    ToggleRemoveLocally(bool),
     ExportRecords,
     ExportDatabase,
 }
@@ -90,6 +92,7 @@ impl Page for Settings {
             options_list,
             selected_index: 0,
             remove_modal: false,
+            local_remove: false,
             selected_option: SettingsOptions::Profile,
         })
     }
@@ -100,6 +103,11 @@ impl Page for Settings {
 
     fn update(&mut self, message: Self::Message) -> iced::Command<GlobalMessage> {
         match message {
+            SettingsMessage::ToggleRemoveLocally(value) => {
+                self.local_remove = value;
+
+                Command::none()
+            }
             SettingsMessage::RouteHome => match Home::new(Arc::clone(&self.core)) {
                 Ok(home) => {
                     let route = Routers::Home(home);
@@ -295,6 +303,19 @@ impl Settings {
             .push(close_btn)
             .width(Length::Fill)
             .align_items(iced::Alignment::End);
+
+        let enable_local_remove = Checkbox::new(t!("server_sync_check_box"), self.local_remove)
+            .on_toggle(SettingsMessage::ToggleRemoveLocally)
+            .text_size(14);
+        let description = Text::new(t!("remove_account_description"))
+            .size(14)
+            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .style(zebra_ui::styles::text::warn);
+        let col = Column::new()
+            .push(description)
+            .push(Space::new(0, ITEM_PADDING))
+            .push(enable_local_remove);
+
         let row_header = Row::new().padding(8).push(close_btn).width(Length::Fill);
 
         let ok_btn = Button::new(
@@ -308,6 +329,9 @@ impl Settings {
 
         let main_modal_col = Column::new()
             .push(row_header)
+            .push(Space::new(0, ITEM_PADDING))
+            .push(col)
+            .push(Space::new(0, ITEM_PADDING))
             .push(ok_btn)
             .push(Space::new(0, ITEM_PADDING))
             .padding(ITEM_PADDING)
