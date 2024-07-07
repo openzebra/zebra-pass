@@ -87,13 +87,14 @@ impl Page for Settings {
                 value: SettingsOptions::Network,
             },
         ];
+
         Ok(Self {
             core,
             options_list,
-            selected_index: 0,
+            selected_index: 1,
             remove_modal: false,
             local_remove: false,
-            selected_option: SettingsOptions::Profile,
+            selected_option: SettingsOptions::General,
         })
     }
 
@@ -260,9 +261,9 @@ impl Page for Settings {
         let page = if let Ok(core) = self.core.lock() {
             match self.selected_option {
                 SettingsOptions::Profile => self.view_profile(core),
+                SettingsOptions::General => self.view_general(),
                 SettingsOptions::Network => self.view_network(),
                 SettingsOptions::Advanced => self.view_advanced(),
-                SettingsOptions::General => self.view_general(),
                 SettingsOptions::Crypto => self.view_crypto(),
             }
         } else {
@@ -382,7 +383,14 @@ impl Settings {
 
     pub fn view_general(&self) -> Container<SettingsMessage> {
         // theme, locale.
-        let main_col = Column::new();
+        let title = Text::new(&self.options_list[self.selected_index].text)
+            .size(24)
+            .horizontal_alignment(iced::alignment::Horizontal::Left)
+            .width(Length::Fill);
+        let main_col = Column::new()
+            .align_items(iced::Alignment::Center)
+            .padding(MAIN_PADDING)
+            .push(title);
 
         Container::new(main_col)
     }

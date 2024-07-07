@@ -3,6 +3,7 @@
 //! -- Licensed under the GNU General Public License Version 3.0 (GPL-3.0)
 pub mod add_record_from;
 pub mod custom_field;
+pub mod general_settings;
 pub mod home_nav_bar;
 pub mod modal;
 pub mod passgen;
