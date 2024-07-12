@@ -12,8 +12,11 @@ use zebra_lib::{core::Core, errors::ZebraErrors};
 use dirs;
 use rfd::FileDialog;
 
-use crate::components::home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL};
 use crate::components::modal::Modal;
+use crate::components::{
+    general_settings::GeneralSettings,
+    home_nav_bar::{NavBar, NavRoute, LINE_ALFA_CHANNEL},
+};
 use crate::components::{profile_view::ProfileViewForm, select_list};
 use crate::gui::{GlobalMessage, Routers};
 use crate::rust_i18n::t;
@@ -387,10 +390,14 @@ impl Settings {
             .size(24)
             .horizontal_alignment(iced::alignment::Horizontal::Left)
             .width(Length::Fill);
+        let general_settings = GeneralSettings::new();
+        let general_settings = Container::new(general_settings);
+
         let main_col = Column::new()
             .align_items(iced::Alignment::Center)
             .padding(MAIN_PADDING)
-            .push(title);
+            .push(title)
+            .push(general_settings);
 
         Container::new(main_col)
     }
